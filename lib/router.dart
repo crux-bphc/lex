@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ghotpromax/modules/cms/screens/home.dart';
 import 'package:ghotpromax/modules/impartus/screens/home.dart';
 import 'package:ghotpromax/modules/multipartus/screens/home.dart';
 import 'package:ghotpromax/modules/settings/screens/home.dart';
+import 'package:ghotpromax/providers/theme.dart';
 import 'package:go_router/go_router.dart';
 
 class _DesktopScaffold extends StatelessWidget {
@@ -44,16 +46,19 @@ class _DesktopScaffold extends StatelessWidget {
                 ),
               ],
               trailing: Expanded(
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: IconButton(
-                      icon: const Icon(Icons.settings),
-                      onPressed: () {
-                        context.go('/settings');
-                      },
-                    ),
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      const _ThemeSwitcher(),
+                      IconButton(
+                        icon: const Icon(Icons.settings),
+                        onPressed: () {
+                          context.go('/settings');
+                        },
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -62,6 +67,19 @@ class _DesktopScaffold extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _ThemeSwitcher extends ConsumerWidget {
+  const _ThemeSwitcher({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = ref.watch(themeProvider);
+    return IconButton(
+      onPressed: ref.read(themeProvider.notifier).toggle,
+      icon: Icon(theme == ThemeMode.light ? Icons.dark_mode : Icons.light_mode),
     );
   }
 }
