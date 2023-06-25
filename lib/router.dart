@@ -8,7 +8,7 @@ import 'package:ghotpromax/providers/theme.dart';
 import 'package:go_router/go_router.dart';
 
 class _DesktopScaffold extends StatelessWidget {
-  const _DesktopScaffold({super.key, required this.navigationShell});
+  const _DesktopScaffold({required this.navigationShell});
   final StatefulNavigationShell navigationShell;
 
   void _goBranch(int index) {
@@ -72,7 +72,7 @@ class _DesktopScaffold extends StatelessWidget {
 }
 
 class _ThemeSwitcher extends ConsumerWidget {
-  const _ThemeSwitcher({super.key});
+  const _ThemeSwitcher();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
