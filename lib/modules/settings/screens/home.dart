@@ -38,7 +38,7 @@ class _ImpartusSettings extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(impartusSettingsProvider);
-    final settingsNotifier = ref.read(impartusSettingsProvider.notifier);
+    final settingsNotifier = ref.watch(impartusSettingsProvider.notifier);
     return SettingsTile(
       title: "Impartus",
       children: [
