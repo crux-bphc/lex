@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ghotpromax/modules/settings/widgets/tile.dart';
+import 'package:ghotpromax/providers/impartus.dart';
 import 'package:go_router/go_router.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -9,16 +12,58 @@ class SettingsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Settings"),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+        leading: BackButton(
           onPressed: () {
             context.go('/cms');
           },
         ),
       ),
       body: const SafeArea(
-        child: Text('Stuff'),
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              _ImpartusSettings(),
+            ],
+          ),
+        ),
       ),
+    );
+  }
+}
+
+class _ImpartusSettings extends ConsumerWidget {
+  const _ImpartusSettings();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(impartusSettingsProvider);
+    final settingsNotifier = ref.read(impartusSettingsProvider.notifier);
+    return SettingsTile(
+      title: "Impartus",
+      children: [
+        TextFormField(
+          decoration: const InputDecoration(
+            prefixIcon: Icon(Icons.email),
+            labelText: "E-Mail",
+            hintText: "f20XXXXXX@hyderabad.bits-pilani.ac.in",
+          ),
+          initialValue: settings.email,
+          onFieldSubmitted: (value) {
+            settingsNotifier.setEmail(value);
+          },
+        ),
+        TextFormField(
+          decoration: const InputDecoration(
+            prefixIcon: Icon(Icons.password),
+            labelText: "Password",
+          ),
+          initialValue: settings.password,
+          onFieldSubmitted: (value) {
+            settingsNotifier.setPassword(value);
+          },
+        ),
+      ],
     );
   }
 }
