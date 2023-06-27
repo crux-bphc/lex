@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ghotpromax/modules/impartus/services/client.dart';
 import 'package:ghotpromax/providers/preferences.dart';
 
 class _ImpartusSettings {
@@ -36,3 +37,9 @@ final impartusSettingsProvider =
     NotifierProvider<_ImpartusSettingsNotifier, _ImpartusSettings>(
   _ImpartusSettingsNotifier.new,
 );
+
+final impartusClientProvider = Provider((ref) {
+  final settings = ref.watch(impartusSettingsProvider);
+  final client = ImpartusClient(settings.email, settings.password);
+  return client;
+});

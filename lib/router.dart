@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ghotpromax/modules/cms/screens/home.dart';
 import 'package:ghotpromax/modules/impartus/screens/home.dart';
+import 'package:ghotpromax/modules/impartus/widgets/ensure_login.dart';
 import 'package:ghotpromax/modules/multipartus/screens/home.dart';
 import 'package:ghotpromax/modules/settings/screens/home.dart';
 import 'package:ghotpromax/providers/theme.dart';
@@ -111,9 +112,16 @@ final router = GoRouter(
         StatefulShellBranch(
           navigatorKey: _impartusNavigatorKey,
           routes: [
-            GoRoute(
-              path: '/impartus',
-              builder: (context, state) => const ImpartusHomePage(),
+            ShellRoute(
+              builder: (builder, state, child) => ImpartusAuthenticate(
+                child: child,
+              ),
+              routes: [
+                GoRoute(
+                  path: '/impartus',
+                  builder: (context, state) => const ImpartusHomePage(),
+                )
+              ],
             )
           ],
         ),
