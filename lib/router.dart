@@ -64,7 +64,12 @@ class _DesktopScaffold extends StatelessWidget {
                 ),
               ),
             ),
-            Expanded(child: navigationShell)
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: navigationShell,
+              ),
+            )
           ],
         ),
       ),
