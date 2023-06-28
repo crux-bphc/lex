@@ -17,7 +17,7 @@ final _authTokenProvider = FutureProvider((ref) async {
     logger.i("removed cached token");
   });
 
-  if (token == null) {
+  if (token == null || !(await client.checkAuthToken(token))) {
     token = await client.getAuthToken();
     await prefs.setString("impartus_token", token);
     logger.i("fetched new token: $token");
