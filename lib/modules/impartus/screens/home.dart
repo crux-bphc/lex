@@ -35,7 +35,7 @@ class ImpartusHomePage extends ConsumerWidget {
 }
 
 class _SubjectsList extends StatelessWidget {
-  const _SubjectsList({super.key, required this.subjects});
+  const _SubjectsList({required this.subjects});
 
   final List<ImpartusSubject> subjects;
 
