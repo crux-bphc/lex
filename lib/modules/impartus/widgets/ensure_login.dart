@@ -3,19 +3,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ghotpromax/providers/impartus.dart';
 import 'package:ghotpromax/providers/preferences.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logger/logger.dart';
 
-final authTokenProvider = FutureProvider((ref) async {
+final logger = Logger();
+
+final _authTokenProvider = FutureProvider((ref) async {
   final prefs = ref.watch(preferencesProvider);
   final client = ref.watch(impartusClientProvider);
   String? token = prefs.getString("impartus_token");
 
   ref.listen(impartusClientProvider, (previous, next) async {
     await prefs.remove("impartus_token");
+    logger.i("removed cached token");
   });
 
   if (token == null) {
     token = await client.getAuthToken();
     await prefs.setString("impartus_token", token);
+    logger.i("fetched new token: $token");
   }
 
   client.setAuthToken(token);
@@ -29,7 +34,7 @@ class ImpartusAuthenticate extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final authToken = ref.watch(authTokenProvider);
+    final authToken = ref.watch(_authTokenProvider);
     return authToken.when(
       data: (_) => child,
       error: (error, _) => Center(
