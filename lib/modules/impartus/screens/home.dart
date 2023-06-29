@@ -30,7 +30,7 @@ final _subjectsProvider = FutureProvider((ref) {
 });
 
 class _SubjectsList extends ConsumerWidget {
-  const _SubjectsList({super.key});
+  const _SubjectsList();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
