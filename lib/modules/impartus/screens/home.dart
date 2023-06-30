@@ -8,17 +8,32 @@ class ImpartusHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Subjects",
-            style: Theme.of(context).textTheme.displayLarge,
-          ),
-          const SizedBox(height: 16),
-          const _SubjectsList()
-        ],
+    return const _SubjectsSection();
+  }
+}
+
+class _SubjectsSection extends StatelessWidget {
+  const _SubjectsSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 0,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Subjects",
+              style: Theme.of(context).textTheme.headlineLarge,
+            ),
+            const SizedBox(
+              height: 16,
+            ),
+            const Expanded(child: _SubjectsList())
+          ],
+        ),
       ),
     );
   }
@@ -38,7 +53,7 @@ class _SubjectsList extends ConsumerWidget {
 
     return subjects.when(
       data: (subjects) {
-        return Wrap(
+        return ListView(
           children: subjects
               .map((subject) => SubjectCard(subject: subject))
               .toList(growable: false),

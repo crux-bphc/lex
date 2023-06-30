@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ghotpromax/modules/cms/screens/home.dart';
 import 'package:ghotpromax/modules/impartus/screens/home.dart';
+import 'package:ghotpromax/modules/impartus/screens/lectures.dart';
 import 'package:ghotpromax/modules/impartus/widgets/ensure_login.dart';
 import 'package:ghotpromax/modules/multipartus/screens/home.dart';
 import 'package:ghotpromax/modules/settings/screens/home.dart';
@@ -66,7 +67,7 @@ class _DesktopScaffold extends StatelessWidget {
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(4),
                 child: navigationShell,
               ),
             )
@@ -123,9 +124,17 @@ final router = GoRouter(
               ),
               routes: [
                 GoRoute(
-                  path: '/impartus',
-                  builder: (context, state) => const ImpartusHomePage(),
-                )
+                    path: '/impartus',
+                    builder: (context, state) => const ImpartusHomePage(),
+                    routes: [
+                      GoRoute(
+                        path: 'lectures/:subjectId/:sessionId',
+                        builder: (context, state) => ImpartusLecturesPage(
+                          subjectId: state.pathParameters['subjectId']!,
+                          sessionId: state.pathParameters['sessionId']!,
+                        ),
+                      ),
+                    ],)
               ],
             )
           ],
