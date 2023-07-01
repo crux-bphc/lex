@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ghotpromax/modules/impartus/models/subject.dart';
 import 'package:ghotpromax/modules/impartus/widgets/subject.dart';
 import 'package:ghotpromax/providers/impartus.dart';
 
@@ -12,40 +13,13 @@ class ImpartusHomePage extends StatelessWidget {
   }
 }
 
-class _SubjectsSection extends StatelessWidget {
-  const _SubjectsSection();
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 0,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Subjects",
-              style: Theme.of(context).textTheme.headlineLarge,
-            ),
-            const SizedBox(
-              height: 16,
-            ),
-            const Expanded(child: _SubjectsList())
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 final _subjectsProvider = FutureProvider((ref) {
   final client = ref.watch(impartusClientProvider);
   return client.getSubjects();
 });
 
-class _SubjectsList extends ConsumerWidget {
-  const _SubjectsList();
+class _SubjectsSection extends ConsumerWidget {
+  const _SubjectsSection();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -53,16 +27,33 @@ class _SubjectsList extends ConsumerWidget {
 
     return subjects.when(
       data: (subjects) {
-        return ListView(
-          children: subjects
-              .map((subject) => SubjectCard(subject: subject))
-              .toList(growable: false),
+        return CustomScrollView(
+          slivers: [
+            const SliverAppBar(
+              title: Text("Subjects"),
+            ),
+            _SubjectsList(subjects)
+          ],
         );
       },
       error: (error, _) => Text("$error"),
       loading: () => const Center(
         child: CircularProgressIndicator(),
       ),
+    );
+  }
+}
+
+class _SubjectsList extends StatelessWidget {
+  const _SubjectsList(this.subjects);
+
+  final List<ImpartusSubject> subjects;
+  @override
+  Widget build(BuildContext context) {
+    return SliverList.list(
+      children: subjects
+          .map((subject) => SubjectCard(subject: subject))
+          .toList(growable: false),
     );
   }
 }
