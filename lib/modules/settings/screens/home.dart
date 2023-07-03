@@ -68,7 +68,7 @@ class _ImpartusSettings extends ConsumerWidget {
 }
 
 class _CMSSettings extends ConsumerWidget {
-  const _CMSSettings({super.key});
+  const _CMSSettings();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
