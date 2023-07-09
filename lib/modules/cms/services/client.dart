@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ghotpromax/modules/cms/models/profile.dart';
+import 'package:ghotpromax/modules/cms/models/registered_course.dart';
 import 'package:ghotpromax/modules/cms/models/search_result.dart';
 
 @immutable
@@ -22,6 +23,22 @@ class CMSClient {
       },
     );
     return CMSUser.fromJson(response.data);
+  }
+
+  Future<List<dynamic>> fetchCourses(int userId) async {
+    final response = await _dio.get(
+      _baseUrl,
+      queryParameters: {
+        'wsfunction': 'core_enrol_get_users_courses',
+        'moodlewsrestformat': 'json',
+        'wstoken': token,
+        'userid': userId
+      },
+    );
+    final courses = response.data as List<dynamic>;
+    return courses
+        .map((course) => CMSRegisteredCourse.fromJson(course))
+        .toList(growable: false);
   }
 
   Future<List<CMSSearchResult>> searchCourses(String searchFor) async {
