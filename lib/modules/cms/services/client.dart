@@ -25,7 +25,7 @@ class CMSClient {
     return CMSUser.fromJson(response.data);
   }
 
-  Future<List<dynamic>> fetchCourses(int userId) async {
+  Future<List<CMSRegisteredCourse>> fetchCourses(int userId) async {
     final response = await _dio.get(
       _baseUrl,
       queryParameters: {

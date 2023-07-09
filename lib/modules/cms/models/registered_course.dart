@@ -15,7 +15,7 @@ class CMSRegisteredCourse {
   bool? completionhascriteria;
   bool? completionusertracked;
   int? category;
-  String? progress;
+  // double? progress;
   bool? completed;
   int? startdate;
   int? enddate;
@@ -45,7 +45,7 @@ class CMSRegisteredCourse {
     this.completionhascriteria,
     this.completionusertracked,
     this.category,
-    this.progress,
+    // this.progress,
     this.completed,
     this.startdate,
     this.enddate,
@@ -76,7 +76,7 @@ class CMSRegisteredCourse {
     completionhascriteria = json['completionhascriteria'];
     completionusertracked = json['completionusertracked'];
     category = json['category'];
-    progress = json['progress'];
+    // progress = json['progress'];
     completed = json['completed'];
     startdate = json['startdate'];
     enddate = json['enddate'];
@@ -113,7 +113,7 @@ class CMSRegisteredCourse {
     data['completionhascriteria'] = completionhascriteria;
     data['completionusertracked'] = completionusertracked;
     data['category'] = category;
-    data['progress'] = progress;
+    // data['progress'] = progress;
     data['completed'] = completed;
     data['startdate'] = startdate;
     data['enddate'] = enddate;
