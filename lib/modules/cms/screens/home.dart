@@ -41,7 +41,7 @@ final _registeredCoursesProvider = FutureProvider((ref) {
 });
 
 class _RegisteredCourses extends ConsumerWidget {
-  const _RegisteredCourses({super.key});
+  const _RegisteredCourses();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
