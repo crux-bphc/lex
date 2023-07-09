@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ghotpromax/providers/preferences.dart';
 import 'package:ghotpromax/providers/theme.dart';
-import 'package:ghotpromax/router.dart';
+import 'package:ghotpromax/router/router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {

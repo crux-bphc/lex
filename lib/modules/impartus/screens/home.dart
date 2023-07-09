@@ -9,7 +9,15 @@ class ImpartusHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const _SubjectsSection();
+    return Column(
+      children: [
+        AppBar(
+          automaticallyImplyLeading: false,
+          title: const Text("Impartus"),
+        ),
+        const Flexible(child: _SubjectsSection())
+      ],
+    );
   }
 }
 
@@ -30,6 +38,7 @@ class _SubjectsSection extends ConsumerWidget {
         return CustomScrollView(
           slivers: [
             const SliverAppBar(
+              automaticallyImplyLeading: false,
               title: Text("Subjects"),
             ),
             _SubjectsList(subjects)

@@ -19,11 +19,11 @@ class SettingsPage extends StatelessWidget {
           },
         ),
       ),
-      body: const SafeArea(
+      body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Column(
-            children: [_ImpartusSettings(), _CMSSettings()],
+          padding: const EdgeInsets.all(16.0),
+          child: ListView(
+            children: const [_ImpartusSettings(), _CMSSettings()],
           ),
         ),
       ),

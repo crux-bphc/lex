@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class ImpartusLecturesPage extends StatelessWidget {
   const ImpartusLecturesPage({
@@ -15,6 +16,11 @@ class ImpartusLecturesPage extends StatelessWidget {
     return Column(
       children: [
         AppBar(
+          leading: BackButton(
+            onPressed: () {
+              context.pop();
+            },
+          ),
           title: const Text("Subject Name"),
         ),
       ],
