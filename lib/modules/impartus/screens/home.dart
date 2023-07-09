@@ -36,13 +36,7 @@ class _SubjectsSection extends ConsumerWidget {
     return subjects.when(
       data: (subjects) {
         return CustomScrollView(
-          slivers: [
-            const SliverAppBar(
-              automaticallyImplyLeading: false,
-              title: Text("Subjects"),
-            ),
-            _SubjectsList(subjects)
-          ],
+          slivers: [_SubjectsList(subjects)],
         );
       },
       error: (error, _) => Text("$error"),

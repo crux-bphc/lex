@@ -9,13 +9,16 @@ class SubjectCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(subject.subjectName!),
-      onTap: () {
-        context.push(
-          "/impartus/lectures/${subject.subjectId!}/${subject.sessionId}",
-        );
-      },
+    return Card(
+      clipBehavior: Clip.hardEdge,
+      child: ListTile(
+        title: Text(subject.subjectName!),
+        onTap: () {
+          context.push(
+            "/impartus/lectures/${subject.subjectId!}/${subject.sessionId}",
+          );
+        },
+      ),
     );
   }
 }
