@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ghotpromax/modules/cms/screens/home.dart';
+import 'package:ghotpromax/modules/cms/widgets/ensure_login.dart';
 import 'package:ghotpromax/modules/impartus/screens/home.dart';
 import 'package:ghotpromax/modules/impartus/screens/lectures.dart';
 import 'package:ghotpromax/modules/impartus/widgets/ensure_login.dart';
@@ -13,6 +14,7 @@ final _impartusNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'impartus');
 final _multipartusNavigatorKey = GlobalKey<NavigatorState>(
   debugLabel: 'multipartus',
 );
+
 final router = GoRouter(
   initialLocation: '/cms',
   routes: [
@@ -26,9 +28,16 @@ final router = GoRouter(
         StatefulShellBranch(
           navigatorKey: _cmsNavigatorKey,
           routes: [
-            GoRoute(
-              path: '/cms',
-              builder: (context, state) => const CMSHomePage(),
+            ShellRoute(
+              builder: (builder, state, child) => CMSAuthenticate(
+                child: child,
+              ),
+              routes: [
+                GoRoute(
+                  path: '/cms',
+                  builder: (context, state) => const CMSHomePage(),
+                )
+              ],
             )
           ],
         ),
@@ -43,16 +52,14 @@ final router = GoRouter(
                 GoRoute(
                   path: '/impartus',
                   builder: (context, state) => const ImpartusHomePage(),
-                  routes: [
-                    GoRoute(
-                      path: 'lectures/:subjectId/:sessionId',
-                      builder: (context, state) => ImpartusLecturesPage(
-                        subjectId: state.pathParameters['subjectId']!,
-                        sessionId: state.pathParameters['sessionId']!,
-                      ),
-                    ),
-                  ],
-                )
+                ),
+                GoRoute(
+                  path: '/impartus/lectures/:subjectId/:sessionId',
+                  builder: (context, state) => ImpartusLecturesPage(
+                    subjectId: state.pathParameters['subjectId']!,
+                    sessionId: state.pathParameters['sessionId']!,
+                  ),
+                ),
               ],
             )
           ],

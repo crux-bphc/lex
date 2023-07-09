@@ -16,3 +16,8 @@ final cmsClientProvider = Provider((ref) {
   final token = ref.watch(cmsTokenProvider);
   return CMSClient(token);
 });
+
+final cmsUser = FutureProvider((ref) {
+  final client = ref.watch(cmsClientProvider);
+  return client.fetchUserDetail();
+});
