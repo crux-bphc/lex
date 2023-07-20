@@ -14,6 +14,16 @@ class CMSHomePage extends StatelessWidget {
           automaticallyImplyLeading: false,
           title: const Text("CMS"),
           actions: [
+            Consumer(
+              builder: (_, ref, child) {
+                return IconButton(
+                  onPressed: () {
+                    ref.invalidate(_registeredCoursesProvider);
+                  },
+                  icon: const Icon(Icons.refresh),
+                );
+              },
+            ),
             IconButton(
               onPressed: () {
                 context.push('/cms/search');

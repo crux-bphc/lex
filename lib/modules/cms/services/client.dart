@@ -87,6 +87,6 @@ class CMSClient {
         'courseid': courseId
       },
     );
-    return response.data['status'] as int == 1;
+    return response.data['status'] as bool;
   }
 }
