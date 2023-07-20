@@ -55,9 +55,10 @@ class _RegisteredCourses extends ConsumerWidget {
               clipBehavior: Clip.hardEdge,
               child: ListTile(
                 onTap: () {
-                  context.go('/cms/course/${courses[i].id}');
+                  context.push('/cms/course/${courses[i].id}');
                 },
                 title: Text(courses[i].displayname!),
+                subtitle: Text(courses[i].id.toString()),
               ),
             );
           },
