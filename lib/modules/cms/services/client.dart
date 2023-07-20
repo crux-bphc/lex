@@ -76,4 +76,17 @@ class CMSClient {
         .map((course) => CMSSearchResult.fromJson(course))
         .toList(growable: false);
   }
+
+  Future<bool> courseEnroll(int courseId) async {
+    final response = await _dio.post(
+      _baseUrl,
+      queryParameters: {
+        'wsfunction': 'enrol_self_enrol_user',
+        'moodlewsrestformat': 'json',
+        'wstoken': token,
+        'courseid': courseId
+      },
+    );
+    return response.data['status'] as int == 1;
+  }
 }
