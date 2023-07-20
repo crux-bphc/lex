@@ -25,7 +25,7 @@ class CMSSearchPage extends StatelessWidget {
 final _searchStringProvider = StateProvider.autoDispose((ref) => '');
 
 class _SearchField extends ConsumerWidget {
-  const _SearchField({super.key});
+  const _SearchField();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -45,7 +45,7 @@ final _searchResultsProvider = FutureProvider.autoDispose((ref) {
 });
 
 class _SearchResults extends ConsumerWidget {
-  const _SearchResults({super.key});
+  const _SearchResults();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
