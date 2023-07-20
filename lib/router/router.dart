@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ghotpromax/modules/cms/screens/course.dart';
 import 'package:ghotpromax/modules/cms/screens/home.dart';
+import 'package:ghotpromax/modules/cms/screens/search.dart';
 import 'package:ghotpromax/modules/cms/widgets/ensure_login.dart';
 import 'package:ghotpromax/modules/impartus/screens/home.dart';
 import 'package:ghotpromax/modules/impartus/screens/lectures.dart';
@@ -43,7 +44,11 @@ final router = GoRouter(
                   builder: (context, state) {
                     return CMSCoursePage(id: state.pathParameters['id']!);
                   },
-                )
+                ),
+                GoRoute(
+                  path: '/cms/search',
+                  builder: (context, state) => const CMSSearchPage(),
+                ),
               ],
             )
           ],
