@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ghotpromax/modules/cms/screens/course.dart';
 import 'package:ghotpromax/modules/cms/screens/home.dart';
 import 'package:ghotpromax/modules/cms/widgets/ensure_login.dart';
 import 'package:ghotpromax/modules/impartus/screens/home.dart';
@@ -36,6 +37,12 @@ final router = GoRouter(
                 GoRoute(
                   path: '/cms',
                   builder: (context, state) => const CMSHomePage(),
+                ),
+                GoRoute(
+                  path: '/cms/course/:id',
+                  builder: (context, state) {
+                    return CMSCoursePage(id: state.pathParameters['id']!);
+                  },
                 )
               ],
             )
