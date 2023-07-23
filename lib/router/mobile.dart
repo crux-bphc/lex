@@ -48,6 +48,11 @@ class MobileScaffold extends StatelessWidget {
             icon: Icon(Icons.subscriptions_outlined),
             selectedIcon: Icon(Icons.subscriptions),
           ),
+          NavigationDrawerDestination(
+            label: Text('Resources'),
+            icon: Icon(Icons.link_outlined),
+            selectedIcon: Icon(Icons.link),
+          ),
         ],
       ),
     );

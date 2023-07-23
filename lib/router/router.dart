@@ -7,6 +7,7 @@ import 'package:ghotpromax/modules/impartus/screens/home.dart';
 import 'package:ghotpromax/modules/impartus/screens/lectures.dart';
 import 'package:ghotpromax/modules/impartus/widgets/ensure_login.dart';
 import 'package:ghotpromax/modules/multipartus/screens/home.dart';
+import 'package:ghotpromax/modules/resources/screens/home.dart';
 import 'package:ghotpromax/modules/settings/screens/home.dart';
 import 'package:ghotpromax/router/scaffold.dart';
 import 'package:go_router/go_router.dart';
@@ -82,6 +83,14 @@ final router = GoRouter(
             GoRoute(
               path: '/multipartus',
               builder: (context, state) => const MultipartusHomePage(),
+            )
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/resources',
+              builder: (context, state) => const ResourcesHomePage(),
             )
           ],
         )

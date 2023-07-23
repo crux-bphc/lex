@@ -39,6 +39,11 @@ class DesktopScaffold extends StatelessWidget {
                   icon: Icon(Icons.subscriptions_outlined),
                   selectedIcon: Icon(Icons.subscriptions),
                 ),
+                NavigationRailDestination(
+                  label: Text('Resources'),
+                  icon: Icon(Icons.link_outlined),
+                  selectedIcon: Icon(Icons.link),
+                ),
               ],
               trailing: Expanded(
                 child: Padding(
