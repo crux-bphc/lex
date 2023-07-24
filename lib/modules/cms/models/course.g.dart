@@ -21,6 +21,7 @@ _$_CMSCourseModule _$$_CMSCourseModuleFromJson(Map<String, dynamic> json) =>
       id: json['id'] as int,
       name: json['name'] as String,
       modname: json['modname'] as String,
+      instance: json['instance'] as int,
       contents: (json['contents'] as List<dynamic>?)
               ?.map((e) =>
                   CMSCourseModuleContent.fromJson(e as Map<String, dynamic>),)
@@ -33,4 +34,12 @@ _$_CMSCourseModuleContent _$$_CMSCourseModuleContentFromJson(
     _$_CMSCourseModuleContent(
       filename: json['filename'] as String,
       fileurl: json['fileurl'] as String,
+    );
+
+_$_CMSForumDiscussion _$$_CMSForumDiscussionFromJson(
+        Map<String, dynamic> json,) =>
+    _$_CMSForumDiscussion(
+      name: json['name'] as String,
+      message: json['message'] as String,
+      userfullname: json['userfullname'] as String,
     );

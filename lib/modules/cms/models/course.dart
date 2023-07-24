@@ -20,6 +20,7 @@ class CMSCourseModule with _$CMSCourseModule {
     required int id,
     required String name,
     required String modname,
+    required int instance,
     @Default([]) List<CMSCourseModuleContent> contents,
   }) = _CMSCourseModule;
 
@@ -36,4 +37,16 @@ class CMSCourseModuleContent with _$CMSCourseModuleContent {
 
   factory CMSCourseModuleContent.fromJson(Map<String, dynamic> json) =>
       _$CMSCourseModuleContentFromJson(json);
+}
+
+@freezed
+class CMSForumDiscussion with _$CMSForumDiscussion {
+  const factory CMSForumDiscussion({
+    required String name,
+    required String message,
+    required String userfullname,
+  }) = _CMSForumDiscussion;
+
+  factory CMSForumDiscussion.fromJson(Map<String, dynamic> json) =>
+      _$CMSForumDiscussionFromJson(json);
 }

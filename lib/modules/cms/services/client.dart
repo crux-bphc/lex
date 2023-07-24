@@ -4,6 +4,7 @@ import 'package:ghotpromax/modules/cms/models/course.dart';
 import 'package:ghotpromax/modules/cms/models/profile.dart';
 import 'package:ghotpromax/modules/cms/models/registered_course.dart';
 import 'package:ghotpromax/modules/cms/models/search_result.dart';
+import 'package:html2md/html2md.dart' as html2md;
 
 @immutable
 class CMSClient {
@@ -56,6 +57,23 @@ class CMSClient {
     return sections
         .map((section) => CMSCourseContent.fromJson(section))
         .toList(growable: false);
+  }
+
+  Future<List<CMSForumDiscussion>> fetchForum(int instanceId) async {
+    final response = await _dio.get(
+      _baseUrl,
+      queryParameters: {
+        'wsfunction': 'mod_forum_get_forum_discussions',
+        'moodlewsrestformat': 'json',
+        'wstoken': token,
+        'forumid': instanceId
+      },
+    );
+    final discussions = response.data['discussions'] as List<dynamic>;
+    return discussions.map((discussion) {
+      discussion['message'] = html2md.convert(discussion['message']);
+      return CMSForumDiscussion.fromJson(discussion);
+    }).toList(growable: false);
   }
 
   Future<List<CMSSearchResult>> searchCourses(String searchFor) async {

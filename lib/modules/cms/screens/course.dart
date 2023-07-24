@@ -11,20 +11,33 @@ class CMSCoursePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final realid = int.parse(id);
     return Column(
       children: [
         AppBar(
           leading: const BackButton(),
           title: Text("Course ID: $id"),
+          actions: [
+            Consumer(
+              builder: (_, ref, __) {
+                return IconButton(
+                  onPressed: () {
+                    ref.invalidate(_courseContentProvider(realid));
+                  },
+                  icon: const Icon(Icons.refresh),
+                );
+              },
+            )
+          ],
         ),
-        Expanded(child: _ContentList(id: int.parse(id)))
+        Expanded(child: _ContentList(id: realid))
       ],
     );
   }
 }
 
-final _courseContentProvider = FutureProvider.autoDispose
-    .family<List<CMSCourseContent>, int>((ref, id) async {
+final _courseContentProvider = FutureProvider.family
+    .autoDispose<List<CMSCourseContent>, int>((ref, id) async {
   final client = ref.watch(cmsClientProvider);
   return client.fetchCourseContent(id);
 });
