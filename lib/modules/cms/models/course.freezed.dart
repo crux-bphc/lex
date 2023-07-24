@@ -82,13 +82,19 @@ mixin _$CMSCourseModule {
   int get id => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   String get modname => throw _privateConstructorUsedError;
+  List<CMSCourseModuleContent> get contents =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
 @JsonSerializable(createToJson: false)
 class _$_CMSCourseModule implements _CMSCourseModule {
   _$_CMSCourseModule(
-      {required this.id, required this.name, required this.modname});
+      {required this.id,
+      required this.name,
+      required this.modname,
+      final List<CMSCourseModuleContent> contents = const []})
+      : _contents = contents;
 
   factory _$_CMSCourseModule.fromJson(Map<String, dynamic> json) =>
       _$$_CMSCourseModuleFromJson(json);
@@ -99,10 +105,18 @@ class _$_CMSCourseModule implements _CMSCourseModule {
   final String name;
   @override
   final String modname;
+  final List<CMSCourseModuleContent> _contents;
+  @override
+  @JsonKey()
+  List<CMSCourseModuleContent> get contents {
+    if (_contents is EqualUnmodifiableListView) return _contents;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_contents);
+  }
 
   @override
   String toString() {
-    return 'CMSCourseModule(id: $id, name: $name, modname: $modname)';
+    return 'CMSCourseModule(id: $id, name: $name, modname: $modname, contents: $contents)';
   }
 }
 
@@ -110,7 +124,8 @@ abstract class _CMSCourseModule implements CMSCourseModule {
   factory _CMSCourseModule(
       {required final int id,
       required final String name,
-      required final String modname}) = _$_CMSCourseModule;
+      required final String modname,
+      final List<CMSCourseModuleContent> contents}) = _$_CMSCourseModule;
 
   factory _CMSCourseModule.fromJson(Map<String, dynamic> json) =
       _$_CMSCourseModule.fromJson;
@@ -121,4 +136,51 @@ abstract class _CMSCourseModule implements CMSCourseModule {
   String get name;
   @override
   String get modname;
+  @override
+  List<CMSCourseModuleContent> get contents;
+}
+
+CMSCourseModuleContent _$CMSCourseModuleContentFromJson(
+    Map<String, dynamic> json) {
+  return _CMSCourseModuleContent.fromJson(json);
+}
+
+/// @nodoc
+mixin _$CMSCourseModuleContent {
+  String get filename => throw _privateConstructorUsedError;
+  String get fileurl => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+@JsonSerializable(createToJson: false)
+class _$_CMSCourseModuleContent implements _CMSCourseModuleContent {
+  const _$_CMSCourseModuleContent(
+      {required this.filename, required this.fileurl});
+
+  factory _$_CMSCourseModuleContent.fromJson(Map<String, dynamic> json) =>
+      _$$_CMSCourseModuleContentFromJson(json);
+
+  @override
+  final String filename;
+  @override
+  final String fileurl;
+
+  @override
+  String toString() {
+    return 'CMSCourseModuleContent(filename: $filename, fileurl: $fileurl)';
+  }
+}
+
+abstract class _CMSCourseModuleContent implements CMSCourseModuleContent {
+  const factory _CMSCourseModuleContent(
+      {required final String filename,
+      required final String fileurl}) = _$_CMSCourseModuleContent;
+
+  factory _CMSCourseModuleContent.fromJson(Map<String, dynamic> json) =
+      _$_CMSCourseModuleContent.fromJson;
+
+  @override
+  String get filename;
+  @override
+  String get fileurl;
 }

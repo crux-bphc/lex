@@ -20,8 +20,20 @@ class CMSCourseModule with _$CMSCourseModule {
     required int id,
     required String name,
     required String modname,
+    @Default([]) List<CMSCourseModuleContent> contents,
   }) = _CMSCourseModule;
 
   factory CMSCourseModule.fromJson(Map<String, dynamic> json) =>
       _$CMSCourseModuleFromJson(json);
+}
+
+@freezed
+class CMSCourseModuleContent with _$CMSCourseModuleContent {
+  const factory CMSCourseModuleContent({
+    required String filename,
+    required String fileurl,
+  }) = _CMSCourseModuleContent;
+
+  factory CMSCourseModuleContent.fromJson(Map<String, dynamic> json) =>
+      _$CMSCourseModuleContentFromJson(json);
 }

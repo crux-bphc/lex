@@ -15,14 +15,14 @@ class CMSSearchPage extends StatelessWidget {
           title: const Text("Search"),
         ),
         const _SearchField(),
-        const SizedBox(height: 8.0),
+        const SizedBox(height: 12.0),
         const Expanded(child: _SearchResults())
       ],
     );
   }
 }
 
-final _searchStringProvider = StateProvider.autoDispose((ref) => '');
+final _searchStringProvider = StateProvider.autoDispose((ref) => 'no balls');
 
 class _SearchField extends ConsumerWidget {
   const _SearchField();
@@ -30,7 +30,10 @@ class _SearchField extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return TextField(
-      decoration: const InputDecoration(labelText: "Course Name"),
+      decoration: const InputDecoration(
+        labelText: "Course Name",
+        prefixIcon: Icon(Icons.search),
+      ),
       onSubmitted: (value) {
         ref.read(_searchStringProvider.notifier).state = value;
       },
@@ -53,9 +56,8 @@ class _SearchResults extends ConsumerWidget {
     return resultsFuture.when(
       data: (results) {
         return ListView.builder(
-          itemBuilder: (_, i) {
-            return SearchResult(item: results[i]);
-          },
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          itemBuilder: (_, i) => SearchResult(item: results[i]),
           itemCount: results.length,
         );
       },

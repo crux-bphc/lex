@@ -13,10 +13,19 @@ class SearchResult extends ConsumerWidget {
     final client = ref.watch(cmsClientProvider);
     return Card(
       child: ListTile(
+        visualDensity: VisualDensity.comfortable,
+        titleAlignment: ListTileTitleAlignment.center,
         title: Text(item.name),
-        subtitle: Text("${item.category}\n${item.professors.join(', ')}"),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Divider(),
+            Text(item.professors.join(', ')),
+            Text(item.category, style: Theme.of(context).textTheme.labelMedium),
+          ],
+        ),
         isThreeLine: true,
-        trailing: IconButton(
+        trailing: OutlinedButton.icon(
           onPressed: () {
             client.courseEnroll(item.id).then((success) {
               if (success) {
@@ -25,6 +34,7 @@ class SearchResult extends ConsumerWidget {
             });
           },
           icon: const Icon(Icons.add),
+          label: const Text("Enroll"),
         ),
       ),
     );

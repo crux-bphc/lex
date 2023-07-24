@@ -38,10 +38,10 @@ class _ContentList extends ConsumerWidget {
     final contentFuture = ref.watch(_courseContentProvider(id));
     return contentFuture.when(
       data: (content) {
-        return ListView.builder(
-          itemBuilder: (_, i) {
-            return CourseSection(section: content[i]);
-          },
+        return ListView.separated(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          itemBuilder: (_, i) => CourseSection(section: content[i]),
+          separatorBuilder: (_, __) => const Divider(height: 16.0),
           itemCount: content.length,
         );
       },

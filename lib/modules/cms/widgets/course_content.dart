@@ -11,19 +11,28 @@ class CourseSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          section.name,
-          style: Theme.of(context).textTheme.titleLarge,
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            section.name,
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
         ),
-        const SizedBox(height: 8.0),
-        ...section.modules.map((module) => CourseModule(module: module))
+        ...section.modules.map((module) {
+          if (module.modname == "forum") {
+            return ForumModule(module: module);
+          } else if (module.modname == "resource") {
+            return ResourceModule(module: module);
+          }
+          return const Text("WTF");
+        })
       ],
     );
   }
 }
 
-class CourseModule extends StatelessWidget {
-  const CourseModule({super.key, required this.module});
+class ForumModule extends StatelessWidget {
+  const ForumModule({super.key, required this.module});
 
   final CMSCourseModule module;
 
@@ -31,8 +40,30 @@ class CourseModule extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: ListTile(
-        leading:
-            Icon(module.modname == "forum" ? Icons.forum : Icons.description),
+        leading: const Icon(Icons.forum),
+        title: Text(module.name),
+      ),
+    );
+  }
+}
+
+class ResourceModule extends StatelessWidget {
+  const ResourceModule({super.key, required this.module});
+
+  final CMSCourseModule module;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.outline,
+        ),
+        borderRadius: const BorderRadius.all(Radius.circular(12)),
+      ),
+      child: ListTile(
+        leading: const Icon(Icons.description),
         title: Text(module.name),
       ),
     );

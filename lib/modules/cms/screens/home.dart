@@ -60,6 +60,7 @@ class _RegisteredCourses extends ConsumerWidget {
     return coursesFuture.when(
       data: (courses) {
         return ListView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
           itemBuilder: (_, i) {
             return Card(
               clipBehavior: Clip.hardEdge,
