@@ -24,20 +24,20 @@ _$_CMSCourseModule _$$_CMSCourseModuleFromJson(Map<String, dynamic> json) =>
       instance: json['instance'] as int,
       contents: (json['contents'] as List<dynamic>?)
               ?.map((e) =>
-                  CMSCourseModuleContent.fromJson(e as Map<String, dynamic>),)
+                  CMSCourseModuleContent.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
     );
 
 _$_CMSCourseModuleContent _$$_CMSCourseModuleContentFromJson(
-        Map<String, dynamic> json,) =>
+        Map<String, dynamic> json) =>
     _$_CMSCourseModuleContent(
       filename: json['filename'] as String,
       fileurl: json['fileurl'] as String,
     );
 
 _$_CMSForumDiscussion _$$_CMSForumDiscussionFromJson(
-        Map<String, dynamic> json,) =>
+        Map<String, dynamic> json) =>
     _$_CMSForumDiscussion(
       name: json['name'] as String,
       message: json['message'] as String,

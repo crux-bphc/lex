@@ -12,10 +12,10 @@ class SubjectCard extends StatelessWidget {
     return Card(
       clipBehavior: Clip.hardEdge,
       child: ListTile(
-        title: Text(subject.subjectName!),
+        title: Text(subject.subjectName),
         onTap: () {
           context.push(
-            "/impartus/lectures/${subject.subjectId!}/${subject.sessionId}",
+            "/impartus/lectures/${subject.subjectId}/${subject.sessionId}",
           );
         },
       ),

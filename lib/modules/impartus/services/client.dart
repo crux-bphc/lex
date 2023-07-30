@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:ghotpromax/modules/impartus/models/lecture.dart';
 import 'package:ghotpromax/modules/impartus/models/profile.dart';
 import 'package:ghotpromax/modules/impartus/models/subject.dart';
 
@@ -48,6 +47,7 @@ class ImpartusClient {
   Future<List<ImpartusSubject>> getSubjects() async {
     Response response = await _dio.get("$_baseUrl/subjects");
     final subjects = response.data as List<dynamic>;
+    print(subjects);
     return subjects
         .map((subject) => ImpartusSubject.fromJson(subject))
         .toList(growable: false);
