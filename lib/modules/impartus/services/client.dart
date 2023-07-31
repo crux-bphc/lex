@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:ghotpromax/http.dart';
 import 'package:ghotpromax/modules/impartus/models/profile.dart';
 import 'package:ghotpromax/modules/impartus/models/subject.dart';
 
@@ -6,26 +7,27 @@ class ImpartusClient {
   ImpartusClient(this._email, this._password);
   final String _email;
   final String _password;
-  final Dio _dio = Dio();
   final String _baseUrl = "https://bitshyd.impartus.com/api";
   String? auth;
 
   setAuthToken(String value) {
     auth = value;
-    _dio.options.headers["authorization"] = "Bearer $auth";
   }
 
   Future<String> getAuthToken() async {
-    Response response = await _dio.post(
+    Response response = await dio.post(
       "$_baseUrl/auth/signin",
       data: {'username': _email, 'password': _password},
+      options: Options(
+        headers: {"authorization": "Bearer $auth"},
+      ),
     );
     return response.data['token'];
   }
 
   Future<bool> checkAuthToken(String value) async {
     try {
-      Response response = await _dio.get(
+      Response response = await dio.get(
         "$_baseUrl/language/supported/",
         options: Options(
           headers: {
@@ -40,14 +42,23 @@ class ImpartusClient {
   }
 
   Future<ImpartusProfile> getProfile() async {
-    Response response = await _dio.get("$_baseUrl/user/profile");
+    Response response = await dio.get(
+      "$_baseUrl/user/profile",
+      options: Options(
+        headers: {"authorization": "Bearer $auth"},
+      ),
+    );
     return ImpartusProfile.fromJson(response.data);
   }
 
   Future<List<ImpartusSubject>> getSubjects() async {
-    Response response = await _dio.get("$_baseUrl/subjects");
+    Response response = await dio.get(
+      "$_baseUrl/subjects",
+      options: Options(
+        headers: {"authorization": "Bearer $auth"},
+      ),
+    );
     final subjects = response.data as List<dynamic>;
-    print(subjects);
     return subjects
         .map((subject) => ImpartusSubject.fromJson(subject))
         .toList(growable: false);
@@ -57,8 +68,11 @@ class ImpartusClient {
     String subjectId,
     String sessionId,
   ) async {
-    Response response = await _dio.get(
+    Response response = await dio.get(
       "$_baseUrl/subjects/$subjectId/lectures/$sessionId",
+      options: Options(
+        headers: {"authorization": "Bearer $auth"},
+      ),
     );
     final lectures = response.data as List<dynamic>;
     return lectures

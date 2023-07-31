@@ -1,5 +1,5 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:ghotpromax/http.dart';
 import 'package:ghotpromax/modules/cms/models/course.dart';
 import 'package:ghotpromax/modules/cms/models/profile.dart';
 import 'package:ghotpromax/modules/cms/models/registered_course.dart';
@@ -8,15 +8,14 @@ import 'package:html2md/html2md.dart' as html2md;
 
 @immutable
 class CMSClient {
-  CMSClient(this.token);
+  const CMSClient(this.token);
 
-  final _dio = Dio();
   final _baseUrl =
       "https://cms.bits-hyderabad.ac.in/webservice/rest/server.php";
   final String token;
 
   Future<CMSUser> fetchUserDetail() async {
-    final response = await _dio.get(
+    final response = await dio.get(
       _baseUrl,
       queryParameters: {
         'wsfunction': 'core_webservice_get_site_info',
@@ -28,7 +27,7 @@ class CMSClient {
   }
 
   Future<List<CMSRegisteredCourse>> fetchCourses(int userId) async {
-    final response = await _dio.get(
+    final response = await dio.get(
       _baseUrl,
       queryParameters: {
         'wsfunction': 'core_enrol_get_users_courses',
@@ -44,7 +43,7 @@ class CMSClient {
   }
 
   Future<List<CMSCourseContent>> fetchCourseContent(int courseId) async {
-    final response = await _dio.get(
+    final response = await dio.get(
       _baseUrl,
       queryParameters: {
         'wsfunction': 'core_course_get_contents',
@@ -60,7 +59,7 @@ class CMSClient {
   }
 
   Future<List<CMSForumDiscussion>> fetchForum(int instanceId) async {
-    final response = await _dio.get(
+    final response = await dio.get(
       _baseUrl,
       queryParameters: {
         'wsfunction': 'mod_forum_get_forum_discussions',
@@ -77,7 +76,7 @@ class CMSClient {
   }
 
   Future<List<CMSSearchResult>> searchCourses(String searchFor) async {
-    final response = await _dio.get(
+    final response = await dio.get(
       _baseUrl,
       queryParameters: {
         'wsfunction': 'core_course_search_courses',
@@ -96,7 +95,7 @@ class CMSClient {
   }
 
   Future<bool> courseEnroll(int courseId) async {
-    final response = await _dio.post(
+    final response = await dio.post(
       _baseUrl,
       queryParameters: {
         'wsfunction': 'enrol_self_enrol_user',
