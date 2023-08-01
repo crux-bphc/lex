@@ -19,8 +19,6 @@ class _ImpartusSettingsNotifier extends Notifier<_ImpartusSettings> {
     ref.listenSelf((previous, next) {
       prefs.setString("impartus_email", next.email);
       prefs.setString("impartus_password", next.password);
-      prefs.remove("impartus_token");
-      logger.i("remove cached impartus token");
     });
 
     return _ImpartusSettings(
@@ -44,7 +42,14 @@ final impartusSettingsProvider =
 );
 
 final impartusTokenProvider = StateProvider<String>((ref) {
-  return '';
+  final prefs = ref.watch(preferencesProvider);
+  ref.listenSelf((previous, next) {
+    if (previous != null) {
+      prefs.setString("impartus_token", next);
+      logger.i("replaced cached impartus token");
+    }
+  });
+  return prefs.getString("impartus_token") ?? "";
 });
 
 final impartusClientProvider = Provider<ImpartusClient>((ref) {

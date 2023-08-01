@@ -3,23 +3,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ghotpromax/logger.dart';
 import 'package:ghotpromax/modules/impartus/services/client.dart';
 import 'package:ghotpromax/providers/impartus.dart';
-import 'package:ghotpromax/providers/preferences.dart';
 import 'package:go_router/go_router.dart';
 
 final _clientProvider = FutureProvider((ref) async {
-  final prefs = ref.watch(preferencesProvider);
   final settings = ref.watch(impartusSettingsProvider);
-  String? token = prefs.getString("impartus_token");
+  String token = ref.watch(impartusTokenProvider);
 
-  if (token == null || !(await ImpartusClient.checkAuthToken(token))) {
+  if (token.isEmpty || !(await ImpartusClient.checkAuthToken(token))) {
     // fetch new token as stored one is invalid
     token = await ImpartusClient.getAuthToken(
       settings.email,
       settings.password,
     );
     logger.i("fetched a new impartus token cause the old one expired");
-
-    await prefs.setString("impartus_token", token);
   }
 
   ref.read(impartusTokenProvider.notifier).state = token;
