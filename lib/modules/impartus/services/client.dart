@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ghotpromax/http.dart';
 import 'package:ghotpromax/modules/impartus/models/profile.dart';
-import 'package:ghotpromax/modules/impartus/models/subject.dart';
+import 'package:ghotpromax/modules/impartus/models/course.dart';
 
 @immutable
 class ImpartusClient {
@@ -50,14 +50,14 @@ class ImpartusClient {
     return ImpartusProfile.fromJson(response.data);
   }
 
-  Future<List<ImpartusSubject>> getSubjects() async {
+  Future<List<ImpartusCourse>> fetchCourses() async {
     Response response = await dio.get(
       "$_baseUrl/subjects",
       options: options,
     );
     final subjects = response.data as List<dynamic>;
     return subjects
-        .map((subject) => ImpartusSubject.fromJson(subject))
+        .map((subject) => ImpartusCourse.fromJson(subject))
         .toList(growable: false);
   }
 

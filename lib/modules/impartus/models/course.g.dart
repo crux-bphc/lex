@@ -1,13 +1,13 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'subject.dart';
+part of 'course.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$_ImpartusSubject _$$_ImpartusSubjectFromJson(Map<String, dynamic> json) =>
-    _$_ImpartusSubject(
+_$_ImpartusCourse _$$_ImpartusCourseFromJson(Map<String, dynamic> json) =>
+    _$_ImpartusCourse(
       subjectId: json['subjectId'] as int,
       subjectName: json['subjectName'] as String,
       sessionId: json['sessionId'] as int,
