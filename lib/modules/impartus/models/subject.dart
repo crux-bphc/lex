@@ -1,19 +1,19 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-part 'course.freezed.dart';
-part 'course.g.dart';
+part 'subject.freezed.dart';
+part 'subject.g.dart';
 
 @freezed
-class ImpartusCourse with _$ImpartusCourse {
-  const factory ImpartusCourse({
+class ImpartusSubject with _$ImpartusSubject {
+  const factory ImpartusSubject({
     required int subjectId,
     required String subjectName,
     required int sessionId,
     required String professorName,
     required int videoCount,
-  }) = _ImpartusCourse;
+  }) = _ImpartusSubject;
 
-  factory ImpartusCourse.fromJson(Map<String, dynamic> json) =>
-      _$ImpartusCourseFromJson(json);
+  factory ImpartusSubject.fromJson(Map<String, dynamic> json) =>
+      _$ImpartusSubjectFromJson(json);
 }
 
 @freezed

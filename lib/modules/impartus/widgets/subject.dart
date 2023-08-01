@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:ghotpromax/modules/impartus/models/course.dart';
+import 'package:ghotpromax/modules/impartus/models/subject.dart';
 import 'package:go_router/go_router.dart';
 
-class CourseCard extends StatelessWidget {
-  const CourseCard({super.key, required this.course});
+class SubjectCard extends StatelessWidget {
+  const SubjectCard({super.key, required this.course});
 
-  final ImpartusCourse course;
+  final ImpartusSubject course;
 
   @override
   Widget build(BuildContext context) {

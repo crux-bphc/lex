@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'course.dart';
+part of 'subject.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -14,12 +14,12 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
 
-ImpartusCourse _$ImpartusCourseFromJson(Map<String, dynamic> json) {
-  return _ImpartusCourse.fromJson(json);
+ImpartusSubject _$ImpartusSubjectFromJson(Map<String, dynamic> json) {
+  return _ImpartusSubject.fromJson(json);
 }
 
 /// @nodoc
-mixin _$ImpartusCourse {
+mixin _$ImpartusSubject {
   int get subjectId => throw _privateConstructorUsedError;
   String get subjectName => throw _privateConstructorUsedError;
   int get sessionId => throw _privateConstructorUsedError;
@@ -29,16 +29,16 @@ mixin _$ImpartusCourse {
 
 /// @nodoc
 @JsonSerializable(createToJson: false)
-class _$_ImpartusCourse implements _ImpartusCourse {
-  const _$_ImpartusCourse(
+class _$_ImpartusSubject implements _ImpartusSubject {
+  const _$_ImpartusSubject(
       {required this.subjectId,
       required this.subjectName,
       required this.sessionId,
       required this.professorName,
       required this.videoCount});
 
-  factory _$_ImpartusCourse.fromJson(Map<String, dynamic> json) =>
-      _$$_ImpartusCourseFromJson(json);
+  factory _$_ImpartusSubject.fromJson(Map<String, dynamic> json) =>
+      _$$_ImpartusSubjectFromJson(json);
 
   @override
   final int subjectId;
@@ -53,20 +53,20 @@ class _$_ImpartusCourse implements _ImpartusCourse {
 
   @override
   String toString() {
-    return 'ImpartusCourse(subjectId: $subjectId, subjectName: $subjectName, sessionId: $sessionId, professorName: $professorName, videoCount: $videoCount)';
+    return 'ImpartusSubject(subjectId: $subjectId, subjectName: $subjectName, sessionId: $sessionId, professorName: $professorName, videoCount: $videoCount)';
   }
 }
 
-abstract class _ImpartusCourse implements ImpartusCourse {
-  const factory _ImpartusCourse(
+abstract class _ImpartusSubject implements ImpartusSubject {
+  const factory _ImpartusSubject(
       {required final int subjectId,
       required final String subjectName,
       required final int sessionId,
       required final String professorName,
-      required final int videoCount}) = _$_ImpartusCourse;
+      required final int videoCount}) = _$_ImpartusSubject;
 
-  factory _ImpartusCourse.fromJson(Map<String, dynamic> json) =
-      _$_ImpartusCourse.fromJson;
+  factory _ImpartusSubject.fromJson(Map<String, dynamic> json) =
+      _$_ImpartusSubject.fromJson;
 
   @override
   int get subjectId;

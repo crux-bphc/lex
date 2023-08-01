@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ghotpromax/modules/impartus/widgets/course.dart';
+import 'package:ghotpromax/modules/impartus/widgets/subject.dart';
 import 'package:ghotpromax/providers/impartus.dart';
 
 class ImpartusHomePage extends StatelessWidget {
@@ -28,7 +28,7 @@ class ImpartusHomePage extends StatelessWidget {
 
 final _coursesProvider = FutureProvider((ref) {
   final client = ref.watch(impartusClientProvider);
-  return client.fetchCourses();
+  return client.fetchSubjects();
 });
 
 class _CourseList extends ConsumerWidget {
@@ -39,7 +39,7 @@ class _CourseList extends ConsumerWidget {
     final courses = ref.watch(_coursesProvider);
     return courses.when(
       data: (courses) => ListView.builder(
-        itemBuilder: (_, i) => CourseCard(course: courses[i]),
+        itemBuilder: (_, i) => SubjectCard(course: courses[i]),
         itemCount: courses.length,
       ),
       error: (error, trace) => Center(
