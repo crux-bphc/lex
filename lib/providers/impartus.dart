@@ -1,7 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ghotpromax/logger.dart';
 import 'package:ghotpromax/modules/impartus/services/client.dart';
 import 'package:ghotpromax/providers/preferences.dart';
 
+@immutable
 class _ImpartusSettings {
   const _ImpartusSettings(this.email, this.password);
   final String email;
@@ -16,6 +19,8 @@ class _ImpartusSettingsNotifier extends Notifier<_ImpartusSettings> {
     ref.listenSelf((previous, next) {
       prefs.setString("impartus_email", next.email);
       prefs.setString("impartus_password", next.password);
+      prefs.remove("impartus_token");
+      logger.i("remove cached impartus token");
     });
 
     return _ImpartusSettings(
@@ -38,8 +43,6 @@ final impartusSettingsProvider =
   _ImpartusSettingsNotifier.new,
 );
 
-final impartusClientProvider = Provider((ref) {
-  final settings = ref.watch(impartusSettingsProvider);
-  final client = ImpartusClient(settings.email, settings.password);
-  return client;
-});
+final impartusClientProvider = Provider<ImpartusClient>(
+  (ref) => throw UnimplementedError(),
+);

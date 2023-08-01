@@ -1,34 +1,27 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:ghotpromax/http.dart';
 import 'package:ghotpromax/modules/impartus/models/profile.dart';
 import 'package:ghotpromax/modules/impartus/models/subject.dart';
 
+@immutable
 class ImpartusClient {
-  ImpartusClient(this._email, this._password);
-  final String _email;
-  final String _password;
+  const ImpartusClient(this.auth);
+  final String auth;
   final String _baseUrl = "https://bitshyd.impartus.com/api";
-  String? auth;
 
-  setAuthToken(String value) {
-    auth = value;
-  }
-
-  Future<String> getAuthToken() async {
+  static Future<String> getAuthToken(String email, String password) async {
     Response response = await dio.post(
-      "$_baseUrl/auth/signin",
-      data: {'username': _email, 'password': _password},
-      options: Options(
-        headers: {"authorization": "Bearer $auth"},
-      ),
+      "https://bitshyd.impartus.com/api/auth/signin",
+      data: {'username': email, 'password': password},
     );
     return response.data['token'];
   }
 
-  Future<bool> checkAuthToken(String value) async {
+  static Future<bool> checkAuthToken(String value) async {
     try {
       Response response = await dio.get(
-        "$_baseUrl/language/supported/",
+        "https://bitshyd.impartus.com/api/language/supported/",
         options: Options(
           headers: {
             'authorization': 'Bearer $value',
