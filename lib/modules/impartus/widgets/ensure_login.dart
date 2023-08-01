@@ -22,7 +22,8 @@ final _clientProvider = FutureProvider((ref) async {
     await prefs.setString("impartus_token", token);
   }
 
-  return ImpartusClient.fromToken(token);
+  ref.read(impartusTokenProvider.notifier).state = token;
+  return true;
 });
 
 class ImpartusAuthenticate extends ConsumerWidget {
@@ -34,10 +35,7 @@ class ImpartusAuthenticate extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final client = ref.watch(_clientProvider);
     return client.when(
-      data: (client) => ProviderScope(
-        overrides: [impartusClientProvider.overrideWithValue(client)],
-        child: child,
-      ),
+      data: (_) => child,
       error: (error, _) => Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

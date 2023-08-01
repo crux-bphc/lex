@@ -43,6 +43,11 @@ final impartusSettingsProvider =
   _ImpartusSettingsNotifier.new,
 );
 
-final impartusClientProvider = Provider<ImpartusClient>(
-  (ref) => throw UnimplementedError(),
-);
+final impartusTokenProvider = StateProvider<String>((ref) {
+  return '';
+});
+
+final impartusClientProvider = Provider<ImpartusClient>((ref) {
+  final token = ref.watch(impartusTokenProvider);
+  return ImpartusClient.fromToken(token);
+});
