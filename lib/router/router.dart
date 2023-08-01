@@ -18,6 +18,51 @@ final _multipartusNavigatorKey = GlobalKey<NavigatorState>(
   debugLabel: 'multipartus',
 );
 
+final _cmsRoutes = [
+  ShellRoute(
+    builder: (builder, state, child) => CMSAuthenticate(
+      child: child,
+    ),
+    routes: [
+      GoRoute(
+        path: '/cms',
+        builder: (context, state) => const CMSHomePage(),
+      ),
+      GoRoute(
+        path: '/cms/course/:id',
+        builder: (context, state) {
+          return CMSCoursePage(id: state.pathParameters['id']!);
+        },
+      ),
+      GoRoute(
+        path: '/cms/search',
+        builder: (context, state) => const CMSSearchPage(),
+      ),
+    ],
+  )
+];
+
+final _impartusRoutes = [
+  ShellRoute(
+    builder: (builder, state, child) => ImpartusAuthenticate(
+      child: child,
+    ),
+    routes: [
+      GoRoute(
+        path: '/impartus',
+        builder: (context, state) => const ImpartusHomePage(),
+      ),
+      GoRoute(
+        path: '/impartus/lectures/:subjectId/:sessionId',
+        builder: (context, state) => ImpartusLecturesPage(
+          subjectId: state.pathParameters['subjectId']!,
+          sessionId: state.pathParameters['sessionId']!,
+        ),
+      ),
+    ],
+  )
+];
+
 final router = GoRouter(
   initialLocation: '/cms',
   routes: [
@@ -30,52 +75,11 @@ final router = GoRouter(
       branches: [
         StatefulShellBranch(
           navigatorKey: _cmsNavigatorKey,
-          routes: [
-            ShellRoute(
-              builder: (builder, state, child) => CMSAuthenticate(
-                child: child,
-              ),
-              routes: [
-                GoRoute(
-                  path: '/cms',
-                  builder: (context, state) => const CMSHomePage(),
-                ),
-                GoRoute(
-                  path: '/cms/course/:id',
-                  builder: (context, state) {
-                    return CMSCoursePage(id: state.pathParameters['id']!);
-                  },
-                ),
-                GoRoute(
-                  path: '/cms/search',
-                  builder: (context, state) => const CMSSearchPage(),
-                ),
-              ],
-            )
-          ],
+          routes: _cmsRoutes,
         ),
         StatefulShellBranch(
           navigatorKey: _impartusNavigatorKey,
-          routes: [
-            ShellRoute(
-              builder: (builder, state, child) => ImpartusAuthenticate(
-                child: child,
-              ),
-              routes: [
-                GoRoute(
-                  path: '/impartus',
-                  builder: (context, state) => const ImpartusHomePage(),
-                ),
-                GoRoute(
-                  path: '/impartus/lectures/:subjectId/:sessionId',
-                  builder: (context, state) => ImpartusLecturesPage(
-                    subjectId: state.pathParameters['subjectId']!,
-                    sessionId: state.pathParameters['sessionId']!,
-                  ),
-                ),
-              ],
-            )
-          ],
+          routes: _impartusRoutes,
         ),
         StatefulShellBranch(
           navigatorKey: _multipartusNavigatorKey,
