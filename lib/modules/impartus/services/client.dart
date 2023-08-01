@@ -6,8 +6,8 @@ import 'package:ghotpromax/modules/impartus/models/subject.dart';
 
 @immutable
 class ImpartusClient {
-  const ImpartusClient(this.auth);
-  final String auth;
+  const ImpartusClient(this.options);
+  final Options options;
   final String _baseUrl = "https://bitshyd.impartus.com/api";
 
   static Future<String> getAuthToken(String email, String password) async {
@@ -34,12 +34,18 @@ class ImpartusClient {
     }
   }
 
+  factory ImpartusClient.fromToken(String token) {
+    return ImpartusClient(
+      Options(
+        headers: {"authorization": "Bearer $token"},
+      ),
+    );
+  }
+
   Future<ImpartusProfile> getProfile() async {
     Response response = await dio.get(
       "$_baseUrl/user/profile",
-      options: Options(
-        headers: {"authorization": "Bearer $auth"},
-      ),
+      options: options,
     );
     return ImpartusProfile.fromJson(response.data);
   }
@@ -47,9 +53,7 @@ class ImpartusClient {
   Future<List<ImpartusSubject>> getSubjects() async {
     Response response = await dio.get(
       "$_baseUrl/subjects",
-      options: Options(
-        headers: {"authorization": "Bearer $auth"},
-      ),
+      options: options,
     );
     final subjects = response.data as List<dynamic>;
     return subjects
@@ -63,9 +67,7 @@ class ImpartusClient {
   ) async {
     Response response = await dio.get(
       "$_baseUrl/subjects/$subjectId/lectures/$sessionId",
-      options: Options(
-        headers: {"authorization": "Bearer $auth"},
-      ),
+      options: options,
     );
     final lectures = response.data as List<dynamic>;
     return lectures

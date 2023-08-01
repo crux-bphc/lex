@@ -22,7 +22,7 @@ final _clientProvider = FutureProvider((ref) async {
     await prefs.setString("impartus_token", token);
   }
 
-  return ImpartusClient(token);
+  return ImpartusClient.fromToken(token);
 });
 
 class ImpartusAuthenticate extends ConsumerWidget {
