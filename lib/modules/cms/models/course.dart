@@ -15,7 +15,7 @@ class CMSCourseContent with _$CMSCourseContent {
       _$CMSCourseContentFromJson(json);
 }
 
-@freezed
+@Freezed(fromJson: true)
 class CMSCourseModule with _$CMSCourseModule {
   factory CMSCourseModule({
     required int id,
