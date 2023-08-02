@@ -5,6 +5,8 @@ import 'package:ghotpromax/modules/cms/models/profile.dart';
 import 'package:ghotpromax/modules/cms/models/registered_course.dart';
 import 'package:ghotpromax/modules/cms/models/search_result.dart';
 import 'package:html2md/html2md.dart' as html2md;
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 
 @immutable
 class CMSClient {
@@ -23,6 +25,7 @@ class CMSClient {
         'wstoken': token
       },
     );
+
     return CMSUser.fromJson(response.data);
   }
 
@@ -36,7 +39,9 @@ class CMSClient {
         'userid': userId
       },
     );
+
     final courses = response.data as List<dynamic>;
+
     return courses
         .map((course) => CMSRegisteredCourse.fromJson(course))
         .toList(growable: false);
@@ -68,7 +73,9 @@ class CMSClient {
         'forumid': instanceId
       },
     );
+
     final discussions = response.data['discussions'] as List<dynamic>;
+
     return discussions.map((discussion) {
       discussion['message'] = html2md.convert(discussion['message']);
       return CMSForumDiscussion.fromJson(discussion);
@@ -105,5 +112,18 @@ class CMSClient {
       },
     );
     return response.data['status'] as bool;
+  }
+
+  Future<bool> download(CMSCourseFile file) async {
+    final response = await dio.download(
+      file.fileurl,
+      p.join(
+        (await getApplicationSupportDirectory()).path,
+        "cms",
+        file.filename,
+      ),
+      queryParameters: {'token': token},
+    );
+    return response.statusCode == 200;
   }
 }

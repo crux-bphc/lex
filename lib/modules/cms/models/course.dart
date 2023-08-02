@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:ghotpromax/logger.dart';
 part 'course.freezed.dart';
 part 'course.g.dart';
 
@@ -21,22 +22,30 @@ class CMSCourseModule with _$CMSCourseModule {
     required String name,
     required String modname,
     required int instance,
-    @Default([]) List<CMSCourseModuleContent> contents,
+    CMSCourseFile? contents,
   }) = _CMSCourseModule;
 
-  factory CMSCourseModule.fromJson(Map<String, dynamic> json) =>
-      _$CMSCourseModuleFromJson(json);
+  factory CMSCourseModule.fromJson(Map<String, dynamic> json) {
+    if (json['contents'] != null) {
+      final files = json['contents'] as List<dynamic>;
+      if (files.length != 1) {
+        logger.e("Expected course module to only have one file attached.");
+      }
+      json['contents'] = files[0];
+    }
+    return _$CMSCourseModuleFromJson(json);
+  }
 }
 
 @freezed
-class CMSCourseModuleContent with _$CMSCourseModuleContent {
-  const factory CMSCourseModuleContent({
+class CMSCourseFile with _$CMSCourseFile {
+  const factory CMSCourseFile({
     required String filename,
     required String fileurl,
-  }) = _CMSCourseModuleContent;
+  }) = _CMSCourseFile;
 
-  factory CMSCourseModuleContent.fromJson(Map<String, dynamic> json) =>
-      _$CMSCourseModuleContentFromJson(json);
+  factory CMSCourseFile.fromJson(Map<String, dynamic> json) =>
+      _$CMSCourseFileFromJson(json);
 }
 
 @freezed

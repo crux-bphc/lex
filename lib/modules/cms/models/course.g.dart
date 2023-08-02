@@ -22,16 +22,13 @@ _$_CMSCourseModule _$$_CMSCourseModuleFromJson(Map<String, dynamic> json) =>
       name: json['name'] as String,
       modname: json['modname'] as String,
       instance: json['instance'] as int,
-      contents: (json['contents'] as List<dynamic>?)
-              ?.map((e) =>
-                  CMSCourseModuleContent.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
+      contents: json['contents'] == null
+          ? null
+          : CMSCourseFile.fromJson(json['contents'] as Map<String, dynamic>),
     );
 
-_$_CMSCourseModuleContent _$$_CMSCourseModuleContentFromJson(
-        Map<String, dynamic> json) =>
-    _$_CMSCourseModuleContent(
+_$_CMSCourseFile _$$_CMSCourseFileFromJson(Map<String, dynamic> json) =>
+    _$_CMSCourseFile(
       filename: json['filename'] as String,
       fileurl: json['fileurl'] as String,
     );
