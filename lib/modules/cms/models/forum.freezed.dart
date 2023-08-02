@@ -21,15 +21,24 @@ CMSForumDiscussion _$CMSForumDiscussionFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$CMSForumDiscussion {
   String get name => throw _privateConstructorUsedError;
+  int get discussion => throw _privateConstructorUsedError;
   String get message => throw _privateConstructorUsedError;
   String get userfullname => throw _privateConstructorUsedError;
+  int get created => throw _privateConstructorUsedError;
+  List<CMSCourseFile> get attachments => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
 @JsonSerializable(createToJson: false)
 class _$_CMSForumDiscussion implements _CMSForumDiscussion {
   const _$_CMSForumDiscussion(
-      {required this.name, required this.message, required this.userfullname});
+      {required this.name,
+      required this.discussion,
+      required this.message,
+      required this.userfullname,
+      required this.created,
+      final List<CMSCourseFile> attachments = const []})
+      : _attachments = attachments;
 
   factory _$_CMSForumDiscussion.fromJson(Map<String, dynamic> json) =>
       _$$_CMSForumDiscussionFromJson(json);
@@ -37,21 +46,36 @@ class _$_CMSForumDiscussion implements _CMSForumDiscussion {
   @override
   final String name;
   @override
+  final int discussion;
+  @override
   final String message;
   @override
   final String userfullname;
+  @override
+  final int created;
+  final List<CMSCourseFile> _attachments;
+  @override
+  @JsonKey()
+  List<CMSCourseFile> get attachments {
+    if (_attachments is EqualUnmodifiableListView) return _attachments;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_attachments);
+  }
 
   @override
   String toString() {
-    return 'CMSForumDiscussion(name: $name, message: $message, userfullname: $userfullname)';
+    return 'CMSForumDiscussion(name: $name, discussion: $discussion, message: $message, userfullname: $userfullname, created: $created, attachments: $attachments)';
   }
 }
 
 abstract class _CMSForumDiscussion implements CMSForumDiscussion {
   const factory _CMSForumDiscussion(
       {required final String name,
+      required final int discussion,
       required final String message,
-      required final String userfullname}) = _$_CMSForumDiscussion;
+      required final String userfullname,
+      required final int created,
+      final List<CMSCourseFile> attachments}) = _$_CMSForumDiscussion;
 
   factory _CMSForumDiscussion.fromJson(Map<String, dynamic> json) =
       _$_CMSForumDiscussion.fromJson;
@@ -59,7 +83,13 @@ abstract class _CMSForumDiscussion implements CMSForumDiscussion {
   @override
   String get name;
   @override
+  int get discussion;
+  @override
   String get message;
   @override
   String get userfullname;
+  @override
+  int get created;
+  @override
+  List<CMSCourseFile> get attachments;
 }

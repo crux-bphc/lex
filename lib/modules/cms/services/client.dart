@@ -63,14 +63,14 @@ class CMSClient {
         .toList(growable: false);
   }
 
-  Future<List<CMSForumDiscussion>> fetchForum(int instanceId) async {
+  Future<List<CMSForumDiscussion>> fetchForum(int forumId) async {
     final response = await dio.get(
       _baseUrl,
       queryParameters: {
         'wsfunction': 'mod_forum_get_forum_discussions',
         'moodlewsrestformat': 'json',
         'wstoken': token,
-        'forumid': instanceId
+        'forumid': forumId
       },
     );
 

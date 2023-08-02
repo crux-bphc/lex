@@ -15,11 +15,18 @@ class CMSHomePage extends StatelessWidget {
           automaticallyImplyLeading: false,
           title: const Text("CMS"),
           actions: [
+            IconButton(
+              onPressed: () {
+                context.push('/cms/forum/1');
+              },
+              icon: const Icon(Icons.public),
+              tooltip: "Site Annoucements",
+            ),
             Consumer(
               builder: (_, ref, child) {
                 return IconButton(
                   onPressed: () {
-                    ref.invalidate(_registeredCoursesProvider);
+                    ref.invalidate(registeredCoursesProvider);
                   },
                   icon: const Icon(Icons.refresh),
                 );
@@ -44,12 +51,6 @@ class CMSHomePage extends StatelessWidget {
     );
   }
 }
-
-final _registeredCoursesProvider = FutureProvider((ref) {
-  final client = ref.watch(cmsClientProvider);
-  final user = ref.watch(cmsUser);
-  return client.fetchCourses(user.asData!.value.userid!);
-});
 
 class _RegisteredCourses extends ConsumerWidget {
   const _RegisteredCourses();

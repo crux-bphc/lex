@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ghotpromax/modules/cms/models/course.dart';
 import 'package:ghotpromax/modules/cms/widgets/resource.dart';
+import 'package:go_router/go_router.dart';
 
 class CourseSection extends StatelessWidget {
   const CourseSection({super.key, required this.section});
@@ -43,7 +44,11 @@ class _ForumModule extends ConsumerWidget {
     return Card(
       elevation: 4,
       child: ListTile(
+        leading: const Icon(Icons.forum),
         title: Text(module.name),
+        onTap: () {
+          context.push("/cms/forum/${module.instance}");
+        },
       ),
     );
   }

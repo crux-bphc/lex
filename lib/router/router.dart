@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ghotpromax/modules/cms/screens/course.dart';
+import 'package:ghotpromax/modules/cms/screens/forum.dart';
 import 'package:ghotpromax/modules/cms/screens/home.dart';
 import 'package:ghotpromax/modules/cms/screens/search.dart';
 import 'package:ghotpromax/modules/cms/widgets/ensure_login.dart';
@@ -38,6 +39,12 @@ final _cmsRoutes = [
         path: '/cms/search',
         builder: (context, state) => const CMSSearchPage(),
       ),
+      GoRoute(
+        path: '/cms/forum/:id',
+        builder: (context, state) {
+          return CMSForumPage(id: state.pathParameters['id']!);
+        },
+      )
     ],
   )
 ];
