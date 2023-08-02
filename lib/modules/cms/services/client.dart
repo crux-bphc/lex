@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:ghotpromax/http.dart';
+import 'package:ghotpromax/utils/http.dart';
 import 'package:ghotpromax/modules/cms/models/course.dart';
+import 'package:ghotpromax/modules/cms/models/forum.dart';
 import 'package:ghotpromax/modules/cms/models/profile.dart';
-import 'package:ghotpromax/modules/cms/models/registered_course.dart';
 import 'package:ghotpromax/modules/cms/models/search_result.dart';
 import 'package:html2md/html2md.dart' as html2md;
 import 'package:path/path.dart' as p;

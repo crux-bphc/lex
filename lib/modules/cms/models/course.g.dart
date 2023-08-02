@@ -33,10 +33,9 @@ _$_CMSCourseFile _$$_CMSCourseFileFromJson(Map<String, dynamic> json) =>
       fileurl: json['fileurl'] as String,
     );
 
-_$_CMSForumDiscussion _$$_CMSForumDiscussionFromJson(
+_$_CMSRegisteredCourse _$$_CMSRegisteredCourseFromJson(
         Map<String, dynamic> json) =>
-    _$_CMSForumDiscussion(
-      name: json['name'] as String,
-      message: json['message'] as String,
-      userfullname: json['userfullname'] as String,
+    _$_CMSRegisteredCourse(
+      id: json['id'] as int,
+      displayname: json['displayname'] as String,
     );

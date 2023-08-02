@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ghotpromax/modules/cms/widgets/course.dart';
 import 'package:ghotpromax/providers/cms.dart';
 import 'package:go_router/go_router.dart';
 
@@ -61,18 +62,7 @@ class _RegisteredCourses extends ConsumerWidget {
       data: (courses) {
         return ListView.builder(
           padding: const EdgeInsets.symmetric(horizontal: 4),
-          itemBuilder: (_, i) {
-            return Card(
-              clipBehavior: Clip.hardEdge,
-              child: ListTile(
-                onTap: () {
-                  context.push('/cms/course/${courses[i].id}');
-                },
-                title: Text(courses[i].displayname!),
-                subtitle: Text(courses[i].id.toString()),
-              ),
-            );
-          },
+          itemBuilder: (_, i) => CourseCard(course: courses[i]),
           itemCount: courses.length,
         );
       },

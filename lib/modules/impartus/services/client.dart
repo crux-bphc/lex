@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:ghotpromax/http.dart';
+import 'package:ghotpromax/utils/http.dart';
 import 'package:ghotpromax/modules/impartus/models/profile.dart';
 import 'package:ghotpromax/modules/impartus/models/subject.dart';
 

@@ -182,52 +182,45 @@ abstract class _CMSCourseFile implements CMSCourseFile {
   String get fileurl;
 }
 
-CMSForumDiscussion _$CMSForumDiscussionFromJson(Map<String, dynamic> json) {
-  return _CMSForumDiscussion.fromJson(json);
+CMSRegisteredCourse _$CMSRegisteredCourseFromJson(Map<String, dynamic> json) {
+  return _CMSRegisteredCourse.fromJson(json);
 }
 
 /// @nodoc
-mixin _$CMSForumDiscussion {
-  String get name => throw _privateConstructorUsedError;
-  String get message => throw _privateConstructorUsedError;
-  String get userfullname => throw _privateConstructorUsedError;
+mixin _$CMSRegisteredCourse {
+  int get id => throw _privateConstructorUsedError;
+  String get displayname => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
 @JsonSerializable(createToJson: false)
-class _$_CMSForumDiscussion implements _CMSForumDiscussion {
-  const _$_CMSForumDiscussion(
-      {required this.name, required this.message, required this.userfullname});
+class _$_CMSRegisteredCourse implements _CMSRegisteredCourse {
+  const _$_CMSRegisteredCourse({required this.id, required this.displayname});
 
-  factory _$_CMSForumDiscussion.fromJson(Map<String, dynamic> json) =>
-      _$$_CMSForumDiscussionFromJson(json);
+  factory _$_CMSRegisteredCourse.fromJson(Map<String, dynamic> json) =>
+      _$$_CMSRegisteredCourseFromJson(json);
 
   @override
-  final String name;
+  final int id;
   @override
-  final String message;
-  @override
-  final String userfullname;
+  final String displayname;
 
   @override
   String toString() {
-    return 'CMSForumDiscussion(name: $name, message: $message, userfullname: $userfullname)';
+    return 'CMSRegisteredCourse(id: $id, displayname: $displayname)';
   }
 }
 
-abstract class _CMSForumDiscussion implements CMSForumDiscussion {
-  const factory _CMSForumDiscussion(
-      {required final String name,
-      required final String message,
-      required final String userfullname}) = _$_CMSForumDiscussion;
+abstract class _CMSRegisteredCourse implements CMSRegisteredCourse {
+  const factory _CMSRegisteredCourse(
+      {required final int id,
+      required final String displayname}) = _$_CMSRegisteredCourse;
 
-  factory _CMSForumDiscussion.fromJson(Map<String, dynamic> json) =
-      _$_CMSForumDiscussion.fromJson;
+  factory _CMSRegisteredCourse.fromJson(Map<String, dynamic> json) =
+      _$_CMSRegisteredCourse.fromJson;
 
   @override
-  String get name;
+  int get id;
   @override
-  String get message;
-  @override
-  String get userfullname;
+  String get displayname;
 }

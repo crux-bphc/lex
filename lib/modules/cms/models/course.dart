@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:ghotpromax/logger.dart';
+import 'package:ghotpromax/utils/logger.dart';
+import 'package:ghotpromax/utils/unescape.dart';
 part 'course.freezed.dart';
 part 'course.g.dart';
 
@@ -48,14 +49,15 @@ class CMSCourseFile with _$CMSCourseFile {
       _$CMSCourseFileFromJson(json);
 }
 
-@freezed
-class CMSForumDiscussion with _$CMSForumDiscussion {
-  const factory CMSForumDiscussion({
-    required String name,
-    required String message,
-    required String userfullname,
-  }) = _CMSForumDiscussion;
+@Freezed(fromJson: true)
+class CMSRegisteredCourse with _$CMSRegisteredCourse {
+  const factory CMSRegisteredCourse({
+    required int id,
+    required String displayname,
+  }) = _CMSRegisteredCourse;
 
-  factory CMSForumDiscussion.fromJson(Map<String, dynamic> json) =>
-      _$CMSForumDiscussionFromJson(json);
+  factory CMSRegisteredCourse.fromJson(Map<String, dynamic> json) {
+    json['displayname'] = unescape.convert(json['displayname'] as String);
+    return _$CMSRegisteredCourseFromJson(json);
+  }
 }
