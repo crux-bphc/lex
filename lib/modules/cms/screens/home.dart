@@ -57,7 +57,7 @@ class _RegisteredCourses extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final coursesFuture = ref.watch(_registeredCoursesProvider);
+    final coursesFuture = ref.watch(registeredCoursesProvider);
 
     return coursesFuture.when(
       data: (courses) {

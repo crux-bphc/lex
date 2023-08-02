@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ghotpromax/modules/cms/models/course.dart';
 import 'package:ghotpromax/modules/cms/widgets/course_content.dart';
 import 'package:ghotpromax/providers/cms.dart';
+import 'package:ghotpromax/utils/logger.dart';
 
 class CMSCoursePage extends StatelessWidget {
   const CMSCoursePage({super.key, required this.id});
@@ -11,18 +12,19 @@ class CMSCoursePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final realid = int.parse(id);
+    final numericId = int.parse(id);
+
     return Column(
       children: [
         AppBar(
           leading: const BackButton(),
-          title: Text("Course ID: $id"),
+          title: _AppBarTitle(numericId),
           actions: [
             Consumer(
               builder: (_, ref, __) {
                 return IconButton(
                   onPressed: () {
-                    ref.invalidate(_courseContentProvider(realid));
+                    ref.invalidate(_courseContentProvider(numericId));
                   },
                   icon: const Icon(Icons.refresh),
                 );
@@ -30,9 +32,28 @@ class CMSCoursePage extends StatelessWidget {
             )
           ],
         ),
-        Expanded(child: _ContentList(id: realid))
+        Expanded(child: _ContentList(id: numericId))
       ],
     );
+  }
+}
+
+class _AppBarTitle extends ConsumerWidget {
+  const _AppBarTitle(this.id);
+
+  final int id;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final courses = ref.watch(registeredCoursesProvider).valueOrNull;
+    if (courses == null) {
+      logger.w("Course title (displayname) was not found");
+      return Text(id.toString());
+    }
+
+    final name = courses.firstWhere((course) => course.id == id);
+
+    return Text(name.displayname);
   }
 }
 
