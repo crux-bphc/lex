@@ -17,7 +17,7 @@ final cmsClientProvider = Provider((ref) {
   return CMSClient(token);
 });
 
-final cmsUser = FutureProvider((ref) {
+final cmsUser = FutureProvider((ref) async {
   final client = ref.watch(cmsClientProvider);
   return client.fetchUserDetail();
 });
@@ -25,5 +25,5 @@ final cmsUser = FutureProvider((ref) {
 final registeredCoursesProvider = FutureProvider((ref) {
   final client = ref.watch(cmsClientProvider);
   final user = ref.watch(cmsUser);
-  return client.fetchCourses(user.asData!.value.userid!);
+  return client.fetchCourses(user.asData!.value.userid);
 });
