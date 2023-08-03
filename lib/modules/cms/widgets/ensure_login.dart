@@ -13,17 +13,34 @@ class CMSAuthenticate extends ConsumerWidget {
     final user = ref.watch(cmsUser);
     return user.when(
       data: (_) => child,
-      error: (error, _) => Center(
+      error: (error, stacktrace) => Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("$error"),
+            Text(
+              "Oops",
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
             const SizedBox(height: 8),
-            ElevatedButton(
+            const Text(
+              "Seems your login is invalid, try to enter credentials again.",
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton.icon(
+              icon: const Icon(
+                Icons.settings,
+                size: 20,
+              ),
               onPressed: () {
                 context.go("/settings");
               },
-              child: const Text("Go to Settings"),
+              label: const Text("Go to Settings"),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              "$error\n$stacktrace",
+              style: Theme.of(context).textTheme.bodySmall,
             )
           ],
         ),
