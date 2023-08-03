@@ -34,6 +34,9 @@ class CMSCourseModule with _$CMSCourseModule {
       }
       json['contents'] = files[0];
     }
+
+    json['name'] = unescape.convert(json['name'] as String);
+
     return _$CMSCourseModuleFromJson(json);
   }
 }
