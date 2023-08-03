@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ghotpromax/modules/cms/widgets/course.dart';
@@ -38,12 +39,13 @@ class CMSHomePage extends StatelessWidget {
               },
               icon: const Icon(Icons.search),
             ),
-            IconButton(
-              onPressed: () {
-                context.push('/cms/downloads');
-              },
-              icon: const Icon(Icons.download),
-            )
+            if (!kIsWeb)
+              IconButton(
+                onPressed: () {
+                  context.push('/cms/downloads');
+                },
+                icon: const Icon(Icons.download),
+              )
           ],
         ),
         const Expanded(child: _RegisteredCourses())
