@@ -9,6 +9,7 @@
 - CG Calculator (maybe)
 - Past year papers (maybe)
 - Links to resources such as CMS rips, PS its easy etc
+- Rate my professor (maybe)
 
 ## Build freezed models
 
