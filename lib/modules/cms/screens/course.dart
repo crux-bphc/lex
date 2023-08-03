@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ghotpromax/modules/cms/models/course.dart';
 import 'package:ghotpromax/modules/cms/widgets/course_content.dart';
 import 'package:ghotpromax/providers/cms.dart';
-import 'package:ghotpromax/utils/logger.dart';
 
 class CMSCoursePage extends StatelessWidget {
   const CMSCoursePage({super.key, required this.id});
@@ -45,15 +44,8 @@ class _AppBarTitle extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final courses = ref.watch(registeredCoursesProvider).valueOrNull;
-    if (courses == null) {
-      logger.w("Course title (displayname) was not found");
-      return Text(id.toString());
-    }
-
-    final name = courses.firstWhere((course) => course.id == id);
-
-    return Text(name.displayname);
+    final name = ref.watch(courseTitleProvider(id));
+    return Text(name);
   }
 }
 
