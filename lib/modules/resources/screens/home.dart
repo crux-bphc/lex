@@ -58,6 +58,19 @@ class _Content extends StatelessWidget {
             )
           ],
         ),
+        ResourceCard(
+          title: "Handouts for You",
+          children: [
+            const Text("A website to filter out handouts"),
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: () {
+                _launchUrl("https://handoutsforyou.vercel.app/");
+              },
+              child: const Text("Website Link"),
+            )
+          ],
+        )
       ],
     );
   }
