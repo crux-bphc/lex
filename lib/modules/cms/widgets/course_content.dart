@@ -25,7 +25,7 @@ class CourseSection extends StatelessWidget {
           if (module.modname == "forum") {
             return _ForumModule(module: module);
           } else if (module.modname == "resource") {
-            return ResourceModule(module: module);
+            return ResourceCard(module: module);
           }
           return const Text("WTF");
         })

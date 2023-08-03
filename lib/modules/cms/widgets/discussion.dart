@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ghotpromax/modules/cms/models/course.dart';
 import 'package:ghotpromax/modules/cms/models/forum.dart';
-import 'package:ghotpromax/providers/cms.dart';
+import 'package:ghotpromax/modules/cms/services/downloads.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class DiscussionCard extends StatelessWidget {
@@ -43,7 +42,7 @@ class DiscussionCard extends StatelessWidget {
             style: Theme.of(context).textTheme.bodyLarge,
           ),
           const Divider(),
-          for (final file in discussion.attachments) _Attachment(file),
+          for (final file in discussion.attachments) _Attachment(file: file),
           if (discussion.attachments.isNotEmpty) const Divider(),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -66,7 +65,7 @@ class DiscussionCard extends StatelessWidget {
 }
 
 class _Attachment extends StatelessWidget {
-  const _Attachment(this.file);
+  const _Attachment({required this.file});
 
   final CMSCourseFile file;
 
@@ -80,24 +79,7 @@ class _Attachment extends StatelessWidget {
       ),
       title: Text(file.filename),
       visualDensity: VisualDensity.compact,
-      trailing: _DownloadButton(file),
-    );
-  }
-}
-
-class _DownloadButton extends ConsumerWidget {
-  const _DownloadButton(this.file);
-
-  final CMSCourseFile file;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final client = ref.watch(cmsClientProvider);
-    return IconButton(
-      onPressed: () {
-        client.download(file);
-      },
-      icon: const Icon(Icons.download),
+      trailing: CMSDownloadFile(file: file),
     );
   }
 }
