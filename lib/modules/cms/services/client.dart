@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:ghotpromax/utils/http.dart';
 import 'package:ghotpromax/modules/cms/models/course.dart';
@@ -7,6 +8,7 @@ import 'package:ghotpromax/modules/cms/models/search_result.dart';
 import 'package:html2md/html2md.dart' as html2md;
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 @immutable
 class CMSClient {
@@ -115,6 +117,13 @@ class CMSClient {
   }
 
   Future<bool> download(CMSCourseFile file) async {
+    if (kIsWeb) {
+      final fileUri = Uri.parse(file.fileurl);
+      return await launchUrl(
+        fileUri.replace(queryParameters: {"token": token}),
+      );
+    }
+
     final response = await dio.download(
       file.fileurl,
       p.join(
