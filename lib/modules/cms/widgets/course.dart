@@ -9,14 +9,19 @@ class CourseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final [name, code, ...details] = course.displayname.split(" ");
+
     return Card(
       clipBehavior: Clip.hardEdge,
       child: ListTile(
         onTap: () {
           context.push('/cms/course/${course.id}');
         },
-        title: Text(course.displayname),
-        subtitle: Text(course.id.toString()),
+        title: Text("$name $code"),
+        subtitle: Text(
+          details.join(" "),
+          style: Theme.of(context).textTheme.labelLarge,
+        ),
       ),
     );
   }
