@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ghotpromax/providers/impartus.dart';
-import 'package:go_router/go_router.dart';
 
 class ImpartusLecturesPage extends StatelessWidget {
   const ImpartusLecturesPage({
@@ -18,11 +17,7 @@ class ImpartusLecturesPage extends StatelessWidget {
     return Column(
       children: [
         AppBar(
-          leading: BackButton(
-            onPressed: () {
-              context.pop();
-            },
-          ),
+          leading: const BackButton(),
           title: _SubjectName(int.parse(subjectId)),
         ),
         Expanded(
@@ -64,6 +59,6 @@ class _LectureList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Container();
+    return const Text("Lectures");
   }
 }

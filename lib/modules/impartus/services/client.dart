@@ -62,8 +62,8 @@ class ImpartusClient {
   }
 
   Future<List<ImpartusLecture>> getLectures(
-    String subjectId,
-    String sessionId,
+    int subjectId,
+    int sessionId,
   ) async {
     Response response = await dio.get(
       "$_baseUrl/subjects/$subjectId/lectures/$sessionId",
