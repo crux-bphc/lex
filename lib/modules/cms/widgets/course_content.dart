@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ghotpromax/modules/cms/models/course.dart';
+import 'package:ghotpromax/modules/cms/widgets/chat.dart';
 import 'package:ghotpromax/modules/cms/widgets/resource.dart';
 import 'package:go_router/go_router.dart';
 
@@ -26,6 +27,8 @@ class CourseSection extends StatelessWidget {
             return _ForumModule(module: module);
           } else if (module.modname == "resource") {
             return ResourceCard(module: module);
+          } else if (module.modname == "chat") {
+            return ChatModuleCard(module: module);
           }
           return const Text("WTF");
         })
