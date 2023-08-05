@@ -20,23 +20,18 @@ class ImpartusHomePage extends StatelessWidget {
             )
           ],
         ),
-        const Expanded(child: _CourseList())
+        const Expanded(child: _SubjectsList())
       ],
     );
   }
 }
 
-final _coursesProvider = FutureProvider((ref) {
-  final client = ref.watch(impartusClientProvider);
-  return client.fetchSubjects();
-});
-
-class _CourseList extends ConsumerWidget {
-  const _CourseList();
+class _SubjectsList extends ConsumerWidget {
+  const _SubjectsList();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final courses = ref.watch(_coursesProvider);
+    final courses = ref.watch(impartusSubjectsProvider);
     return courses.when(
       data: (courses) => ListView.builder(
         itemBuilder: (_, i) => SubjectCard(course: courses[i]),

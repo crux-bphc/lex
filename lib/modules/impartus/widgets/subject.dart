@@ -9,10 +9,17 @@ class SubjectCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final [subjectName, subjectCode, ...details] =
+        course.subjectName.split(" ");
+
     return Card(
       clipBehavior: Clip.hardEdge,
       child: ListTile(
-        title: Text(course.subjectName),
+        title: Text("$subjectName $subjectCode"),
+        subtitle: Text(
+          details.join(" "),
+          style: Theme.of(context).textTheme.labelLarge,
+        ),
         onTap: () {
           context.push(
             "/impartus/lectures/${course.subjectId}/${course.sessionId}",

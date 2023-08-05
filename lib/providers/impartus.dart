@@ -56,3 +56,8 @@ final impartusClientProvider = Provider<ImpartusClient>((ref) {
   final token = ref.watch(impartusTokenProvider);
   return ImpartusClient.fromToken(token);
 });
+
+final impartusSubjectsProvider = FutureProvider((ref) {
+  final client = ref.watch(impartusClientProvider);
+  return client.fetchSubjects();
+});
