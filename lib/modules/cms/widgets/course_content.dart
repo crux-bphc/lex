@@ -24,9 +24,9 @@ class CourseSection extends StatelessWidget {
         ),
         ...section.modules.map((module) {
           if (module.modname == "forum") {
-            return _ForumModule(module: module);
+            return _ForumModuleCard(module: module);
           } else if (module.modname == "resource") {
-            return ResourceCard(module: module);
+            return ResourceModuleCard(module: module);
           } else if (module.modname == "chat") {
             return ChatModuleCard(module: module);
           }
@@ -37,8 +37,8 @@ class CourseSection extends StatelessWidget {
   }
 }
 
-class _ForumModule extends ConsumerWidget {
-  const _ForumModule({required this.module});
+class _ForumModuleCard extends ConsumerWidget {
+  const _ForumModuleCard({required this.module});
 
   final CMSCourseModule module;
 

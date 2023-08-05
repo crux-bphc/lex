@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:ghotpromax/modules/cms/services/downloads.dart';
 import 'package:ghotpromax/modules/cms/models/course.dart';
 
-class ResourceCard extends StatelessWidget {
-  const ResourceCard({super.key, required this.module});
+class ResourceModuleCard extends StatelessWidget {
+  const ResourceModuleCard({super.key, required this.module});
 
   final CMSCourseModule module;
 
