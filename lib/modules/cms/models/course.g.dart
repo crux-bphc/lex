@@ -22,6 +22,7 @@ _$_CMSCourseModule _$$_CMSCourseModuleFromJson(Map<String, dynamic> json) =>
       name: json['name'] as String,
       modname: json['modname'] as String,
       instance: json['instance'] as int,
+      description: json['description'] as String?,
       contents: json['contents'] == null
           ? null
           : CMSCourseFile.fromJson(json['contents'] as Map<String, dynamic>),

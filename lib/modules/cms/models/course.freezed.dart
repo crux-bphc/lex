@@ -83,6 +83,7 @@ mixin _$CMSCourseModule {
   String get name => throw _privateConstructorUsedError;
   String get modname => throw _privateConstructorUsedError;
   int get instance => throw _privateConstructorUsedError;
+  String? get description => throw _privateConstructorUsedError;
   CMSCourseFile? get contents => throw _privateConstructorUsedError;
 }
 
@@ -94,6 +95,7 @@ class _$_CMSCourseModule implements _CMSCourseModule {
       required this.name,
       required this.modname,
       required this.instance,
+      this.description,
       this.contents});
 
   factory _$_CMSCourseModule.fromJson(Map<String, dynamic> json) =>
@@ -108,11 +110,13 @@ class _$_CMSCourseModule implements _CMSCourseModule {
   @override
   final int instance;
   @override
+  final String? description;
+  @override
   final CMSCourseFile? contents;
 
   @override
   String toString() {
-    return 'CMSCourseModule(id: $id, name: $name, modname: $modname, instance: $instance, contents: $contents)';
+    return 'CMSCourseModule(id: $id, name: $name, modname: $modname, instance: $instance, description: $description, contents: $contents)';
   }
 }
 
@@ -122,6 +126,7 @@ abstract class _CMSCourseModule implements CMSCourseModule {
       required final String name,
       required final String modname,
       required final int instance,
+      final String? description,
       final CMSCourseFile? contents}) = _$_CMSCourseModule;
 
   factory _CMSCourseModule.fromJson(Map<String, dynamic> json) =
@@ -135,6 +140,8 @@ abstract class _CMSCourseModule implements CMSCourseModule {
   String get modname;
   @override
   int get instance;
+  @override
+  String? get description;
   @override
   CMSCourseFile? get contents;
 }

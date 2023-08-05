@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:ghotpromax/utils/logger.dart';
 import 'package:ghotpromax/utils/unescape.dart';
+import 'package:html2md/html2md.dart' as html2md;
 part 'course.freezed.dart';
 part 'course.g.dart';
 
@@ -23,6 +24,7 @@ class CMSCourseModule with _$CMSCourseModule {
     required String name,
     required String modname,
     required int instance,
+    String? description,
     CMSCourseFile? contents,
   }) = _CMSCourseModule;
 
@@ -36,6 +38,10 @@ class CMSCourseModule with _$CMSCourseModule {
     }
 
     json['name'] = unescape.convert(json['name'] as String);
+
+    if (json['description'] != null) {
+      json['description'] = html2md.convert(json['description'] as String);
+    }
 
     return _$CMSCourseModuleFromJson(json);
   }
