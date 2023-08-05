@@ -49,8 +49,8 @@ class _AppBarTitle extends ConsumerWidget {
   }
 }
 
-final _courseContentProvider = FutureProvider.family
-    .autoDispose<List<CMSCourseContent>, int>((ref, id) async {
+final _courseContentProvider = FutureProvider.autoDispose
+    .family<List<CMSCourseContent>, int>((ref, id) async {
   final client = ref.watch(cmsClientProvider);
   return client.fetchCourseContent(id);
 });
