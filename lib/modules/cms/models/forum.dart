@@ -1,9 +1,10 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:ghotpromax/modules/cms/models/course.dart';
+import 'package:html2md/html2md.dart' as html2md;
 part 'forum.freezed.dart';
 part 'forum.g.dart';
 
-@freezed
+@Freezed(fromJson: true)
 class CMSForumDiscussion with _$CMSForumDiscussion {
   const factory CMSForumDiscussion({
     required String name,
@@ -14,6 +15,8 @@ class CMSForumDiscussion with _$CMSForumDiscussion {
     @Default([]) List<CMSCourseFile> attachments,
   }) = _CMSForumDiscussion;
 
-  factory CMSForumDiscussion.fromJson(Map<String, dynamic> json) =>
-      _$CMSForumDiscussionFromJson(json);
+  factory CMSForumDiscussion.fromJson(Map<String, dynamic> json) {
+    json['message'] = html2md.convert(json['message'] as String);
+    return _$CMSForumDiscussionFromJson(json);
+  }
 }
