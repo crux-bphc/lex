@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ghotpromax/modules/cms/models/search_result.dart';
 import 'package:ghotpromax/providers/cms.dart';
-import 'package:go_router/go_router.dart';
+import 'package:ghotpromax/utils/logger.dart';
 
 class SearchResult extends ConsumerWidget {
   const SearchResult({super.key, required this.item});
@@ -28,9 +28,7 @@ class SearchResult extends ConsumerWidget {
         trailing: OutlinedButton.icon(
           onPressed: () {
             client.courseEnroll(item.id).then((success) {
-              if (success) {
-                context.pushReplacement("/cms/course/${item.id}");
-              }
+              logger.i("Enrolled in ${item.name}: $success");
             });
           },
           icon: const Icon(Icons.add),
