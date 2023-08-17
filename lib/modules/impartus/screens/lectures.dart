@@ -11,8 +11,8 @@ class ImpartusLecturesPage extends StatelessWidget {
     required this.sessionId,
   });
 
-  final String subjectId;
-  final String sessionId;
+  final int subjectId;
+  final int sessionId;
 
   @override
   Widget build(BuildContext context) {
@@ -20,12 +20,12 @@ class ImpartusLecturesPage extends StatelessWidget {
       children: [
         AppBar(
           leading: const BackButton(),
-          title: _SubjectName(int.parse(subjectId)),
+          title: _SubjectName(subjectId),
         ),
         Expanded(
           child: _LectureList(
-            subjectId: int.parse(subjectId),
-            sessionId: int.parse(sessionId),
+            subjectId: subjectId,
+            sessionId: sessionId,
           ),
         )
       ],

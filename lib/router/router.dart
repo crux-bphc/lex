@@ -62,8 +62,8 @@ final _impartusRoutes = [
       GoRoute(
         path: '/impartus/lectures/:subjectId/:sessionId',
         builder: (context, state) => ImpartusLecturesPage(
-          subjectId: state.pathParameters['subjectId']!,
-          sessionId: state.pathParameters['sessionId']!,
+          subjectId: int.parse(state.pathParameters['subjectId']!),
+          sessionId: int.parse(state.pathParameters['sessionId']!),
         ),
       ),
     ],
