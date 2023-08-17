@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ghotpromax/modules/impartus/models/subject.dart';
+import 'package:ghotpromax/modules/impartus/widgets/lecture.dart';
 import 'package:ghotpromax/providers/impartus.dart';
 
 class ImpartusLecturesPage extends StatelessWidget {
@@ -51,6 +53,14 @@ class _SubjectName extends ConsumerWidget {
   }
 }
 
+final _lectureProvider =
+    FutureProvider.autoDispose.family<List<ImpartusLecture>, String>((ref, id) {
+  final client = ref.watch(impartusClientProvider);
+  final [subjectId, sessionId] = id.split("-");
+
+  return client.getLectures(int.parse(subjectId), int.parse(sessionId));
+});
+
 class _LectureList extends ConsumerWidget {
   const _LectureList({required this.subjectId, required this.sessionId});
 
@@ -59,6 +69,19 @@ class _LectureList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return const Text("Lectures");
+    final lectures = ref.watch(_lectureProvider("$subjectId-$sessionId"));
+
+    return lectures.when(
+      data: (lectures) => ListView.builder(
+        itemBuilder: (_, i) => LectureCard(lecture: lectures[i]),
+        itemCount: lectures.length,
+      ),
+      error: (error, trace) => Center(
+        child: Text("$error\n$trace"),
+      ),
+      loading: () => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
   }
 }
