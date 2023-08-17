@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ghotpromax/modules/impartus/models/subject.dart';
+import 'package:go_router/go_router.dart';
 
 class LectureCard extends StatelessWidget {
   const LectureCard({super.key, required this.lecture});
@@ -12,6 +13,9 @@ class LectureCard extends StatelessWidget {
       child: ListTile(
         title: Text(lecture.topic),
         subtitle: Text(lecture.professorName),
+        onTap: () {
+          context.go("/impartus/lecture");
+        },
       ),
     );
   }

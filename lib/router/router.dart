@@ -5,6 +5,7 @@ import 'package:ghotpromax/modules/cms/screens/home.dart';
 import 'package:ghotpromax/modules/cms/screens/search.dart';
 import 'package:ghotpromax/modules/cms/widgets/ensure_login.dart';
 import 'package:ghotpromax/modules/impartus/screens/home.dart';
+import 'package:ghotpromax/modules/impartus/screens/lecture.dart';
 import 'package:ghotpromax/modules/impartus/screens/lectures.dart';
 import 'package:ghotpromax/modules/impartus/widgets/ensure_login.dart';
 import 'package:ghotpromax/modules/multipartus/screens/home.dart';
@@ -66,6 +67,10 @@ final _impartusRoutes = [
           sessionId: int.parse(state.pathParameters['sessionId']!),
         ),
       ),
+      GoRoute(
+        path: '/impartus/lecture',
+        builder: (context, state) => const ImpartusLecturePage(),
+      )
     ],
   )
 ];
