@@ -1,18 +1,19 @@
 # ghotpromax
 
-## Features (perhaps...)
+> IN PROGRESS
 
+## Features
+
+- Cross-platform
 - CMS
+    - Faster
+    - Consumes less data
 - Impartus
+    - Faster
+    - Consumes less data
 - Multipartus
-    - Can view lectures from different professors and different courses from different years. 
-- CG Calculator (maybe)
+    - Lectures from sections other than your registered one
+    - Can view lectures from different professors and different courses from different years.
 - Past year papers (maybe)
-- Links to resources such as CMS rips, PS its easy etc
-- Rate my professor (maybe)
+- Links to helpful external resources
 
-## Build freezed models
-
-```sh
-dart run build_runner build --delete-conflicting-outputs
-```
