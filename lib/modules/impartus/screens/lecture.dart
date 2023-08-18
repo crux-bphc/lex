@@ -38,7 +38,7 @@ class _VideoPlayerState extends State<_VideoPlayer> {
     super.initState();
     player.open(
       Media(
-        'https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8',
+        'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.mp4/.m3u8',
       ),
     );
   }

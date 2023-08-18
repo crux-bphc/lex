@@ -1,6 +1,8 @@
 # Setup
 
 - You need flutter installed on your system. You can follow the [official guide](https://docs.flutter.dev/get-started/install).
+- Java runtime v17
+- Platform android-33
 - The project uses:
     - [riverpod](https://pub.dev/packages/flutter_riverpod) for state management
     - [go_router](https://pub.dev/packages/go_router) for routing and navigation
