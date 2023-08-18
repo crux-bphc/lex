@@ -14,7 +14,7 @@ class LectureCard extends StatelessWidget {
         title: Text(lecture.topic),
         subtitle: Text(lecture.professorName),
         onTap: () {
-          context.go("/impartus/lecture");
+          context.push("/impartus/lecture");
         },
       ),
     );
