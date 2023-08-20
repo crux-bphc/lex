@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:ghotpromax/router/desktop.dart';
-import 'package:ghotpromax/router/mobile.dart';
+import 'package:lex/router/desktop.dart';
+import 'package:lex/router/mobile.dart';
 import 'package:go_router/go_router.dart';
 
 class AppShellScaffold extends StatelessWidget {

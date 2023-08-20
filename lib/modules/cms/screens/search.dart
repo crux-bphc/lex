@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ghotpromax/modules/cms/widgets/search_result.dart';
-import 'package:ghotpromax/providers/cms.dart';
+import 'package:lex/modules/cms/widgets/search_result.dart';
+import 'package:lex/providers/cms.dart';
 
 class CMSSearchPage extends StatelessWidget {
   const CMSSearchPage({super.key});

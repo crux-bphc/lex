@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ghotpromax/modules/cms/models/search_result.dart';
-import 'package:ghotpromax/providers/cms.dart';
-import 'package:ghotpromax/utils/logger.dart';
+import 'package:lex/modules/cms/models/search_result.dart';
+import 'package:lex/providers/cms.dart';
+import 'package:lex/utils/logger.dart';
 
 class SearchResult extends ConsumerWidget {
   const SearchResult({super.key, required this.item});

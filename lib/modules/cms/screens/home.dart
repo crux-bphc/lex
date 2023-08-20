@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ghotpromax/modules/cms/widgets/course.dart';
-import 'package:ghotpromax/providers/cms.dart';
+import 'package:lex/modules/cms/widgets/course.dart';
+import 'package:lex/providers/cms.dart';
 import 'package:go_router/go_router.dart';
 
 class CMSHomePage extends StatelessWidget {

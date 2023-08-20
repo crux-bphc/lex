@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ghotpromax/providers/preferences.dart';
-import 'package:ghotpromax/providers/theme.dart';
-import 'package:ghotpromax/router/router.dart';
+import 'package:lex/providers/preferences.dart';
+import 'package:lex/providers/theme.dart';
+import 'package:lex/router/router.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

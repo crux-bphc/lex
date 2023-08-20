@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:ghotpromax/utils/http.dart';
-import 'package:ghotpromax/modules/cms/models/course.dart';
-import 'package:ghotpromax/modules/cms/models/forum.dart';
-import 'package:ghotpromax/modules/cms/models/profile.dart';
-import 'package:ghotpromax/modules/cms/models/search_result.dart';
+import 'package:lex/utils/http.dart';
+import 'package:lex/modules/cms/models/course.dart';
+import 'package:lex/modules/cms/models/forum.dart';
+import 'package:lex/modules/cms/models/profile.dart';
+import 'package:lex/modules/cms/models/search_result.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';

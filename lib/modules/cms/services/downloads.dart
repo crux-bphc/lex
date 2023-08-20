@@ -1,9 +1,9 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ghotpromax/modules/cms/models/course.dart';
-import 'package:ghotpromax/providers/cms.dart';
-import 'package:ghotpromax/utils/logger.dart';
+import 'package:lex/modules/cms/models/course.dart';
+import 'package:lex/providers/cms.dart';
+import 'package:lex/utils/logger.dart';
 
 final _downloadedFiles = StateProvider<ISet<String>>((ref) => ISet());
 

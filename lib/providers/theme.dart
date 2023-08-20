@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ghotpromax/providers/preferences.dart';
+import 'package:lex/providers/preferences.dart';
 
 class _Theme extends Notifier<ThemeMode> {
   @override

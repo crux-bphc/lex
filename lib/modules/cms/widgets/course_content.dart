@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ghotpromax/modules/cms/models/course.dart';
-import 'package:ghotpromax/modules/cms/widgets/chat.dart';
-import 'package:ghotpromax/modules/cms/widgets/resource.dart';
+import 'package:lex/modules/cms/models/course.dart';
+import 'package:lex/modules/cms/widgets/chat.dart';
+import 'package:lex/modules/cms/widgets/resource.dart';
 import 'package:go_router/go_router.dart';
 
 class CourseSection extends StatelessWidget {

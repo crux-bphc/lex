@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:ghotpromax/modules/cms/models/course.dart';
-import 'package:ghotpromax/modules/cms/models/forum.dart';
-import 'package:ghotpromax/modules/cms/services/downloads.dart';
+import 'package:lex/modules/cms/models/course.dart';
+import 'package:lex/modules/cms/models/forum.dart';
+import 'package:lex/modules/cms/services/downloads.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class DiscussionCard extends StatelessWidget {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ghotpromax/modules/cms/models/forum.dart';
-import 'package:ghotpromax/modules/cms/widgets/discussion.dart';
-import 'package:ghotpromax/providers/cms.dart';
+import 'package:lex/modules/cms/models/forum.dart';
+import 'package:lex/modules/cms/widgets/discussion.dart';
+import 'package:lex/providers/cms.dart';
 
 class CMSForumPage extends StatelessWidget {
   const CMSForumPage({super.key, required this.id});

@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ghotpromax/modules/cms/services/client.dart';
-import 'package:ghotpromax/providers/preferences.dart';
-import 'package:ghotpromax/utils/logger.dart';
+import 'package:lex/modules/cms/services/client.dart';
+import 'package:lex/providers/preferences.dart';
+import 'package:lex/utils/logger.dart';
 
 final cmsTokenProvider = StateProvider<String>((ref) {
   final prefs = ref.watch(preferencesProvider);

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ghotpromax/modules/impartus/models/subject.dart';
+import 'package:lex/modules/impartus/models/subject.dart';
 import 'package:go_router/go_router.dart';
 
 class LectureCard extends StatelessWidget {

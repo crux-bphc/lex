@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ghotpromax/modules/resources/widgets/card.dart';
+import 'package:lex/modules/resources/widgets/card.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class ResourcesHomePage extends StatelessWidget {

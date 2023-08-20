@@ -1,4 +1,4 @@
-package com.example.ghotpromax
+package com.thecomputerm.lex
 
 import io.flutter.embedding.android.FlutterActivity
 

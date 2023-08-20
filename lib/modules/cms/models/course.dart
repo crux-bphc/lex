@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:ghotpromax/utils/logger.dart';
-import 'package:ghotpromax/utils/unescape.dart';
+import 'package:lex/utils/logger.dart';
+import 'package:lex/utils/unescape.dart';
 import 'package:html2md/html2md.dart' as html2md;
 part 'course.freezed.dart';
 part 'course.g.dart';

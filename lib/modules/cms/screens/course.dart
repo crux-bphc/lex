@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ghotpromax/modules/cms/models/course.dart';
-import 'package:ghotpromax/modules/cms/widgets/course_content.dart';
-import 'package:ghotpromax/providers/cms.dart';
+import 'package:lex/modules/cms/models/course.dart';
+import 'package:lex/modules/cms/widgets/course_content.dart';
+import 'package:lex/providers/cms.dart';
 
 class CMSCoursePage extends StatelessWidget {
   const CMSCoursePage({super.key, required this.id});

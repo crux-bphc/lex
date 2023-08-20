@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:ghotpromax/modules/cms/models/course.dart';
+import 'package:lex/modules/cms/models/course.dart';
 import 'package:html2md/html2md.dart' as html2md;
 part 'forum.freezed.dart';
 part 'forum.g.dart';

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ghotpromax/modules/cms/models/course.dart';
+import 'package:lex/modules/cms/models/course.dart';
 import 'package:go_router/go_router.dart';
 
 class CourseCard extends StatelessWidget {

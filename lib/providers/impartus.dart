@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ghotpromax/utils/logger.dart';
-import 'package:ghotpromax/modules/impartus/services/client.dart';
-import 'package:ghotpromax/providers/preferences.dart';
+import 'package:lex/utils/logger.dart';
+import 'package:lex/modules/impartus/services/client.dart';
+import 'package:lex/providers/preferences.dart';
 
 @immutable
 class _ImpartusSettings {

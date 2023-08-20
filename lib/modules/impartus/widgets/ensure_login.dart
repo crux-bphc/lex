@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ghotpromax/utils/logger.dart';
-import 'package:ghotpromax/modules/impartus/services/client.dart';
-import 'package:ghotpromax/providers/impartus.dart';
+import 'package:lex/utils/logger.dart';
+import 'package:lex/modules/impartus/services/client.dart';
+import 'package:lex/providers/impartus.dart';
 import 'package:go_router/go_router.dart';
 
 final _clientProvider = FutureProvider((ref) async {

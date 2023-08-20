@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ghotpromax/modules/settings/widgets/tile.dart';
-import 'package:ghotpromax/providers/cms.dart';
-import 'package:ghotpromax/providers/impartus.dart';
+import 'package:lex/modules/settings/widgets/tile.dart';
+import 'package:lex/providers/cms.dart';
+import 'package:lex/providers/impartus.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 

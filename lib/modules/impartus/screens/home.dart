@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ghotpromax/modules/impartus/widgets/subject.dart';
-import 'package:ghotpromax/providers/impartus.dart';
+import 'package:lex/modules/impartus/widgets/subject.dart';
+import 'package:lex/providers/impartus.dart';
 
 class ImpartusHomePage extends StatelessWidget {
   const ImpartusHomePage({super.key});
