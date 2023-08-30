@@ -27,7 +27,7 @@ class DiscussionCard extends StatelessWidget {
             Text(
               getDate(),
               style: Theme.of(context).textTheme.labelMedium,
-            )
+            ),
           ],
         ),
         expandedCrossAxisAlignment: CrossAxisAlignment.start,
@@ -55,9 +55,9 @@ class DiscussionCard extends StatelessWidget {
                 },
                 icon: const Icon(Icons.open_in_browser),
                 tooltip: "Open in Browser",
-              )
+              ),
             ],
-          )
+          ),
         ],
       ),
     );

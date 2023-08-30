@@ -41,7 +41,7 @@ class CMSAuthenticate extends ConsumerWidget {
             Text(
               "$error\n$stacktrace",
               style: Theme.of(context).textTheme.bodySmall,
-            )
+            ),
           ],
         ),
       ),

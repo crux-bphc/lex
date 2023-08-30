@@ -17,7 +17,7 @@ class ImpartusLecturePage extends StatelessWidget {
             padding: EdgeInsets.all(16),
             child: _VideoPlayer(),
           ),
-        )
+        ),
       ],
     );
   }

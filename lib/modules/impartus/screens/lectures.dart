@@ -27,7 +27,7 @@ class ImpartusLecturesPage extends StatelessWidget {
             subjectId: subjectId,
             sessionId: sessionId,
           ),
-        )
+        ),
       ],
     );
   }

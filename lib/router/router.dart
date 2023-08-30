@@ -45,9 +45,9 @@ final _cmsRoutes = [
         builder: (context, state) {
           return CMSForumPage(id: state.pathParameters['id']!);
         },
-      )
+      ),
     ],
-  )
+  ),
 ];
 
 final _impartusRoutes = [
@@ -70,9 +70,9 @@ final _impartusRoutes = [
       GoRoute(
         path: '/impartus/lecture',
         builder: (context, state) => const ImpartusLecturePage(),
-      )
+      ),
     ],
-  )
+  ),
 ];
 
 final router = GoRouter(
@@ -99,7 +99,7 @@ final router = GoRouter(
             GoRoute(
               path: '/multipartus',
               builder: (context, state) => const MultipartusHomePage(),
-            )
+            ),
           ],
         ),
         StatefulShellBranch(
@@ -107,14 +107,14 @@ final router = GoRouter(
             GoRoute(
               path: '/resources',
               builder: (context, state) => const ResourcesHomePage(),
-            )
+            ),
           ],
-        )
+        ),
       ],
     ),
     GoRoute(
       path: '/settings',
       builder: (context, state) => const SettingsPage(),
-    )
+    ),
   ],
 );

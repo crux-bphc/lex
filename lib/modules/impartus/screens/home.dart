@@ -17,10 +17,10 @@ class ImpartusHomePage extends StatelessWidget {
             IconButton(
               onPressed: () {},
               icon: const Icon(Icons.download),
-            )
+            ),
           ],
         ),
-        const Expanded(child: _SubjectsList())
+        const Expanded(child: _SubjectsList()),
       ],
     );
   }

@@ -13,7 +13,7 @@ class ResourcesHomePage extends StatelessWidget {
           automaticallyImplyLeading: false,
           title: const Text("Extra Resources"),
         ),
-        const Expanded(child: _Content())
+        const Expanded(child: _Content()),
       ],
     );
   }
@@ -53,9 +53,9 @@ class _Content extends StatelessWidget {
                     _launchUrl("https://github.com/crux-bphc/CMS-Scraper");
                   },
                   child: const Text("Scraper (on GitHub)"),
-                )
+                ),
               ],
-            )
+            ),
           ],
         ),
         ResourceCard(
@@ -68,9 +68,9 @@ class _Content extends StatelessWidget {
                 _launchUrl("https://handoutsforyou.vercel.app/");
               },
               child: const Text("Website Link"),
-            )
+            ),
           ],
-        )
+        ),
       ],
     );
   }

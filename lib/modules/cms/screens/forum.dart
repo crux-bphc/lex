@@ -16,7 +16,7 @@ class CMSForumPage extends StatelessWidget {
         AppBar(
           leading: const BackButton(),
         ),
-        Expanded(child: _Discussions(id: int.parse(id)))
+        Expanded(child: _Discussions(id: int.parse(id))),
       ],
     );
   }

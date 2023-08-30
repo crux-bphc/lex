@@ -28,10 +28,10 @@ class CMSCoursePage extends StatelessWidget {
                   icon: const Icon(Icons.refresh),
                 );
               },
-            )
+            ),
           ],
         ),
-        Expanded(child: _ContentList(id: numericId))
+        Expanded(child: _ContentList(id: numericId)),
       ],
     );
   }

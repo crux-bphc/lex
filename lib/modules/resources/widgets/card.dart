@@ -16,7 +16,7 @@ class ResourceCard extends StatelessWidget {
           children: [
             Text(title, style: Theme.of(context).textTheme.displaySmall),
             const SizedBox(height: 12.0),
-            ...children
+            ...children,
           ],
         ),
       ),

@@ -31,7 +31,7 @@ class CourseSection extends StatelessWidget {
             return ChatModuleCard(module: module);
           }
           return const Text("WTF");
-        })
+        }),
       ],
     );
   }

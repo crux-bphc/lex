@@ -101,7 +101,7 @@ class _CMSSettings extends ConsumerWidget {
                 ),
                 const Text(
                   "4. Copy and paste the new 'Moodle mobile web service' key over here.",
-                )
+                ),
               ],
             ),
           ),

@@ -45,10 +45,10 @@ class CMSHomePage extends StatelessWidget {
                   context.push('/cms/downloads');
                 },
                 icon: const Icon(Icons.download),
-              )
+              ),
           ],
         ),
-        const Expanded(child: _RegisteredCourses())
+        const Expanded(child: _RegisteredCourses()),
       ],
     );
   }

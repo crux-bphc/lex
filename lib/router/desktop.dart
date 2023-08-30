@@ -63,7 +63,7 @@ class DesktopScaffold extends StatelessWidget {
                 ),
               ),
             ),
-            Expanded(child: body)
+            Expanded(child: body),
           ],
         ),
       ),

@@ -43,7 +43,7 @@ class ImpartusAuthenticate extends ConsumerWidget {
                 context.go("/settings");
               },
               child: const Text("Go to Settings"),
-            )
+            ),
           ],
         ),
       ),

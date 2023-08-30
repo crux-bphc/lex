@@ -16,7 +16,7 @@ class CMSSearchPage extends StatelessWidget {
         ),
         const _SearchField(),
         const SizedBox(height: 12.0),
-        const Expanded(child: _SearchResults())
+        const Expanded(child: _SearchResults()),
       ],
     );
   }

@@ -23,7 +23,7 @@ class CMSClient {
       queryParameters: {
         'wsfunction': 'core_webservice_get_site_info',
         'moodlewsrestformat': 'json',
-        'wstoken': token
+        'wstoken': token,
       },
     );
 
@@ -37,7 +37,7 @@ class CMSClient {
         'wsfunction': 'core_enrol_get_users_courses',
         'moodlewsrestformat': 'json',
         'wstoken': token,
-        'userid': userId
+        'userid': userId,
       },
     );
 
@@ -55,7 +55,7 @@ class CMSClient {
         'wsfunction': 'core_course_get_contents',
         'moodlewsrestformat': 'json',
         'wstoken': token,
-        'courseid': courseId
+        'courseid': courseId,
       },
     );
     final sections = response.data as List<dynamic>;
@@ -71,7 +71,7 @@ class CMSClient {
         'wsfunction': 'mod_forum_get_forum_discussions',
         'moodlewsrestformat': 'json',
         'wstoken': token,
-        'forumid': forumId
+        'forumid': forumId,
       },
     );
 
@@ -92,7 +92,7 @@ class CMSClient {
         'criterianame': 'search',
         'page': 0,
         'perpage': 15,
-        'criteriavalue': searchFor
+        'criteriavalue': searchFor,
       },
     );
     final courses = response.data['courses'] as List<dynamic>;
@@ -108,7 +108,7 @@ class CMSClient {
         'wsfunction': 'enrol_self_enrol_user',
         'moodlewsrestformat': 'json',
         'wstoken': token,
-        'courseid': courseId
+        'courseid': courseId,
       },
     );
     return response.data['status'] as bool;
