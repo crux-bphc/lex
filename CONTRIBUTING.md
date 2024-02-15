@@ -9,6 +9,27 @@
     - [freezed](https://pub.dev/packages/freezed) for JSON modelling
     - [media_kit](https://pub.dev/packages/media_kit) for a cross-platform media player.
 
+## Contribution workflow
+
+1. Open an issue if required
+2. Open a PR (Pull Request)
+3. Make changes and make sure to follow the [conventional commit](https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional) style.
+    - feat – a new feature is introduced with the changes
+    - fix – a bug fix has occurred
+    - chore – changes that do not relate to a fix or feature and don't modify src or test files (for example updating dependencies)
+    - refactor – refactored code that neither fixes a bug nor adds a feature
+    - docs – updates to documentation such as a the README or other markdown files
+    - style – changes that do not affect the meaning of the code, likely related to code formatting such as white-space, missing semi-colons, and so on.
+    - test – including new or correcting previous tests
+    - perf – performance improvements
+    - ci – continuous integration related
+    - build – changes that affect the build system or external dependencies
+    - revert – reverts a previous commit
+4. Make sure to add tests if required.
+5. Discuss
+6. Approved and merged
+
+
 # Project Structure
 
 - The main dart codebase is located in the `lib` directory.
