@@ -24,7 +24,7 @@ class ImpartusLecturePage extends StatelessWidget {
 }
 
 class _VideoPlayer extends StatefulWidget {
-  const _VideoPlayer({Key? key}) : super(key: key);
+  const _VideoPlayer();
   @override
   State<_VideoPlayer> createState() => _VideoPlayerState();
 }
