@@ -22,7 +22,7 @@ class DesktopScaffold extends StatelessWidget {
             NavigationRail(
               onDestinationSelected: onDestinationSelected,
               selectedIndex: selectedIndex,
-              labelType: NavigationRailLabelType.all,
+              labelType: NavigationRailLabelType.selected,
               destinations: const [
                 NavigationRailDestination(
                   label: Text('CMS'),
@@ -30,19 +30,9 @@ class DesktopScaffold extends StatelessWidget {
                   selectedIcon: Icon(Icons.library_books),
                 ),
                 NavigationRailDestination(
-                  label: Text('Impartus'),
+                  label: Text('Multipartus'),
                   icon: Icon(Icons.smart_display_outlined),
                   selectedIcon: Icon(Icons.smart_display),
-                ),
-                NavigationRailDestination(
-                  label: Text('Multipartus'),
-                  icon: Icon(Icons.subscriptions_outlined),
-                  selectedIcon: Icon(Icons.subscriptions),
-                ),
-                NavigationRailDestination(
-                  label: Text('Resources'),
-                  icon: Icon(Icons.link_outlined),
-                  selectedIcon: Icon(Icons.link),
                 ),
               ],
               trailing: Expanded(
