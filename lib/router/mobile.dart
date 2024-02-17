@@ -28,30 +28,19 @@ class MobileScaffold extends StatelessWidget {
         ],
       ),
       body: SafeArea(child: body),
-      drawer: NavigationDrawer(
+      bottomNavigationBar: NavigationBar(
         onDestinationSelected: onDestinationSelected,
         selectedIndex: selectedIndex,
-        children: const [
-          SizedBox(height: 18.0),
-          NavigationDrawerDestination(
-            label: Text('CMS'),
+        destinations: const [
+          NavigationDestination(
             icon: Icon(Icons.library_books_outlined),
             selectedIcon: Icon(Icons.library_books),
+            label: "CMS",
           ),
-          NavigationDrawerDestination(
-            label: Text('Impartus'),
+          NavigationDestination(
             icon: Icon(Icons.smart_display_outlined),
             selectedIcon: Icon(Icons.smart_display),
-          ),
-          NavigationDrawerDestination(
-            label: Text('Multipartus'),
-            icon: Icon(Icons.subscriptions_outlined),
-            selectedIcon: Icon(Icons.subscriptions),
-          ),
-          NavigationDrawerDestination(
-            label: Text('Resources'),
-            icon: Icon(Icons.link_outlined),
-            selectedIcon: Icon(Icons.link),
+            label: "Multipartus",
           ),
         ],
       ),
