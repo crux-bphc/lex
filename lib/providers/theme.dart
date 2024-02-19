@@ -37,6 +37,7 @@ ThemeData buildTheme(ThemeMode mode) {
         ? scheme
         : ColorScheme.fromSeed(seedColor: Colors.blueAccent),
     useMaterial3: true,
+  ).copyWith(splashFactory: NoSplash.splashFactory);
 
   return theme;
 }
