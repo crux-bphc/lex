@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:lex/router/theme_switcher.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 const _navItems = [
   _NavItem(
-    icon: Icons.library_books_outlined,
-    selectedIcon: Icons.library_books,
+    icon: LucideIcons.book,
     label: 'CMS',
   ),
   _NavItem(
-    icon: Icons.smart_display_outlined,
-    selectedIcon: Icons.smart_display,
+    icon: LucideIcons.video,
     label: 'Multipartus',
   ),
 ];
@@ -50,7 +49,6 @@ class DesktopScaffold extends StatelessWidget {
                 for (final item in _navItems)
                   NavigationRailDestination(
                     icon: Icon(item.icon),
-                    selectedIcon: Icon(item.selectedIcon),
                     label: Text(item.label),
                     padding: const EdgeInsets.symmetric(vertical: 5),
                   ),
@@ -61,12 +59,10 @@ class DesktopScaffold extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      const ThemeSwitcher(
-                        iconSize: 30,
-                      ),
+                      const ThemeSwitcher(),
+                      const SizedBox(height: 2),
                       IconButton(
-                        icon: const Icon(Icons.settings),
-                        iconSize: 30,
+                        icon: const Icon(LucideIcons.settings),
                         onPressed: () {
                           context.go('/settings');
                         },
@@ -85,12 +81,11 @@ class DesktopScaffold extends StatelessWidget {
 }
 
 class _NavItem {
-  final IconData icon, selectedIcon;
+  final IconData icon;
   final String label;
 
   const _NavItem({
     required this.icon,
-    required this.selectedIcon,
     required this.label,
   });
 }
