@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lex/router/theme_switcher.dart';
 
 const _navItems = [
-  _NavItem('CMS', Icons.book_outlined),
+  _NavItem('CMS', Icons.library_books_outlined),
   _NavItem('Multipartus', Icons.video_collection_outlined),
 ];
 
@@ -45,13 +46,9 @@ class DesktopScaffold extends StatelessWidget {
                           onPressed: () => onDestinationSelected(i),
                         ),
                       const Spacer(),
-                      IconButton(
-                        onPressed: () {},
-                        icon: CircleAvatar(
-                          backgroundColor: Theme.of(context).colorScheme.error,
-                          radius: 16,
-                          child: const Icon(Icons.person_outline_rounded),
-                        ),
+                      const _NavToolTip(
+                        text: 'Change theme',
+                        child: ThemeSwitcher(),
                       ),
                       const SizedBox(height: 8),
                       _NavToolTip(
