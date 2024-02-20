@@ -43,6 +43,7 @@ class DesktopScaffold extends StatelessWidget {
                       for (final (i, item) in _navItems.indexed)
                         _NavButton(
                           navItem: item,
+                          selected: i == selectedIndex,
                           onPressed: () => onDestinationSelected(i),
                         ),
                       const Spacer(),
@@ -81,10 +82,15 @@ class _NavItem {
 }
 
 class _NavButton extends StatelessWidget {
-  const _NavButton({required this.navItem, required this.onPressed});
+  const _NavButton({
+    required this.navItem,
+    required this.onPressed,
+    bool? selected,
+  }) : selected = selected ?? false;
 
   final _NavItem navItem;
   final VoidCallback onPressed;
+  final bool selected;
 
   @override
   Widget build(BuildContext context) {
@@ -93,14 +99,19 @@ class _NavButton extends StatelessWidget {
       child: _NavToolTip(
         text: navItem.title,
         child: RawMaterialButton(
+          elevation: 0,
+          hoverElevation: 0,
           onPressed: onPressed,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(4),
           ),
+          fillColor: selected ? const Color(0xFFEBCB8B) : null,
           padding: const EdgeInsets.symmetric(vertical: 12),
           child: Icon(
             navItem.icon,
-            color: Theme.of(context).colorScheme.onBackground,
+            color: selected
+                ? Theme.of(context).colorScheme.background
+                : Theme.of(context).colorScheme.onBackground,
             size: 32,
           ),
         ),
