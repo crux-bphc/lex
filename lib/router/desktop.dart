@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lex/router/theme_switcher.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 
 const _navItems = [
   _NavItem(

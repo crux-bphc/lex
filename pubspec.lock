@@ -201,14 +201,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
-  cupertino_icons:
-    dependency: "direct main"
-    description:
-      name: cupertino_icons
-      sha256: d57953e10f9f8327ce64a508a355f0b1ec902193f66288e8cb5070e7c47eeb2d
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.6"
   custom_lint:
     dependency: "direct dev"
     description:
@@ -310,6 +302,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.1"
+  flutter_lucide:
+    dependency: "direct main"
+    description:
+      name: flutter_lucide
+      sha256: "50d42f2e775a6f447126b94935afc780498b597bd2de93aecaf01af4b7dfddab"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.2"
   flutter_markdown:
     dependency: "direct main"
     description:
@@ -504,14 +504,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
-  lucide_icons:
-    dependency: "direct main"
-    description:
-      name: lucide_icons
-      sha256: ad24d0fd65707e48add30bebada7d90bff2a1bba0a72d6e9b19d44246b0e83c4
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.257.0"
   markdown:
     dependency: transitive
     description:
