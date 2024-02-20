@@ -2,6 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:lex/router/theme_switcher.dart';
 import 'package:go_router/go_router.dart';
 
+const _navItems = [
+  _NavItem(
+    icon: Icons.library_books_outlined,
+    selectedIcon: Icons.library_books,
+    label: 'CMS',
+  ),
+  _NavItem(
+    icon: Icons.smart_display_outlined,
+    selectedIcon: Icons.smart_display,
+    label: 'Multipartus',
+  ),
+];
+
 class DesktopScaffold extends StatelessWidget {
   const DesktopScaffold({
     super.key,
@@ -22,18 +35,25 @@ class DesktopScaffold extends StatelessWidget {
             NavigationRail(
               onDestinationSelected: onDestinationSelected,
               selectedIndex: selectedIndex,
-              labelType: NavigationRailLabelType.selected,
-              destinations: const [
-                NavigationRailDestination(
-                  label: Text('CMS'),
-                  icon: Icon(Icons.library_books_outlined),
-                  selectedIcon: Icon(Icons.library_books),
+              labelType: NavigationRailLabelType.all,
+              minWidth: 100,
+              backgroundColor: Theme.of(context).colorScheme.background,
+              elevation: 6,
+              leading: const Padding(
+                padding: EdgeInsets.only(top: 10, bottom: 40),
+                child: Placeholder(
+                  fallbackHeight: 60,
+                  fallbackWidth: 60,
                 ),
-                NavigationRailDestination(
-                  label: Text('Multipartus'),
-                  icon: Icon(Icons.smart_display_outlined),
-                  selectedIcon: Icon(Icons.smart_display),
-                ),
+              ),
+              destinations: [
+                for (final item in _navItems)
+                  NavigationRailDestination(
+                    icon: Icon(item.icon),
+                    selectedIcon: Icon(item.selectedIcon),
+                    label: Text(item.label),
+                    padding: const EdgeInsets.symmetric(vertical: 5),
+                  ),
               ],
               trailing: Expanded(
                 child: Padding(
@@ -41,9 +61,12 @@ class DesktopScaffold extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      const ThemeSwitcher(),
+                      const ThemeSwitcher(
+                        iconSize: 30,
+                      ),
                       IconButton(
                         icon: const Icon(Icons.settings),
+                        iconSize: 30,
                         onPressed: () {
                           context.go('/settings');
                         },
@@ -59,4 +82,15 @@ class DesktopScaffold extends StatelessWidget {
       ),
     );
   }
+}
+
+class _NavItem {
+  final IconData icon, selectedIcon;
+  final String label;
+
+  const _NavItem({
+    required this.icon,
+    required this.selectedIcon,
+    required this.label,
+  });
 }
