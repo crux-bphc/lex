@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lex/providers/preferences.dart';
 
-class _Theme extends Notifier<ThemeMode> {
+class _ThemeMode extends Notifier<ThemeMode> {
   @override
   ThemeMode build() {
     final prefs = ref.watch(preferencesProvider);
@@ -19,4 +19,4 @@ class _Theme extends Notifier<ThemeMode> {
   }
 }
 
-final themeProvider = NotifierProvider<_Theme, ThemeMode>(_Theme.new);
+final themeProvider = NotifierProvider<_ThemeMode, ThemeMode>(_ThemeMode.new);
