@@ -23,14 +23,35 @@ Future<void> main() async {
 class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
+  ThemeData _buildTheme(ThemeMode mode) {
+    final scheme = ColorScheme.fromSeed(
+      seedColor: Colors.indigoAccent,
+      brightness: Brightness.dark,
+    ).copyWith(
+      background: const Color(0xFF1E2128),
+      error: const Color(0xFFBF616A),
+      onBackground: const Color(0xFFCACACE),
+      onError: const Color(0xFFBF616A),
+    );
+
+    final theme = ThemeData.from(
+      colorScheme: mode == ThemeMode.dark
+          ? scheme
+          : ColorScheme.fromSeed(seedColor: Colors.blueAccent),
+      useMaterial3: true,
+    ).copyWith(splashFactory: NoSplash.splashFactory);
+
+    return theme;
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = ref.watch(themeProvider);
+    final themeMode = ref.watch(themeProvider);
     return MaterialApp.router(
       routerConfig: router,
-      theme: ThemeData.light(useMaterial3: true),
-      darkTheme: ThemeData.dark(useMaterial3: true),
-      themeMode: theme,
+      themeMode: themeMode,
+      theme: _buildTheme(ThemeMode.light),
+      darkTheme: _buildTheme(ThemeMode.dark),
     );
   }
 }
