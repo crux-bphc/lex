@@ -1,19 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get_it/get_it.dart';
+import 'package:lex/providers/preferences.dart';
 import 'package:lex/providers/theme.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
+import 'package:signals/signals_flutter.dart';
 
-class ThemeSwitcher extends ConsumerWidget {
+class ThemeSwitcher extends StatelessWidget {
   const ThemeSwitcher({
     super.key,
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = ref.watch(themeProvider);
+  Widget build(BuildContext context) {
+    final prefs = GetIt.instance<Preferences>();
     return IconButton(
-      onPressed: ref.read(themeProvider.notifier).toggle,
-      icon: Icon(theme == ThemeMode.light ? LucideIcons.sun : LucideIcons.moon),
+      onPressed: prefs.toggleTheme,
+      icon: Watch(
+        (context) => Icon(
+          prefs.themeMode.value == ThemeMode.light
+              ? LucideIcons.sun
+              : LucideIcons.moon,
+        ),
+      ),
     );
   }
 }
