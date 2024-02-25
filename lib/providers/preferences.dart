@@ -10,13 +10,13 @@ final preferencesProvider = Provider<SharedPreferences>(
 class Preferences {
   final SharedPreferences _prefs;
 
-  late final EffectCleanup _cleanup;
+  late final List<EffectCleanup> _cleanups;
 
   Preferences(this._prefs) {
-    _cleanup = effect(() {
-      _prefs.setString('theme_mode', _themeMode.value);
-      debugPrint("set theme");
-    });
+    _cleanups = [
+      effect(() => _prefs.setString('theme_mode', _themeMode.value)),
+      effect(() => _prefs.setString('cms_token', cmsToken.value)),
+    ];
   }
 
   late final _themeMode = signal(_prefs.getString('theme_mode') ?? 'dark');
@@ -28,7 +28,11 @@ class Preferences {
     _themeMode.value = _themeMode.value == 'dark' ? 'light' : 'dark';
   }
 
+  late final cmsToken = signal(_prefs.getString('cms_token') ?? '');
+
   void dispose() {
-    _cleanup();
+    for (var cleanup in _cleanups) {
+      cleanup();
+    }
   }
 }

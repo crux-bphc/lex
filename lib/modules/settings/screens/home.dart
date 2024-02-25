@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get_it/get_it.dart';
 import 'package:lex/modules/settings/widgets/tile.dart';
-import 'package:lex/providers/cms.dart';
 import 'package:lex/providers/impartus.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lex/providers/preferences.dart';
+import 'package:signals/signals_flutter.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -68,7 +70,7 @@ class _ImpartusSettings extends ConsumerWidget {
   }
 }
 
-class _CMSSettings extends ConsumerWidget {
+class _CMSSettings extends StatelessWidget {
   const _CMSSettings();
 
   Future<void> _showTokenHelpDialog(BuildContext context) {
@@ -111,24 +113,27 @@ class _CMSSettings extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final token = ref.watch(cmsTokenProvider);
+  Widget build(BuildContext context) {
+    final token = GetIt.instance<Preferences>().cmsToken;
+
     return SettingsTile(
       title: "CMS",
       children: [
-        TextFormField(
-          decoration: InputDecoration(
-            prefixIcon: const Icon(Icons.token),
-            labelText: "Web service token",
-            suffixIcon: IconButton(
-              onPressed: () => _showTokenHelpDialog(context),
-              icon: const Icon(Icons.help),
+        Watch(
+          (context) => TextFormField(
+            decoration: InputDecoration(
+              prefixIcon: const Icon(Icons.token),
+              labelText: "Web service token",
+              suffixIcon: IconButton(
+                onPressed: () => _showTokenHelpDialog(context),
+                icon: const Icon(Icons.help),
+              ),
             ),
+            initialValue: token.value,
+            onFieldSubmitted: (value) {
+              token.value = value;
+            },
           ),
-          initialValue: token,
-          onFieldSubmitted: (value) {
-            ref.read(cmsTokenProvider.notifier).state = value;
-          },
         ),
       ],
     );
