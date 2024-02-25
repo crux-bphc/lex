@@ -54,6 +54,7 @@ dependencies:
   media_kit_libs_video: ^1.0.4
   flutter_lucide: ^1.1.2
   signals: ^4.4.0
+  get_it: ^7.6.7
 
 dev_dependencies:
   flutter_test:
