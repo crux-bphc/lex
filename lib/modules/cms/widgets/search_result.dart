@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lex/modules/cms/models/search_result.dart';
 import 'package:lex/providers/cms.dart';
 import 'package:lex/utils/logger.dart';
 
-class SearchResult extends ConsumerWidget {
+class SearchResult extends StatelessWidget {
   const SearchResult({super.key, required this.item});
 
   final CMSSearchResult item;
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final client = ref.watch(cmsClientProvider);
+  Widget build(BuildContext context) {
+    final client = cmsClient();
+
     return Card(
       child: ListTile(
         visualDensity: VisualDensity.comfortable,

@@ -1,41 +1,25 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get_it/get_it.dart';
 import 'package:lex/modules/cms/services/client.dart';
 import 'package:lex/providers/preferences.dart';
 import 'package:lex/utils/logger.dart';
+import 'package:signals/signals.dart';
 
-final cmsTokenProvider = StateProvider<String>((ref) {
-  final prefs = ref.watch(preferencesProvider);
+final _prefs = GetIt.instance<Preferences>();
 
-  ref.listenSelf((previous, next) {
-    prefs.setString("cms_token", next);
-  });
+final cmsClient = computed(() => CMSClient(_prefs.cmsToken.value));
 
-  return prefs.getString("cms_token") ?? "";
-});
+final cmsUser = computedAsync(() => cmsClient.value.fetchUserDetail());
 
-final cmsClientProvider = Provider((ref) {
-  final token = ref.watch(cmsTokenProvider);
-  return CMSClient(token);
-});
+final registeredCourses =
+    computedAsync(() => cmsClient.value.fetchCourses(cmsUser().value!.userid));
 
-final cmsUser = FutureProvider((ref) async {
-  final client = ref.watch(cmsClientProvider);
-  return client.fetchUserDetail();
-});
-
-final registeredCoursesProvider = FutureProvider((ref) {
-  final client = ref.watch(cmsClientProvider);
-  final user = ref.watch(cmsUser);
-  return client.fetchCourses(user.asData!.value.userid);
-});
-
-final courseTitleProvider = Provider.autoDispose.family<String, int>((ref, id) {
-  final courses = ref.watch(registeredCoursesProvider).valueOrNull;
+final courseTitle = readonlySignalContainer<String, int>((id) {
+  final courses = registeredCourses().value;
   if (courses == null) {
     logger.w("Registered courses were not loaded");
-    return "";
+    return readonlySignal('');
   }
 
   final course = courses.firstWhere((course) => course.id == id);
-  return course.displayname;
+  return readonlySignal(course.displayname);
 });
