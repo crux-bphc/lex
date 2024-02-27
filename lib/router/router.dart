@@ -5,6 +5,7 @@ import 'package:lex/modules/cms/screens/home.dart';
 import 'package:lex/modules/cms/screens/search.dart';
 import 'package:lex/modules/cms/widgets/ensure_login.dart';
 import 'package:lex/modules/multipartus/screens/home.dart';
+import 'package:lex/modules/settings/screens/home.dart';
 import 'package:lex/router/scaffold.dart';
 import 'package:go_router/go_router.dart';
 
@@ -67,6 +68,10 @@ final router = GoRouter(
           ],
         ),
       ],
+    ),
+    GoRoute(
+      path: '/settings',
+      builder: (context, state) => const SettingsPage(),
     ),
   ],
 );

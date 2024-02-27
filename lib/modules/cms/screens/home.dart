@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lex/modules/cms/widgets/course.dart';
 import 'package:lex/providers/cms.dart';
 import 'package:go_router/go_router.dart';
+import 'package:signals/signals_flutter.dart';
 
 class CMSHomePage extends StatelessWidget {
   const CMSHomePage({super.key});
@@ -23,15 +23,11 @@ class CMSHomePage extends StatelessWidget {
               icon: const Icon(Icons.public),
               tooltip: "Site Annoucements",
             ),
-            Consumer(
-              builder: (_, ref, child) {
-                return IconButton(
-                  onPressed: () {
-                    ref.invalidate(registeredCoursesProvider);
-                  },
-                  icon: const Icon(Icons.refresh),
-                );
+            IconButton(
+              onPressed: () {
+                registeredCourses.refresh();
               },
+              icon: const Icon(Icons.refresh),
             ),
             IconButton(
               onPressed: () {
@@ -54,26 +50,26 @@ class CMSHomePage extends StatelessWidget {
   }
 }
 
-class _RegisteredCourses extends ConsumerWidget {
+class _RegisteredCourses extends StatelessWidget {
   const _RegisteredCourses();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final coursesFuture = ref.watch(registeredCoursesProvider);
-
-    return coursesFuture.when(
-      data: (courses) {
-        return ListView.builder(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          itemBuilder: (_, i) => CourseCard(course: courses[i]),
-          itemCount: courses.length,
-        );
-      },
-      error: (error, trace) => Center(
-        child: Text("$error\n$trace"),
-      ),
-      loading: () => const Center(
-        child: CircularProgressIndicator(),
+  Widget build(BuildContext context) {
+    return Watch(
+      (context) => registeredCourses.value.map(
+        data: (courses) {
+          return ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            itemBuilder: (_, i) => CourseCard(course: courses[i]),
+            itemCount: courses.length,
+          );
+        },
+        error: (error, trace) => Center(
+          child: Text("$error\n$trace"),
+        ),
+        loading: () => const Center(
+          child: CircularProgressIndicator(),
+        ),
       ),
     );
   }

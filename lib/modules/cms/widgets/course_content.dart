@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lex/modules/cms/models/course.dart';
 import 'package:lex/modules/cms/widgets/chat.dart';
 import 'package:lex/modules/cms/widgets/resource.dart';
@@ -37,13 +36,13 @@ class CourseSection extends StatelessWidget {
   }
 }
 
-class _ForumModuleCard extends ConsumerWidget {
+class _ForumModuleCard extends StatelessWidget {
   const _ForumModuleCard({required this.module});
 
   final CMSCourseModule module;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Card(
       elevation: 4,
       child: ListTile(
