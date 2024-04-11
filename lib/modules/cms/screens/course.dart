@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lex/modules/cms/models/course.dart';
 import 'package:lex/modules/cms/widgets/course_content.dart';
 import 'package:lex/providers/cms.dart';
+import 'package:lex/utils/signals.dart';
+import 'package:signals/signals_flutter.dart';
 
 class CMSCoursePage extends StatelessWidget {
   const CMSCoursePage({super.key, required this.id});
@@ -19,15 +20,11 @@ class CMSCoursePage extends StatelessWidget {
           leading: const BackButton(),
           title: _AppBarTitle(numericId),
           actions: [
-            Consumer(
-              builder: (_, ref, __) {
-                return IconButton(
-                  onPressed: () {
-                    ref.invalidate(_courseContentProvider(numericId));
-                  },
-                  icon: const Icon(Icons.refresh),
-                );
+            IconButton(
+              onPressed: () {
+                _courseContent(numericId).refresh();
               },
+              icon: const Icon(Icons.refresh),
             ),
           ],
         ),
@@ -37,45 +34,47 @@ class CMSCoursePage extends StatelessWidget {
   }
 }
 
-class _AppBarTitle extends ConsumerWidget {
+class _AppBarTitle extends StatelessWidget {
   const _AppBarTitle(this.id);
 
   final int id;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final name = ref.watch(courseTitleProvider(id));
-    return Text(name);
+  Widget build(BuildContext context) {
+    final name = courseTitle(id);
+    return Watch((context) => Text(name.value));
   }
 }
 
-final _courseContentProvider = FutureProvider.autoDispose
-    .family<List<CMSCourseContent>, int>((ref, id) async {
-  final client = ref.watch(cmsClientProvider);
-  return client.fetchCourseContent(id);
-});
+final _courseContent = asyncSignalContainer<List<CMSCourseContent>, int>(
+  (id) => computedAsync(() => cmsClient().fetchCourseContent(id)),
+  cache: true,
+);
 
-class _ContentList extends ConsumerWidget {
+class _ContentList extends StatelessWidget {
   const _ContentList({required this.id});
 
   final int id;
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final contentFuture = ref.watch(_courseContentProvider(id));
-    return contentFuture.when(
-      data: (content) {
-        return ListView.separated(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          itemBuilder: (_, i) => CourseSection(section: content[i]),
-          separatorBuilder: (_, __) => const Divider(height: 16.0),
-          itemCount: content.length,
-        );
-      },
-      error: (error, trace) => Center(
-        child: Text("$error\n$trace"),
-      ),
-      loading: () => const Center(
-        child: CircularProgressIndicator(),
+  Widget build(BuildContext context) {
+    final content = _courseContent(id);
+
+    return Watch(
+      (context) => content.value.map(
+        data: (content) {
+          return ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            itemBuilder: (_, i) => CourseSection(section: content[i]),
+            separatorBuilder: (_, __) => const Divider(height: 16.0),
+            itemCount: content.length,
+          );
+        },
+        error: (error, trace) => Center(
+          child: Text("$error\n$trace"),
+        ),
+        loading: () => const Center(
+          child: CircularProgressIndicator(),
+        ),
       ),
     );
   }
