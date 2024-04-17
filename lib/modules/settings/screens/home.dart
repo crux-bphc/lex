@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lex/modules/settings/widgets/tile.dart';
-import 'package:lex/providers/impartus.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lex/providers/preferences.dart';
 import 'package:signals/signals_flutter.dart';
@@ -30,42 +28,6 @@ class SettingsPage extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _ImpartusSettings extends ConsumerWidget {
-  const _ImpartusSettings();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final settings = ref.watch(impartusSettingsProvider);
-    final settingsNotifier = ref.watch(impartusSettingsProvider.notifier);
-    return SettingsTile(
-      title: "Impartus",
-      children: [
-        TextFormField(
-          decoration: const InputDecoration(
-            prefixIcon: Icon(Icons.email),
-            labelText: "E-Mail",
-            hintText: "f20XXXXXX@hyderabad.bits-pilani.ac.in",
-          ),
-          initialValue: settings.email,
-          onFieldSubmitted: (value) {
-            settingsNotifier.setEmail(value);
-          },
-        ),
-        TextFormField(
-          decoration: const InputDecoration(
-            prefixIcon: Icon(Icons.password),
-            labelText: "Password",
-          ),
-          initialValue: settings.password,
-          onFieldSubmitted: (value) {
-            settingsNotifier.setPassword(value);
-          },
-        ),
-      ],
     );
   }
 }
