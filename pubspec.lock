@@ -317,15 +317,7 @@ packages:
       sha256: "31c12de79262b5431c5492e9c89948aa789158435f707d3519a7fdef6af28af7"
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.22+1"
-  flutter_riverpod:
-    dependency: "direct main"
-    description:
-      name: flutter_riverpod
-      sha256: "0f1974eff5bbe774bf1d870e406fc6f29e3d6f1c46bd9c58e7172ff68a785d7d"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.5.1"
+    version: "0.6.19"
   flutter_test:
     dependency: "direct dev"
     description: flutter
