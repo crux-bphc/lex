@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signals/signals.dart';
-
-final preferencesProvider = Provider<SharedPreferences>(
-  (ref) => throw UnimplementedError(),
-);
 
 class Preferences {
   final SharedPreferences _prefs;
@@ -31,7 +26,7 @@ class Preferences {
   late final cmsToken = signal(_prefs.getString('cms_token') ?? '');
 
   void dispose() {
-    for (var cleanup in _cleanups) {
+    for (final cleanup in _cleanups) {
       cleanup();
     }
   }
