@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
@@ -45,7 +46,7 @@ class MyApp extends StatelessWidget {
       future: GetIt.instance.allReady(),
       builder: (context, snapshot) {
         return AnimatedSwitcher(
-          duration: const Duration(milliseconds: 500),
+          duration: const Duration(milliseconds: kDebugMode ? 0 : 500),
           child: (snapshot.connectionState == ConnectionState.done)
               ? MaterialApp.router(
                   key: const ValueKey("Loaded"),
