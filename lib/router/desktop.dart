@@ -36,7 +36,7 @@ class DesktopScaffold extends StatelessWidget {
               selectedIndex: selectedIndex,
               labelType: NavigationRailLabelType.all,
               minWidth: 100,
-              backgroundColor: Theme.of(context).colorScheme.background,
+              backgroundColor: Theme.of(context).colorScheme.surface,
               elevation: 6,
               leading: const Padding(
                 padding: EdgeInsets.only(top: 10, bottom: 40),
