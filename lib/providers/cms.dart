@@ -17,9 +17,9 @@ final courseTitle = readonlySignalContainer<String, int>((id) {
   final courses = registeredCourses().value;
   if (courses == null) {
     logger.w("Registered courses were not loaded");
-    return readonlySignal('');
+    return signal('');
   }
 
   final course = courses.firstWhere((course) => course.id == id);
-  return readonlySignal(course.displayname);
+  return signal(course.displayname);
 });
