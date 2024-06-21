@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lex/modules/settings/widgets/tile.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lex/providers/auth/auth_provider.dart';
 import 'package:lex/providers/preferences.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -24,7 +26,7 @@ class SettingsPage extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: ListView(
-            children: const [_CMSSettings()],
+            children: const [_CMSSettings(), _AccountSettings()],
           ),
         ),
       ),
@@ -95,6 +97,32 @@ class _CMSSettings extends StatelessWidget {
             onFieldSubmitted: (value) {
               token.value = value;
             },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _AccountSettings extends StatelessWidget {
+  const _AccountSettings();
+
+  @override
+  Widget build(BuildContext context) {
+    final auth = GetIt.instance<AuthProvider>();
+
+    return SettingsTile(
+      title: "Account",
+      children: [
+        Watch(
+          (context) => OutlinedButton.icon(
+            onPressed: auth.isAuthed()
+                ? () {
+                    auth.logout();
+                  }
+                : null,
+            icon: const Icon(LucideIcons.log_out),
+            label: const Text("Logout"),
           ),
         ),
       ],
