@@ -18,7 +18,7 @@ class SettingsPage extends StatelessWidget {
         title: const Text("Settings"),
         leading: BackButton(
           onPressed: () {
-            context.go('/cms');
+            context.pop();
           },
         ),
       ),
