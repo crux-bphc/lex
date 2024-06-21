@@ -22,7 +22,7 @@ class MobileScaffold extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
-              context.go('/settings');
+              context.push('/settings');
             },
           ),
         ],

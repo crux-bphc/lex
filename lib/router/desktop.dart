@@ -64,7 +64,7 @@ class DesktopScaffold extends StatelessWidget {
                       IconButton(
                         icon: const Icon(LucideIcons.settings),
                         onPressed: () {
-                          context.go('/settings');
+                          context.push('/settings');
                         },
                       ),
                     ],
