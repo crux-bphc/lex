@@ -47,12 +47,15 @@ class KeycloakAuthProvider extends AuthProvider {
         );
 
   @override
-  Future<void> initialise() {
+  Future<void> initialise() async {
     final sub = _authManager.userChanges().listen((user) {
       _currentUser.value = user != null ? AuthUser.fromOidcUser(user) : null;
     });
     _cleanups.add(sub.cancel);
-    return _authManager.init();
+    await _authManager.init();
+
+    // if this, for some reason, is null we can't logout
+    assert(_authManager.discoveryDocument.endSessionEndpoint != null);
   }
 
   @override
@@ -75,6 +78,9 @@ class KeycloakAuthProvider extends AuthProvider {
       return false;
     }
     final dio = user.bearerClient;
+
+    // The default logout method that the Oidc auth manager
+    // uses opens a new browser tab.
 
     final response = await dio.postUri(
       _authManager.discoveryDocument.endSessionEndpoint!,

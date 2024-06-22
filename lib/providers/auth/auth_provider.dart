@@ -5,6 +5,7 @@ abstract class AuthProvider {
   ReadonlySignal<AuthUser?> get currentUser;
   ReadonlySignal<bool> get isAuthed;
 
+  /// To be called before the app is in a usable state
   Future<void> initialise();
 
   Future<void> login();
