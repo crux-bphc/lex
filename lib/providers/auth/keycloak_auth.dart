@@ -1,10 +1,14 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
+import 'package:lex/providers/auth/auth_user.dart';
 import 'package:oidc/oidc.dart';
 import 'package:oidc_default_store/oidc_default_store.dart';
 import 'package:signals/signals.dart';
+
+const _clientId = "lex";
 
 const _cruxIssuerUrl = "https://auth.crux-bphc.com/realms/CRUx";
 
@@ -16,7 +20,7 @@ const _platformSpecificOptions = OidcPlatformSpecificOptions(
 
 class KeycloakAuthProvider extends AuthProvider {
   final OidcUserManager _authManager;
-  final _currentUser = signal<OidcUser?>(null);
+  final _currentUser = signal<AuthUser?>(null);
 
   final List<Function> _cleanups = [];
 
@@ -32,7 +36,7 @@ class KeycloakAuthProvider extends AuthProvider {
             Uri.parse(_cruxIssuerUrl),
           ),
           clientCredentials:
-              const OidcClientAuthentication.none(clientId: "lex"),
+              const OidcClientAuthentication.none(clientId: _clientId),
           store: OidcDefaultStore(),
           settings: OidcUserManagerSettings(
             redirectUri: Uri.parse(_getRedirectUri()),
@@ -46,7 +50,7 @@ class KeycloakAuthProvider extends AuthProvider {
   @override
   Future<void> initialise() {
     final sub = _authManager.userChanges().listen((user) {
-      _currentUser.value = user;
+      _currentUser.value = user != null ? AuthUser.fromOidcUser(user) : null;
     });
     _cleanups.add(sub.cancel);
     return _authManager.init();

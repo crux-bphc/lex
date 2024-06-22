@@ -1,7 +1,8 @@
+import 'package:lex/providers/auth/auth_user.dart';
 import 'package:signals/signals.dart';
 
 abstract class AuthProvider {
-  ReadonlySignal get currentUser;
+  ReadonlySignal<AuthUser?> get currentUser;
   ReadonlySignal<bool> get isAuthed;
 
   Future<void> initialise();
