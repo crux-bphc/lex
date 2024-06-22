@@ -40,7 +40,6 @@ class KeycloakAuthProvider extends AuthProvider {
           store: OidcDefaultStore(),
           settings: OidcUserManagerSettings(
             redirectUri: Uri.parse(_getRedirectUri()),
-            postLogoutRedirectUri: Uri.parse(_getPostLogoutUri()),
             scope: ['openid', 'profile', 'email'],
             strictJwtVerification: true,
             options: _platformSpecificOptions,
@@ -98,22 +97,6 @@ class KeycloakAuthProvider extends AuthProvider {
     }
     _authManager.dispose();
   }
-}
-
-String _getPostLogoutUri() {
-  if (kIsWeb) {
-    return "${Uri.base.origin}/redirect.html";
-  }
-
-  if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
-    return "com.thecomputerm.lex:/logoutredirect";
-  }
-
-  if (Platform.isWindows || Platform.isLinux) {
-    return "http://localhost:0";
-  }
-
-  return "";
 }
 
 String _getRedirectUri() {
