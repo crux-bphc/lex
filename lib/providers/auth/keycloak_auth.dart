@@ -63,7 +63,32 @@ class KeycloakAuthProvider extends AuthProvider {
 
   @override
   Future<void> logout() async {
-    await _authManager.logout();
+    final success = await _postEndSessionRequest();
+    if (success) {
+      await _authManager.forgetUser();
+    }
+  }
+
+  /// Log out without needing a new browser tab
+  Future<bool> _postEndSessionRequest() async {
+    final user = _currentUser.peek();
+    if (user == null) {
+      return false;
+    }
+    final dio = user.bearerClient;
+
+    final response = await dio.postUri(
+      _authManager.discoveryDocument.endSessionEndpoint!,
+      options: Options(contentType: "application/x-www-form-urlencoded"),
+      data: {
+        "client_id": _clientId,
+        "refresh_token": user.refreshToken!,
+      },
+    );
+
+    if (response.statusCode == null) return false;
+
+    return 200 <= response.statusCode! && response.statusCode! < 300;
   }
 
   @override
