@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
@@ -6,7 +5,6 @@ import 'package:lex/providers/auth/keycloak_auth.dart';
 import 'package:lex/providers/preferences.dart';
 import 'package:lex/router/router.dart';
 import 'package:media_kit/media_kit.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:signals/signals_flutter.dart';
 
 Future<void> main() async {
@@ -34,34 +32,34 @@ void _setupGetIt() {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: GetIt.instance.allReady(),
-      builder: (context, snapshot) {
-        return AnimatedSwitcher(
-          duration: const Duration(milliseconds: kDebugMode ? 0 : 500),
-          child: (snapshot.connectionState == ConnectionState.done)
-              ? MaterialApp.router(
-                  key: const ValueKey("Loaded"),
-                  routerConfig: router,
-                  themeMode:
-                      GetIt.instance<Preferences>().themeMode.watch(context),
-                  theme: _buildTheme(ThemeMode.light),
-                  darkTheme: _buildTheme(ThemeMode.dark),
-                )
-              : const _InitialLoadingPage(),
-        );
-      },
-    );
-  }
+  State<MyApp> createState() => _AppState();
 }
 
-class _InitialLoadingPage extends StatelessWidget {
-  const _InitialLoadingPage();
+class _AppState extends State<MyApp> {
+  final getIt = GetIt.instance;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _getItReady();
+  }
+
+  void _getItReady() async {
+    await getIt.allReady();
+
+    // at this point we are almost certainly mounted
+    // but to keep the linter happy:
+    if (!mounted) return;
+    final isAuthed = getIt<AuthProvider>().isAuthed;
+    isAuthed.listen(context, () {
+      router.refresh();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,17 +69,6 @@ class _InitialLoadingPage extends StatelessWidget {
       themeMode: getIt<Preferences>().themeMode.watch(context),
       theme: _buildTheme(ThemeMode.light),
       darkTheme: _buildTheme(ThemeMode.dark),
-      themeMode: ThemeMode.dark,
-      home: Scaffold(
-        body: Center(
-          child: Text(
-            "Lex",
-            style: TextStyle(
-              fontSize: Theme.of(context).textTheme.displayLarge?.fontSize,
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

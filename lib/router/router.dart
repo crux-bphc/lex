@@ -10,12 +10,17 @@ import 'package:lex/modules/settings/screens/home.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
 import 'package:lex/router/scaffold.dart';
 import 'package:go_router/go_router.dart';
-import 'package:signals/signals_flutter.dart';
+import 'package:lex/modules/auth/startup_auth_page.dart';
 
 final _cmsNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'cms');
 final _multipartusNavigatorKey = GlobalKey<NavigatorState>(
   debugLabel: 'multipartus',
 );
+
+const _defaultInitialLocation = '/multipartus';
+
+// TODO: store this in local storage
+String? _initialLocation;
 
 final _cmsRoutes = [
   ShellRoute(
@@ -48,8 +53,38 @@ final _cmsRoutes = [
 ];
 
 final router = GoRouter(
-  initialLocation: '/multipartus',
+  redirect: (context, state) {
+    // capture the first location the user tried reaching
+    // so that after loading the user can be redirected back
+    _initialLocation ??= state.uri.toString();
+
+    final getIt = GetIt.instance;
+
+    // still loading
+    if (!getIt.allReadySync()) {
+      return '/';
+    }
+    final isAuthed = getIt<AuthProvider>().isAuthed();
+
+    // logged out
+    if (!isAuthed) {
+      return '/';
+    }
+
+    // done logging in
+    if (isAuthed && state.matchedLocation == '/') {
+      return _initialLocation != '/'
+          ? _initialLocation!
+          : _defaultInitialLocation;
+    }
+
+    return null;
+  },
   routes: [
+    GoRoute(
+      path: '/',
+      builder: (context, state) => const StartupAuthPage(),
+    ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
         return AppShellScaffold(
@@ -66,8 +101,7 @@ final router = GoRouter(
           routes: [
             GoRoute(
               path: '/multipartus',
-              builder: (context, state) =>
-                  const AuthWall(MultipartusHomePage()),
+              builder: (context, state) => const MultipartusHomePage(),
             ),
           ],
         ),
@@ -79,56 +113,3 @@ final router = GoRouter(
     ),
   ],
 );
-
-// you shall not pass
-class AuthWall extends StatelessWidget {
-  const AuthWall(this.child, {super.key});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final auth = GetIt.instance<AuthProvider>();
-    return auth.isAuthed.watch(context)
-        ? child
-        : Scaffold(
-            body: Column(
-              children: [
-                Expanded(
-                  flex: 1,
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        const Text(
-                          "LEX",
-                          style: TextStyle(
-                            fontSize: 120,
-                            letterSpacing: 10,
-                            height: 1.2,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const Text(
-                          "Powered by cruX",
-                          style: TextStyle(
-                            letterSpacing: 1,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        OutlinedButton(
-                          onPressed: () {
-                            auth.login();
-                          },
-                          child: const Text('LOGIN'),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const Expanded(flex: 1, child: SizedBox()),
-              ],
-            ),
-          );
-  }
-}
