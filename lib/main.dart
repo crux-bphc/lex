@@ -19,11 +19,8 @@ Future<void> main() async {
 }
 
 void _setupGetIt() {
-  GetIt.instance.registerSingletonAsync<Preferences>(
-    () async {
-      final prefs = await SharedPreferences.getInstance();
-      return Preferences(prefs);
-    },
+  GetIt.instance.registerSingleton<Preferences>(
+    Preferences()..initialize(),
     dispose: (prefs) => prefs.dispose(),
   );
 
@@ -68,7 +65,11 @@ class _InitialLoadingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
+      key: const ValueKey("Loaded"),
+      routerConfig: router,
+      themeMode: getIt<Preferences>().themeMode.watch(context),
+      theme: _buildTheme(ThemeMode.light),
       darkTheme: _buildTheme(ThemeMode.dark),
       themeMode: ThemeMode.dark,
       home: Scaffold(
