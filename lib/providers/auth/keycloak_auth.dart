@@ -28,7 +28,7 @@ class KeycloakAuthProvider extends AuthProvider {
   late final currentUser = _currentUser.readonly();
 
   @override
-  late final isAuthed = computed(() => currentUser() != null);
+  late final isAuthed = computed(() => _currentUser() != null);
 
   KeycloakAuthProvider()
       : _authManager = OidcUserManager.lazy(
@@ -73,7 +73,7 @@ class KeycloakAuthProvider extends AuthProvider {
 
   /// Log out without needing a new browser tab
   Future<bool> _postEndSessionRequest() async {
-    final user = _currentUser.peek();
+    final user = _currentUser.value;
     if (user == null) {
       return false;
     }
