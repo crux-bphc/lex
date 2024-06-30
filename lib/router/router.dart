@@ -64,15 +64,15 @@ final router = GoRouter(
     if (!getIt.allReadySync()) {
       return '/';
     }
-    final isAuthed = getIt<AuthProvider>().isAuthed();
+    final isLoggedIn = getIt<AuthProvider>().isLoggedIn();
 
     // logged out
-    if (!isAuthed) {
+    if (!isLoggedIn) {
       return '/';
     }
 
     // done logging in
-    if (isAuthed && state.matchedLocation == '/') {
+    if (isLoggedIn && state.matchedLocation == '/') {
       return _initialLocation != '/'
           ? _initialLocation!
           : _defaultInitialLocation;
