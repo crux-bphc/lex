@@ -19,7 +19,7 @@ class StartupAuthPage extends StatelessWidget {
           // the check for auth is so that the user doesn't see the login button
           // if they are already logged in (for the split second where the app
           // is transitioning)
-          showSignIn: ready && !GetIt.instance<AuthProvider>().isAuthed(),
+          showSignIn: ready && !GetIt.instance<AuthProvider>().isLoggedIn(),
         );
       },
     );
