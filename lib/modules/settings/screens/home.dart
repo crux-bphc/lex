@@ -116,7 +116,7 @@ class _AccountSettings extends StatelessWidget {
       children: [
         Watch(
           (context) => OutlinedButton.icon(
-            onPressed: auth.isAuthed()
+            onPressed: auth.isLoggedIn()
                 ? () {
                     auth.logout();
                   }

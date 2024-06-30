@@ -27,9 +27,6 @@ class KeycloakAuthProvider extends AuthProvider {
   @override
   late final currentUser = _currentUser.readonly();
 
-  @override
-  late final isAuthed = computed(() => _currentUser() != null);
-
   KeycloakAuthProvider()
       : _authManager = OidcUserManager.lazy(
           discoveryDocumentUri: OidcUtils.getOpenIdConfigWellKnownUri(
