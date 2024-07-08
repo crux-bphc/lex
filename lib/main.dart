@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
 import 'package:lex/providers/auth/keycloak_auth.dart';
 import 'package:lex/providers/backend.dart';
@@ -36,6 +37,11 @@ void _setupGetIt() {
   getIt.registerSingletonWithDependencies<LexBackend>(
     () => LexBackend(getIt<AuthProvider>()),
     dependsOn: [AuthProvider],
+  );
+
+  getIt.registerSingletonWithDependencies<MultipartusService>(
+    () => MultipartusService(getIt<LexBackend>()),
+    dependsOn: [LexBackend],
   );
 }
 
