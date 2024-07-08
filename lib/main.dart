@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
 import 'package:lex/providers/auth/keycloak_auth.dart';
+import 'package:lex/providers/backend.dart';
 import 'package:lex/providers/preferences.dart';
 import 'package:lex/router/router.dart';
 import 'package:media_kit/media_kit.dart';
@@ -17,18 +18,24 @@ Future<void> main() async {
 }
 
 void _setupGetIt() {
-  GetIt.instance.registerSingleton<Preferences>(
+  final getIt = GetIt.instance;
+  getIt.registerSingleton<Preferences>(
     Preferences()..initialize(),
     dispose: (prefs) => prefs.dispose(),
   );
 
-  GetIt.instance.registerSingletonAsync<AuthProvider>(
+  getIt.registerSingletonAsync<AuthProvider>(
     () async {
       final auth = KeycloakAuthProvider();
       await auth.initialise();
       return auth;
     },
     dispose: (auth) => auth.dispose(),
+  );
+
+  getIt.registerSingletonWithDependencies<LexBackend>(
+    () => LexBackend(getIt<AuthProvider>()),
+    dependsOn: [AuthProvider],
   );
 }
 
