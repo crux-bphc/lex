@@ -22,7 +22,7 @@ class MultipartusLoginGate extends StatelessWidget {
           ? child
           : Center(
               child: SizedBox(
-                width: 450,
+                width: 500,
                 child: _Login(onLogin: handleLogin),
               ),
             ),
@@ -68,6 +68,7 @@ class _LoginState extends State<_Login> {
                 context: context,
                 builder: (context) => const DisclaimerDialog(),
                 barrierDismissible: false,
+                useRootNavigator: false,
               );
               setState(() {
                 didReadDisclaimer = result;
@@ -80,7 +81,7 @@ class _LoginState extends State<_Login> {
           onPressed: didReadDisclaimer
               ? () => widget.onLogin(passwordController.text)
               : null,
-          child: const Text("Login"),
+          child: const Text("LOGIN"),
         ),
       ],
     );

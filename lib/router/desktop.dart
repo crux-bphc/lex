@@ -31,43 +31,54 @@ class DesktopScaffold extends StatelessWidget {
       body: SafeArea(
         child: Row(
           children: [
-            NavigationRail(
-              onDestinationSelected: onDestinationSelected,
-              selectedIndex: selectedIndex,
-              labelType: NavigationRailLabelType.all,
-              minWidth: 100,
-              backgroundColor: Theme.of(context).colorScheme.surface,
-              elevation: 6,
-              leading: const Padding(
-                padding: EdgeInsets.only(top: 10, bottom: 40),
-                child: Placeholder(
-                  fallbackHeight: 60,
-                  fallbackWidth: 60,
-                ),
-              ),
-              destinations: [
-                for (final item in _navItems)
-                  NavigationRailDestination(
-                    icon: Icon(item.icon),
-                    label: Text(item.label),
-                    padding: const EdgeInsets.symmetric(vertical: 5),
+            Container(
+              decoration: const BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    spreadRadius: 0,
                   ),
-              ],
-              trailing: Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      const ThemeSwitcher(),
-                      const SizedBox(height: 2),
-                      IconButton(
-                        icon: const Icon(LucideIcons.settings),
-                        onPressed: () {
-                          context.push('/settings');
-                        },
-                      ),
-                    ],
+                ],
+              ),
+              margin: const EdgeInsets.only(right: 2),
+              child: NavigationRail(
+                onDestinationSelected: onDestinationSelected,
+                selectedIndex: selectedIndex,
+                labelType: NavigationRailLabelType.all,
+                minWidth: 100,
+                backgroundColor: Theme.of(context).colorScheme.surface,
+                elevation: 6,
+                leading: const Padding(
+                  padding: EdgeInsets.only(top: 10, bottom: 40),
+                  child: Placeholder(
+                    fallbackHeight: 60,
+                    fallbackWidth: 60,
+                  ),
+                ),
+                destinations: [
+                  for (final item in _navItems)
+                    NavigationRailDestination(
+                      icon: Icon(item.icon),
+                      label: Text(item.label),
+                      padding: const EdgeInsets.symmetric(vertical: 5),
+                    ),
+                ],
+                trailing: Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        const ThemeSwitcher(),
+                        const SizedBox(height: 2),
+                        IconButton(
+                          icon: const Icon(LucideIcons.settings),
+                          onPressed: () {
+                            context.push('/settings');
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
