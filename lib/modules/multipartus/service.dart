@@ -1,3 +1,4 @@
+import 'package:lex/modules/multipartus/models/subject.dart';
 import 'package:lex/providers/backend.dart';
 import 'package:signals/signals.dart';
 
@@ -5,10 +6,13 @@ class MultipartusService {
   final LexBackend _backend;
 
   MultipartusService(this._backend) {
-    subjects = futureSignal(() async {
+    subjects = futureSignal<List<Subject>>(() async {
       final r = await _backend.client?.get('/impartus/user/subjects');
-      final data = r?.data;
-      return data is List ? data.map((e) => e["name"] as String).toList() : [];
+      if (r?.data is! List) return [];
+
+      return (r!.data! as List)
+          .map((e) => Subject.fromJson(e))
+          .toList(growable: false);
     });
 
     isRegistered = futureSignal(
@@ -22,7 +26,7 @@ class MultipartusService {
   }
 
   late final FutureSignal<bool> isRegistered;
-  late final FutureSignal<List<String>> subjects;
+  late final FutureSignal<List<Subject>> subjects;
 
   Future<void> registerUser(String impartusPassword) async {
     await _backend.client?.post(

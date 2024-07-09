@@ -6,19 +6,21 @@ part of 'subject.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$_ImpartusSubject _$$_ImpartusSubjectFromJson(Map<String, dynamic> json) =>
-    _$_ImpartusSubject(
-      subjectId: json['subjectId'] as int,
+_$ImpartusSubjectImpl _$$ImpartusSubjectImplFromJson(
+        Map<String, dynamic> json) =>
+    _$ImpartusSubjectImpl(
+      subjectId: (json['subjectId'] as num).toInt(),
       subjectName: json['subjectName'] as String,
-      sessionId: json['sessionId'] as int,
+      sessionId: (json['sessionId'] as num).toInt(),
       professorName: json['professorName'] as String,
-      videoCount: json['videoCount'] as int,
+      videoCount: (json['videoCount'] as num).toInt(),
     );
 
-_$_ImpartusLecture _$$_ImpartusLectureFromJson(Map<String, dynamic> json) =>
-    _$_ImpartusLecture(
-      videoId: json['videoId'] as int,
-      ttid: json['ttid'] as int,
+_$ImpartusLectureImpl _$$ImpartusLectureImplFromJson(
+        Map<String, dynamic> json) =>
+    _$ImpartusLectureImpl(
+      videoId: (json['videoId'] as num).toInt(),
+      ttid: (json['ttid'] as num).toInt(),
       topic: json['topic'] as String,
       professorName: json['professorName'] as String,
     );

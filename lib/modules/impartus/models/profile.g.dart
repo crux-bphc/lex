@@ -6,11 +6,12 @@ part of 'profile.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$_ImpartusProfile _$$_ImpartusProfileFromJson(Map<String, dynamic> json) =>
-    _$_ImpartusProfile(
-      userId: json['userId'] as int,
+_$ImpartusProfileImpl _$$ImpartusProfileImplFromJson(
+        Map<String, dynamic> json) =>
+    _$ImpartusProfileImpl(
+      userId: (json['userId'] as num).toInt(),
       fname: json['fname'] as String,
-      sessionId: json['sessionId'] as int,
+      sessionId: (json['sessionId'] as num).toInt(),
       batchName: json['batchName'] as String,
       batchId: json['batchId'] as String,
     );

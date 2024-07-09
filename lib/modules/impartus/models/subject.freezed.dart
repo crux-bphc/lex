@@ -12,7 +12,7 @@ part of 'subject.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 ImpartusSubject _$ImpartusSubjectFromJson(Map<String, dynamic> json) {
   return _ImpartusSubject.fromJson(json);
@@ -29,16 +29,16 @@ mixin _$ImpartusSubject {
 
 /// @nodoc
 @JsonSerializable(createToJson: false)
-class _$_ImpartusSubject implements _ImpartusSubject {
-  const _$_ImpartusSubject(
+class _$ImpartusSubjectImpl implements _ImpartusSubject {
+  const _$ImpartusSubjectImpl(
       {required this.subjectId,
       required this.subjectName,
       required this.sessionId,
       required this.professorName,
       required this.videoCount});
 
-  factory _$_ImpartusSubject.fromJson(Map<String, dynamic> json) =>
-      _$$_ImpartusSubjectFromJson(json);
+  factory _$ImpartusSubjectImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ImpartusSubjectImplFromJson(json);
 
   @override
   final int subjectId;
@@ -63,10 +63,10 @@ abstract class _ImpartusSubject implements ImpartusSubject {
       required final String subjectName,
       required final int sessionId,
       required final String professorName,
-      required final int videoCount}) = _$_ImpartusSubject;
+      required final int videoCount}) = _$ImpartusSubjectImpl;
 
   factory _ImpartusSubject.fromJson(Map<String, dynamic> json) =
-      _$_ImpartusSubject.fromJson;
+      _$ImpartusSubjectImpl.fromJson;
 
   @override
   int get subjectId;
@@ -94,15 +94,15 @@ mixin _$ImpartusLecture {
 
 /// @nodoc
 @JsonSerializable(createToJson: false)
-class _$_ImpartusLecture implements _ImpartusLecture {
-  const _$_ImpartusLecture(
+class _$ImpartusLectureImpl implements _ImpartusLecture {
+  const _$ImpartusLectureImpl(
       {required this.videoId,
       required this.ttid,
       required this.topic,
       required this.professorName});
 
-  factory _$_ImpartusLecture.fromJson(Map<String, dynamic> json) =>
-      _$$_ImpartusLectureFromJson(json);
+  factory _$ImpartusLectureImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ImpartusLectureImplFromJson(json);
 
   @override
   final int videoId;
@@ -124,10 +124,10 @@ abstract class _ImpartusLecture implements ImpartusLecture {
       {required final int videoId,
       required final int ttid,
       required final String topic,
-      required final String professorName}) = _$_ImpartusLecture;
+      required final String professorName}) = _$ImpartusLectureImpl;
 
   factory _ImpartusLecture.fromJson(Map<String, dynamic> json) =
-      _$_ImpartusLecture.fromJson;
+      _$ImpartusLectureImpl.fromJson;
 
   @override
   int get videoId;

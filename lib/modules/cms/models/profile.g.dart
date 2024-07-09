@@ -6,8 +6,9 @@ part of 'profile.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$_CMSUser _$$_CMSUserFromJson(Map<String, dynamic> json) => _$_CMSUser(
+_$CMSUserImpl _$$CMSUserImplFromJson(Map<String, dynamic> json) =>
+    _$CMSUserImpl(
       username: json['username'] as String,
       firstname: json['firstname'] as String,
-      userid: json['userid'] as int,
+      userid: (json['userid'] as num).toInt(),
     );
