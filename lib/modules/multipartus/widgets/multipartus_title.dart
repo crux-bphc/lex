@@ -9,13 +9,19 @@ class MultipartusTitle extends StatelessWidget {
       TextSpan(
         text: 'MULTI',
         children: [
-          TextSpan(text: 'PARTUS'),
+          TextSpan(
+            text: 'PARTUS',
+            style: TextStyle(
+              color: Color(0xFF434C5D),
+            ),
+          ),
         ],
       ),
       style: TextStyle(
         fontSize: 50,
         fontWeight: FontWeight.w700,
         letterSpacing: 8,
+        height: 1,
       ),
     );
   }

@@ -110,57 +110,61 @@ ThemeData _buildTheme(ThemeMode mode) {
       hintStyle: const TextStyle(height: 1),
       isDense: true,
     ),
-    scaffoldBackgroundColor: scheme.surface,
-    outlinedButtonTheme: OutlinedButtonThemeData(
-      style: ButtonStyle(
-        shape: WidgetStatePropertyAll(
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(6),
-          ),
-        ),
-        textStyle: const WidgetStatePropertyAll(
-          TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.3),
-        ),
-        foregroundColor: WidgetStateProperty.resolveWith(
-          (states) =>
-              states.contains(WidgetState.disabled) ? null : scheme.secondary,
-        ),
-        backgroundColor: const WidgetStatePropertyAll(Color(0xFF2E3440)),
-        padding: const WidgetStatePropertyAll(
-          EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        ),
-        side: WidgetStateProperty.resolveWith(
-          (states) => BorderSide(
-            width: 1,
-            color: states.contains(WidgetState.disabled)
-                ? const Color.fromARGB(61, 195, 195, 195)
-                : scheme.secondary,
-          ),
-        ),
-        mouseCursor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.disabled)
-              ? SystemMouseCursors.forbidden
-              : SystemMouseCursors.click,
-        ),
-      ),
-    ),
-    dialogTheme: DialogTheme(
-      backgroundColor: const Color(0xFF2E3440),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(6),
-        side: const BorderSide(
-          color: Color(0xFF434C5D),
-          width: 1,
-        ),
-      ),
-      titleTextStyle: TextStyle(
-        fontSize: 30,
-        fontWeight: FontWeight.w600,
-        color: scheme.secondary,
-      ),
-      barrierColor: Colors.black.withOpacity(0.3),
-    ),
   );
+  if (mode == ThemeMode.dark) {
+    return theme.copyWith(
+      scaffoldBackgroundColor: scheme.surface,
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: ButtonStyle(
+          shape: WidgetStatePropertyAll(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+            ),
+          ),
+          textStyle: const WidgetStatePropertyAll(
+            TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.3),
+          ),
+          foregroundColor: WidgetStateProperty.resolveWith(
+            (states) =>
+                states.contains(WidgetState.disabled) ? null : scheme.secondary,
+          ),
+          backgroundColor: const WidgetStatePropertyAll(Color(0xFF2E3440)),
+          padding: const WidgetStatePropertyAll(
+            EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          ),
+          side: WidgetStateProperty.resolveWith(
+            (states) => BorderSide(
+              width: 1,
+              color: states.contains(WidgetState.disabled)
+                  ? const Color.fromARGB(61, 195, 195, 195)
+                  : scheme.secondary,
+            ),
+          ),
+          mouseCursor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.disabled)
+                ? SystemMouseCursors.forbidden
+                : SystemMouseCursors.click,
+          ),
+        ),
+      ),
+      dialogTheme: DialogTheme(
+        backgroundColor: const Color(0xFF2E3440),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(6),
+          side: const BorderSide(
+            color: Color(0xFF434C5D),
+            width: 1,
+          ),
+        ),
+        titleTextStyle: TextStyle(
+          fontSize: 30,
+          fontWeight: FontWeight.w600,
+          color: scheme.secondary,
+        ),
+        barrierColor: Colors.black.withOpacity(0.3),
+      ),
+    );
+  }
 
   return theme;
 }
