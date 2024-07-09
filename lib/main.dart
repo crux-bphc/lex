@@ -87,16 +87,21 @@ class _AppState extends State<MyApp> {
 }
 
 ThemeData _buildTheme(ThemeMode mode) {
-  final scheme = ColorScheme.fromSeed(
+  var scheme = ColorScheme.fromSeed(
     seedColor: Colors.indigoAccent,
-    brightness: Brightness.dark,
-  ).copyWith(
-    surface: const Color(0xFF1E2128),
-    error: const Color(0xFFBF616A),
-    onSurface: const Color(0xFFF8F8FF),
-    onError: const Color(0xFFBF616A),
-    secondary: const Color(0xFFEBCB8B),
+    brightness: mode == ThemeMode.dark ? Brightness.dark : Brightness.light,
   );
+
+  if (mode == ThemeMode.dark) {
+    scheme = scheme.copyWith(
+      surface: const Color(0xFF1E2128),
+      error: const Color(0xFFBF616A),
+      onSurface: const Color(0xFFF8F8FF),
+      onError: const Color(0xFFBF616A),
+      secondary: const Color(0xFFEBCB8B),
+      surfaceContainerHighest: const Color(0xFF2E3440),
+    );
+  }
 
   final theme = ThemeData.from(
     colorScheme: mode == ThemeMode.dark
@@ -107,10 +112,22 @@ ThemeData _buildTheme(ThemeMode mode) {
     splashFactory: NoSplash.splashFactory,
     inputDecorationTheme: InputDecorationTheme(
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-      hintStyle: const TextStyle(height: 1),
       isDense: true,
     ),
+    searchBarTheme: SearchBarThemeData(
+      shape: WidgetStatePropertyAll(
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+      padding: const WidgetStatePropertyAll(EdgeInsets.fromLTRB(14, 7, 14, 8)),
+      side:
+          WidgetStatePropertyAll(BorderSide(width: 1, color: scheme.onSurface)),
+      constraints: const BoxConstraints(),
+      textStyle: const WidgetStatePropertyAll(TextStyle(height: 1)),
+      elevation: const WidgetStatePropertyAll(0),
+      backgroundColor: const WidgetStatePropertyAll(Colors.transparent),
+    ),
   );
+
   if (mode == ThemeMode.dark) {
     return theme.copyWith(
       scaffoldBackgroundColor: scheme.surface,
@@ -148,7 +165,7 @@ ThemeData _buildTheme(ThemeMode mode) {
         ),
       ),
       dialogTheme: DialogTheme(
-        backgroundColor: const Color(0xFF2E3440),
+        backgroundColor: scheme.surfaceContainerHighest,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(6),
           side: const BorderSide(
