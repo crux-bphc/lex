@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lex/modules/multipartus/widgets/delayed_button.dart';
@@ -26,7 +27,7 @@ class DisclaimerDialog extends StatelessWidget {
             contentTextStyle: const TextStyle(fontSize: 21),
             actions: [
               DelayedButton(
-                duration: const Duration(seconds: 3),
+                duration: const Duration(seconds: kDebugMode ? 0 : 3),
                 buttonBuilder: (context, onPressed) => OutlinedButton(
                   onPressed: onPressed,
                   child: const Text("PROCEED"),

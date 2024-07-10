@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:lex/widgets/powered_by_crux.dart';
 
 class MultipartusTitle extends StatelessWidget {
-  const MultipartusTitle({super.key});
+  const MultipartusTitle({super.key, this.poweredByCrux = false});
+
+  final bool poweredByCrux;
 
   @override
   Widget build(BuildContext context) {
-    return const Text.rich(
+    const child = Text.rich(
       TextSpan(
         text: 'MULTI',
         children: [
@@ -17,6 +20,7 @@ class MultipartusTitle extends StatelessWidget {
           ),
         ],
       ),
+      textWidthBasis: TextWidthBasis.longestLine,
       style: TextStyle(
         fontSize: 50,
         fontWeight: FontWeight.w700,
@@ -24,5 +28,9 @@ class MultipartusTitle extends StatelessWidget {
         height: 1,
       ),
     );
+
+    return poweredByCrux
+        ? const PoweredByCrux(alignment: Alignment.centerRight, child: child)
+        : child;
   }
 }

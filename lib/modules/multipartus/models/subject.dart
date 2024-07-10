@@ -13,8 +13,9 @@ class Subject with _$Subject {
     required String name,
   }) = _Subject;
 
-  String get department => id.code;
-  String get code => id.department;
+  String get department => id.department;
+  String get code => id.code;
+  String get fullCode => '$department $code';
 
   factory Subject.fromJson(Map<String, Object?> json) =>
       _$SubjectFromJson(json);
