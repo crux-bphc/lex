@@ -87,6 +87,11 @@ class _LoginState extends State<_Login> {
           textAlign: TextAlign.center,
           obscureText: true,
           autofocus: false,
+          onSubmitted: (text) {
+            if (_didReadDisclaimer) {
+              widget.onLogin(text);
+            }
+          },
         ),
         const SizedBox(height: 20),
         OutlinedButton(
