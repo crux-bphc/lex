@@ -46,8 +46,31 @@ class _Login extends StatefulWidget {
 }
 
 class _LoginState extends State<_Login> {
-  final passwordController = TextEditingController();
-  bool didReadDisclaimer = false;
+  final _passwordController = TextEditingController();
+  final _focusNode = FocusNode();
+  bool _didReadDisclaimer = false;
+
+  void showDisclaimerDialog() async {
+    final result = await showDialog(
+      context: context,
+      builder: (context) => const DisclaimerDialog(),
+      barrierDismissible: false,
+      useRootNavigator: false,
+    );
+    setState(() {
+      _didReadDisclaimer = result;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode.addListener(() {
+      if (_focusNode.hasFocus && !_didReadDisclaimer) {
+        showDisclaimerDialog();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,30 +79,19 @@ class _LoginState extends State<_Login> {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         const MultipartusTitle(),
+        const SizedBox(height: 14),
         TextField(
-          controller: passwordController,
+          controller: _passwordController,
+          focusNode: _focusNode,
           decoration: const InputDecoration(hintText: "Impartus Password"),
           textAlign: TextAlign.center,
           obscureText: true,
           autofocus: false,
-          onTap: () async {
-            if (!didReadDisclaimer) {
-              final result = await showDialog(
-                context: context,
-                builder: (context) => const DisclaimerDialog(),
-                barrierDismissible: false,
-                useRootNavigator: false,
-              );
-              setState(() {
-                didReadDisclaimer = result;
-              });
-            }
-          },
         ),
         const SizedBox(height: 20),
         OutlinedButton(
-          onPressed: didReadDisclaimer
-              ? () => widget.onLogin(passwordController.text)
+          onPressed: _didReadDisclaimer
+              ? () => widget.onLogin(_passwordController.text)
               : null,
           child: const Text("LOGIN"),
         ),
@@ -89,7 +101,8 @@ class _LoginState extends State<_Login> {
 
   @override
   void dispose() {
-    passwordController.dispose();
+    _passwordController.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 }
