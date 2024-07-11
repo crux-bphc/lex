@@ -44,4 +44,12 @@ class SubjectId {
     final parts = id.split('-');
     return SubjectId(parts[0], parts[1]);
   }
+
+  @override
+  int get hashCode => routeId.hashCode;
+
+  @override
+  bool operator ==(covariant SubjectId other) {
+    return routeId == other.routeId;
+  }
 }

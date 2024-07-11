@@ -1,5 +1,7 @@
+import 'package:lex/modules/multipartus/models/lecture_section.dart';
 import 'package:lex/modules/multipartus/models/subject.dart';
 import 'package:lex/providers/backend.dart';
+import 'package:lex/utils/signals.dart';
 import 'package:signals/signals.dart';
 
 class MultipartusService {
@@ -9,11 +11,11 @@ class MultipartusService {
     subjects = computedAsync(
       () async {
         final r = await _backend.client?.get('/impartus/user/subjects');
-        if (r?.data is! List) return [];
+        if (r?.data is! List) return {};
 
-        return (r!.data! as List)
-            .map((e) => Subject.fromJson(e))
-            .toList(growable: false);
+        final iter = (r!.data! as List).map((e) => Subject.fromJson(e));
+
+        return {for (final s in iter) s.id: s};
       },
       debugLabel: 'subjects',
     );
@@ -29,7 +31,7 @@ class MultipartusService {
   }
 
   late final FutureSignal<bool> isRegistered;
-  late final FutureSignal<List<Subject>> subjects;
+  late final FutureSignal<Map<SubjectId, Subject>> subjects;
 
   Future<void> registerUser(String impartusPassword) async {
     subjects.setLoading();

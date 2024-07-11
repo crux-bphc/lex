@@ -13,6 +13,7 @@ final _darkScheme = ColorScheme.fromSeed(
   onError: const Color(0xFF5D1521),
   surface: const Color(0xFF1E2128),
   onSurface: const Color(0xFFE5E2E2),
+  onInverseSurface: const Color(0xFF434C5D),
   surfaceContainerHigh: const Color(0xFF2E3440),
   outline: const Color(0xFF434C5D),
   outlineVariant: const Color(0xFFC3C3C3),

@@ -17,17 +17,20 @@ class MultipartusLoginGate extends StatelessWidget {
     final isRegistered =
         GetIt.instance<MultipartusService>().isRegistered.watch(context);
 
-    return isRegistered.map(
-      data: (registered) => registered
-          ? child
-          : Center(
-              child: SizedBox(
-                width: 500,
-                child: _Login(onLogin: handleLogin),
+    return Padding(
+      padding: const EdgeInsets.all(30),
+      child: isRegistered.map(
+        data: (registered) => registered
+            ? child
+            : Center(
+                child: SizedBox(
+                  width: 500,
+                  child: _Login(onLogin: handleLogin),
+                ),
               ),
-            ),
-      error: (e, _) => Text("error: $e"),
-      loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Text("error: $e"),
+        loading: () => const Center(child: CircularProgressIndicator()),
+      ),
     );
   }
 

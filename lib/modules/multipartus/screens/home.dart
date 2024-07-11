@@ -14,24 +14,21 @@ class MultipartusHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      body: Padding(
-        padding: EdgeInsets.all(40),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            MultipartusTitle(),
-            SizedBox(height: 20),
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Expanded(flex: 5, child: _Subjects()),
-                  SizedBox(width: 40),
-                ],
-              ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          MultipartusTitle(),
+          SizedBox(height: 20),
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(flex: 5, child: _Subjects()),
+                SizedBox(width: 40),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -70,7 +67,7 @@ class _Subjects extends StatelessWidget {
             final subjects = GetIt.instance<MultipartusService>().subjects();
             return subjects.map(
               data: (data) => _SubjectGrid(
-                subjects: data,
+                subjects: data.values.toList(),
                 onPressed: (id) {
                   context.go('/multipartus/courses/${id.routeId}');
                 },
