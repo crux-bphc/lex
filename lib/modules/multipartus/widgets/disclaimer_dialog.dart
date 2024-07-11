@@ -17,14 +17,14 @@ class DisclaimerDialog extends StatelessWidget {
         child: SizedBox(
           child: AlertDialog(
             title: const Text("DISCLAIMER"),
-            content: const SizedBox(
+            content: SizedBox(
               width: 350,
               child: Text(
                 _disclaimerText,
+                style: Theme.of(context).dialogTheme.contentTextStyle,
                 softWrap: true,
               ),
             ),
-            contentTextStyle: const TextStyle(fontSize: 21),
             actions: [
               DelayedButton(
                 duration: const Duration(seconds: kDebugMode ? 0 : 3),

@@ -18,7 +18,7 @@ class PoweredByCrux extends StatelessWidget {
           child,
           Align(
             alignment: alignment,
-            child: Text(
+            child: const Text(
               "Powered by cruX",
               style: TextStyle(
                 letterSpacing: 1,

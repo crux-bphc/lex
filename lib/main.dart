@@ -6,6 +6,7 @@ import 'package:lex/providers/auth/keycloak_auth.dart';
 import 'package:lex/providers/backend.dart';
 import 'package:lex/providers/preferences.dart';
 import 'package:lex/router/router.dart';
+import 'package:lex/theme.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:signals/signals_flutter.dart';
 
@@ -80,108 +81,8 @@ class _AppState extends State<MyApp> {
       key: const ValueKey("Loaded"),
       routerConfig: router,
       themeMode: getIt<Preferences>().themeMode.watch(context),
-      theme: _buildTheme(ThemeMode.light),
-      darkTheme: _buildTheme(ThemeMode.dark),
+      theme: buildTheme(ThemeMode.light),
+      darkTheme: buildTheme(ThemeMode.dark),
     );
   }
-}
-
-ThemeData _buildTheme(ThemeMode mode) {
-  var scheme = ColorScheme.fromSeed(
-    seedColor: Colors.indigoAccent,
-    brightness: mode == ThemeMode.dark ? Brightness.dark : Brightness.light,
-  );
-
-  if (mode == ThemeMode.dark) {
-    scheme = scheme.copyWith(
-      surface: const Color(0xFF1E2128),
-      error: const Color(0xFFBF616A),
-      onSurface: const Color(0xFFF8F8FF),
-      onError: const Color(0xFFBF616A),
-      secondary: const Color(0xFFEBCB8B),
-      surfaceContainerHighest: const Color(0xFF2E3440),
-    );
-  }
-
-  final theme = ThemeData.from(
-    colorScheme: mode == ThemeMode.dark
-        ? scheme
-        : ColorScheme.fromSeed(seedColor: Colors.blueAccent),
-    useMaterial3: true,
-  ).copyWith(
-    splashFactory: NoSplash.splashFactory,
-    inputDecorationTheme: InputDecorationTheme(
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-      isDense: true,
-    ),
-    searchBarTheme: SearchBarThemeData(
-      shape: WidgetStatePropertyAll(
-        RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      ),
-      padding: const WidgetStatePropertyAll(EdgeInsets.fromLTRB(14, 7, 14, 8)),
-      side:
-          WidgetStatePropertyAll(BorderSide(width: 1, color: scheme.onSurface)),
-      constraints: const BoxConstraints(),
-      textStyle: const WidgetStatePropertyAll(TextStyle(height: 1)),
-      elevation: const WidgetStatePropertyAll(0),
-      backgroundColor: const WidgetStatePropertyAll(Colors.transparent),
-    ),
-  );
-
-  if (mode == ThemeMode.dark) {
-    return theme.copyWith(
-      scaffoldBackgroundColor: scheme.surface,
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: ButtonStyle(
-          shape: WidgetStatePropertyAll(
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(6),
-            ),
-          ),
-          textStyle: const WidgetStatePropertyAll(
-            TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.3),
-          ),
-          foregroundColor: WidgetStateProperty.resolveWith(
-            (states) =>
-                states.contains(WidgetState.disabled) ? null : scheme.secondary,
-          ),
-          backgroundColor: const WidgetStatePropertyAll(Color(0xFF2E3440)),
-          padding: const WidgetStatePropertyAll(
-            EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          ),
-          side: WidgetStateProperty.resolveWith(
-            (states) => BorderSide(
-              width: 1,
-              color: states.contains(WidgetState.disabled)
-                  ? const Color.fromARGB(61, 195, 195, 195)
-                  : scheme.secondary,
-            ),
-          ),
-          mouseCursor: WidgetStateProperty.resolveWith(
-            (states) => states.contains(WidgetState.disabled)
-                ? SystemMouseCursors.forbidden
-                : SystemMouseCursors.click,
-          ),
-        ),
-      ),
-      dialogTheme: DialogTheme(
-        backgroundColor: scheme.surfaceContainerHighest,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(6),
-          side: const BorderSide(
-            color: Color(0xFF434C5D),
-            width: 1,
-          ),
-        ),
-        titleTextStyle: TextStyle(
-          fontSize: 30,
-          fontWeight: FontWeight.w600,
-          color: scheme.secondary,
-        ),
-        barrierColor: Colors.black.withOpacity(0.3),
-      ),
-    );
-  }
-
-  return theme;
 }

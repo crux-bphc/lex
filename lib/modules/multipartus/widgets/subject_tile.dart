@@ -16,9 +16,12 @@ class SubjectTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return RawMaterialButton(
       onPressed: onPressed,
+      elevation: 0,
+      fillColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+      padding: const EdgeInsets.all(20),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
-        side: const BorderSide(color: Color(0xFF434C5D)),
+        side: BorderSide(color: Theme.of(context).colorScheme.outline),
       ),
       fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
       padding: const EdgeInsets.all(20),
@@ -32,14 +35,14 @@ class SubjectTile extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.secondary,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
               const Spacer(),
               Icon(
                 Icons.favorite,
                 size: 22,
-                color: Theme.of(context).colorScheme.secondary,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ],
           ),
