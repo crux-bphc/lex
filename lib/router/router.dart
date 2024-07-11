@@ -5,7 +5,10 @@ import 'package:lex/modules/cms/screens/forum.dart';
 import 'package:lex/modules/cms/screens/home.dart';
 import 'package:lex/modules/cms/screens/search.dart';
 import 'package:lex/modules/cms/widgets/ensure_login.dart';
+import 'package:lex/modules/multipartus/models/subject.dart';
+import 'package:lex/modules/multipartus/screens/course.dart';
 import 'package:lex/modules/multipartus/screens/home.dart';
+import 'package:lex/modules/multipartus/widgets/login_gate.dart';
 import 'package:lex/modules/settings/screens/home.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
 import 'package:lex/router/scaffold.dart';
@@ -99,9 +102,24 @@ final router = GoRouter(
         StatefulShellBranch(
           navigatorKey: _multipartusNavigatorKey,
           routes: [
-            GoRoute(
-              path: '/multipartus',
-              builder: (context, state) => const MultipartusHomePage(),
+            ShellRoute(
+              builder: (context, state, child) =>
+                  MultipartusLoginGate(child: child),
+              routes: [
+                GoRoute(
+                  path: '/multipartus',
+                  builder: (context, state) => const MultipartusHomePage(),
+                  routes: [
+                    GoRoute(
+                      path: 'courses/:id',
+                      builder: (context, state) => MultipartusCoursePage(
+                        subjectId:
+                            SubjectId.fromRouteId(state.pathParameters['id']!),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ],
         ),

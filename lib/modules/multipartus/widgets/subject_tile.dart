@@ -23,15 +23,13 @@ class SubjectTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         side: BorderSide(color: Theme.of(context).colorScheme.outline),
       ),
-      fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
               Text(
-                subject.fullCode.toUpperCase(),
+                subject.prettyCode.toUpperCase(),
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w500,

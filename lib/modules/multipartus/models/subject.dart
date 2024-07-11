@@ -13,9 +13,11 @@ class Subject with _$Subject {
     required String name,
   }) = _Subject;
 
-  String get department => id.department;
-  String get code => id.code;
-  String get fullCode => '$department $code';
+  /// Returns the full course code in the form
+  /// `{department} {code}`.
+  ///
+  /// Example: `CHEM F111`.
+  String get prettyCode => '${id.department} ${id.code}';
 
   factory Subject.fromJson(Map<String, Object?> json) =>
       _$SubjectFromJson(json);
@@ -29,8 +31,17 @@ class SubjectId {
 
   const SubjectId(this.department, this.code);
 
+  String get routeId => '$department-$code';
+
+  /// For parsing subject IDs that look like `subject:['CHEM', 'F111']`.
   factory SubjectId.fromJson(String id) {
     final [department, code] = _regexp.firstMatch(id.trim())!.groups([1, 2]);
     return SubjectId(department!, code!);
+  }
+
+  /// For parsing subject IDs that look like `CHEM-F111`.
+  factory SubjectId.fromRouteId(String id) {
+    final parts = id.split('-');
+    return SubjectId(parts[0], parts[1]);
   }
 }
