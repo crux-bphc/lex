@@ -1,6 +1,6 @@
 import 'package:signals/signals.dart';
 
-class AsyncSignalContainer<T, Arg, S extends AsyncSignal<T>> {
+class AsyncSignalContainer<T, Arg, S extends FutureSignal<T>> {
   /// If true then signals will be cached when created
   final bool cache;
 
@@ -44,8 +44,8 @@ class AsyncSignalContainer<T, Arg, S extends AsyncSignal<T>> {
   }
 }
 
-AsyncSignalContainer<T, Arg, AsyncSignal<T>> asyncSignalContainer<T, Arg>(
-  AsyncSignal<T> Function(Arg) create, {
+AsyncSignalContainer<T, Arg, FutureSignal<T>> asyncSignalContainer<T, Arg>(
+  FutureSignal<T> Function(Arg) create, {
   bool cache = false,
 }) {
   return AsyncSignalContainer(create, cache: cache);
