@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lex/modules/multipartus/models/subject.dart';
+import 'package:lex/modules/multipartus/widgets/grid_button.dart';
 
 class SubjectTile extends StatelessWidget {
   const SubjectTile({
@@ -14,15 +15,8 @@ class SubjectTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RawMaterialButton(
+    return GridButton(
       onPressed: onPressed,
-      elevation: 0,
-      fillColor: Theme.of(context).colorScheme.surfaceContainerHigh,
-      padding: const EdgeInsets.all(20),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-        side: BorderSide(color: Theme.of(context).colorScheme.outline),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
