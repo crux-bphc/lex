@@ -116,11 +116,7 @@ class _AccountSettings extends StatelessWidget {
       children: [
         Watch(
           (context) => OutlinedButton.icon(
-            onPressed: auth.isLoggedIn()
-                ? () {
-                    auth.logout();
-                  }
-                : null,
+            onPressed: auth.isLoggedIn() ? auth.logout : null,
             icon: const Icon(LucideIcons.log_out),
             label: const Text("Logout"),
           ),
