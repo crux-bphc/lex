@@ -1,0 +1,6 @@
+services:
+  web:
+    build: .
+    env_file: .env
+    ports:
+      - ${WEB_PORT}:80
