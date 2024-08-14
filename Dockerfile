@@ -7,13 +7,15 @@ RUN apt-get clean
 RUN git clone https://github.com/flutter/flutter.git /usr/local/flutter
 ENV PATH="${PATH}:/usr/local/flutter/bin:/usr/local/flutter/bin/cache/dart-sdk/bin"
 
-RUN flutter doctor -v
-RUN flutter channel master
+RUN flutter channel stable
+RUN flutter config --enable-web
 RUN flutter upgrade
+RUN flutter pub global activate webdev
 
 WORKDIR /app
 
 COPY . /app
+RUN flutter pub get
 RUN flutter build web --no-tree-shake-icons
 
 FROM nginx:1.21.1-alpine
