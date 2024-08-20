@@ -17,8 +17,8 @@ class ThemeSwitcher extends StatelessWidget {
       icon: Watch(
         (context) => Icon(
           prefs.themeMode.value == ThemeMode.light
-              ? LucideIcons.sun
-              : LucideIcons.moon,
+              ? LucideIcons.moon
+              : LucideIcons.sun,
         ),
       ),
     );

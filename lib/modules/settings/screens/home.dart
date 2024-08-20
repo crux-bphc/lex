@@ -26,7 +26,10 @@ class SettingsPage extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: ListView(
-            children: const [_CMSSettings(), _AccountSettings()],
+            children: const [
+              _CMSSettings(),
+              _AccountSettings()
+            ],
           ),
         ),
       ),
