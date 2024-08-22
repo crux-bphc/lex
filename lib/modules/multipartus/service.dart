@@ -10,10 +10,11 @@ class MultipartusService {
   MultipartusService(this._backend) {
     subjects = computedAsync(
       () async {
-        final r = await _backend.client?.get('/impartus/user/subjects');
-        if (r?.data is! List) return {};
+        final r = await _backend.client?.get('/impartus/subject/pinned');
+        if (r?.data!["subjects"] is! List) return {};
 
-        final iter = (r!.data! as List).map((e) => Subject.fromJson(e));
+        final iter =
+            (r!.data!["subjects"] as List).map((e) => Subject.fromJson(e));
 
         return {for (final s in iter) s.id: s};
       },
@@ -33,9 +34,9 @@ class MultipartusService {
       (id) {
         return computedAsync(() async {
           final r = await _backend.client
-              ?.get('/impartus/subject/${id.department}/${id.code}');
-          if (r?.data is! List) return [];
-          return (r?.data! as List)
+              ?.get('/impartus/subject', queryParameters: {'id': id.backendId});
+          if (r?.data?["sections"] is! List) return [];
+          return (r?.data!["sections"]! as List)
               .map((e) => LectureSection.fromJson(e))
               .toList();
         });

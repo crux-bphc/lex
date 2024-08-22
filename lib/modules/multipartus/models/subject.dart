@@ -32,9 +32,10 @@ class SubjectId {
   const SubjectId(this.department, this.code);
 
   String get routeId => '$department-$code';
+  String get backendId => "subject:['$department', '$code']";
 
   /// For parsing subject IDs that look like `subject:['CHEM', 'F111']`.
-  factory SubjectId.fromJson(String id) {
+  factory SubjectId.fromBackendId(String id) {
     final [department, code] = _regexp.firstMatch(id.trim())!.groups([1, 2]);
     return SubjectId(department!, code!);
   }
@@ -44,6 +45,8 @@ class SubjectId {
     final parts = id.split('-');
     return SubjectId(parts[0], parts[1]);
   }
+
+  factory SubjectId.fromJson(String id) => SubjectId.fromBackendId(id);
 
   @override
   int get hashCode => routeId.hashCode;
