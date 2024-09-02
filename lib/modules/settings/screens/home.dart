@@ -28,7 +28,7 @@ class SettingsPage extends StatelessWidget {
           child: ListView(
             children: const [
               _CMSSettings(),
-              _AccountSettings()
+              _AccountSettings(),
             ],
           ),
         ),

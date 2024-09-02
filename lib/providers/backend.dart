@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
 import 'package:signals/signals.dart';
 
-const _baseUrl = 'http://localhost:3000/';
+const _baseUrl = 'https://staging.lex.crux-bphc.com/api/';
 
 class LexBackend {
   final AuthProvider _authProvider;
