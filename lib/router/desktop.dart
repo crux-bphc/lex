@@ -49,8 +49,14 @@ class DesktopScaffold extends StatelessWidget {
                 backgroundColor: Theme.of(context).colorScheme.surface,
                 elevation: 6,
                 leading: Padding(
-                  padding: EdgeInsets.only(top: 10, bottom: 40),
-                  child: Image.asset((Theme.of(context).brightness == Brightness.dark) ? "assets/crux.png" : "assets/cruxDark.png", height: 60, width: 60,),
+                  padding: const EdgeInsets.only(top: 10, bottom: 40),
+                  child: Image.asset(
+                    (Theme.of(context).brightness == Brightness.dark)
+                        ? "assets/crux.png"
+                        : "assets/cruxDark.png",
+                    height: 60,
+                    width: 60,
+                  ),
                 ),
                 destinations: [
                   for (final item in _navItems)

@@ -22,13 +22,13 @@ class LoadingPage extends StatelessWidget {
       body: Stack(
         children: [
           Positioned(
-            child: Image.asset(
-                "assets/landing.png",
-            ),
             left: -0.12 * scale,
             bottom: -0.12 * scale,
             width: scale * 0.4,
             height: scale * 0.4,
+            child: Image.asset(
+              "assets/landing.png",
+            ),
           ),
           Center(
             child: Column(
@@ -51,16 +51,16 @@ class LoadingPage extends StatelessWidget {
                   child: Center(
                     child: showSignIn
                         ? OutlinedButton.icon(
-                      onPressed: () async {
-                        // TODO: find exceptions that are thrown here
-                        await GetIt.instance<AuthProvider>().login();
-                      },
-                      label: const Text('Login using Google'),
-                    )
+                            onPressed: () async {
+                              // TODO: find exceptions that are thrown here
+                              await GetIt.instance<AuthProvider>().login();
+                            },
+                            label: const Text('Login using Google'),
+                          )
                         : const SizedBox.square(
-                      dimension: 26,
-                      child: CircularProgressIndicator.adaptive(),
-                    ),
+                            dimension: 26,
+                            child: CircularProgressIndicator.adaptive(),
+                          ),
                   ),
                 ),
               ],

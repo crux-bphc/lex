@@ -70,7 +70,7 @@ class _AppState extends State<MyApp> {
     // but to keep the linter happy:
     if (!mounted) return;
     final isLoggedIn = getIt<AuthProvider>().isLoggedIn;
-    isLoggedIn.listen(context, () {
+    isLoggedIn.subscribe((_) {
       router.refresh();
     });
   }

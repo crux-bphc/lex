@@ -26,7 +26,7 @@ class MultipartusCoursePage extends StatelessWidget {
             }),
           ),
           SliverPadding(
-            padding: EdgeInsets.only(top: 20),
+            padding: const EdgeInsets.only(top: 20),
             sliver: _Content(id: subjectId),
           ),
         ],
@@ -116,7 +116,7 @@ class _ContentState extends State<_Content> {
 }
 
 class _LectureSectionGrid extends StatelessWidget {
-  const _LectureSectionGrid({super.key, required this.lectureSections});
+  const _LectureSectionGrid({required this.lectureSections});
 
   final List<LectureSection> lectureSections;
 
