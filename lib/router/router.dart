@@ -13,7 +13,7 @@ import 'package:lex/modules/settings/screens/home.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
 import 'package:lex/router/scaffold.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lex/modules/auth/startup_auth_page.dart';
+import 'package:lex/modules/auth/auth_page.dart';
 
 final _cmsNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'cms');
 final _multipartusNavigatorKey = GlobalKey<NavigatorState>(
@@ -86,7 +86,7 @@ final router = GoRouter(
   routes: [
     GoRoute(
       path: '/',
-      builder: (context, state) => const StartupAuthPage(),
+      builder: (context, state) => const AuthPage(),
     ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
