@@ -64,12 +64,14 @@ class _Subjects extends StatelessWidget {
         const SizedBox(height: 20),
         Expanded(
           child: Watch((context) {
-            final subjects = GetIt.instance<MultipartusService>().subjects();
+            final subjects =
+                GetIt.instance<MultipartusService>().pinnedSubjects();
             return subjects.map(
               data: (data) => _SubjectGrid(
                 subjects: data.values.toList(),
                 onPressed: (id) {
-                  context.go('/multipartus/courses/${id.routeId}');
+                  context.go(
+                      '/multipartus/courses/${id.departmentUrl}/${id.code}');
                 },
               ),
               error: (e, _) => Text("Error: $e"),

@@ -4,6 +4,7 @@ import 'package:lex/modules/multipartus/models/lecture_section.dart';
 import 'package:lex/modules/multipartus/models/subject.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/grid_button.dart';
+import 'package:lex/widgets/back_button_wrapper.dart';
 import 'package:signals/signals_flutter.dart';
 
 class MultipartusCoursePage extends StatelessWidget {
@@ -14,22 +15,24 @@ class MultipartusCoursePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: Watch((context) {
-              final subject = GetIt.instance<MultipartusService>()
-                  .subjects()
-                  .value?[subjectId];
+      body: BackButtonWrapper(
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Watch((context) {
+                final subject = GetIt.instance<MultipartusService>()
+                    .pinnedSubjects()
+                    .value?[subjectId];
 
-              return _CourseTitleBox(subject: subject!);
-            }),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.only(top: 20),
-            sliver: _Content(id: subjectId),
-          ),
-        ],
+                return _CourseTitleBox(subject: subject!);
+              }),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.only(top: 20),
+              sliver: _Content(id: subjectId),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -158,9 +161,9 @@ class _LectureSectionTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            "Lecture ${lectureSection.section}",
+            "L${lectureSection.section}",
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 20,
               fontWeight: FontWeight.w700,
               color: Theme.of(context).colorScheme.secondaryFixed,
             ),

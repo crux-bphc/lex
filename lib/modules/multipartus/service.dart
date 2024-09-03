@@ -7,14 +7,17 @@ import 'package:signals/signals.dart';
 class MultipartusService {
   final LexBackend _backend;
 
-  MultipartusService(this._backend) {
-    subjects = computedAsync(
-      () async {
-        final r = await _backend.client?.get('/impartus/subject/pinned');
-        if (r?.data!["subjects"] is! List) return {};
+  late final FutureSignal<bool> isRegistered;
+  late final FutureSignal<Map<SubjectId, Subject>> pinnedSubjects;
+  late final AsyncContainer<List<LectureSection>, SubjectId> lectureSections;
 
-        final iter =
-            (r!.data!["subjects"] as List).map((e) => Subject.fromJson(e));
+  MultipartusService(this._backend) {
+    pinnedSubjects = computedAsync(
+      () async {
+        final r = await _backend.client?.get('/impartus/user/subjects');
+        if (r?.data! is! List) return {};
+
+        final iter = (r!.data! as List).map((e) => Subject.fromJson(e));
 
         return {for (final s in iter) s.id: s};
       },
@@ -25,7 +28,7 @@ class MultipartusService {
       () async {
         // TODO: change this to the actual userinfo endpoint
         // for testing only.
-        return (await subjects.future).isNotEmpty;
+        return (await pinnedSubjects.future).isNotEmpty;
       },
       debugLabel: 'isRegistered',
     );
@@ -34,9 +37,9 @@ class MultipartusService {
       (id) {
         return computedAsync(() async {
           final r = await _backend.client
-              ?.get('/impartus/subject', queryParameters: {'id': id.backendId});
-          if (r?.data?["sections"] is! List) return [];
-          return (r?.data!["sections"]! as List)
+              ?.get('/impartus/subject/${id.departmentUrl}/${id.code}');
+          if (r?.data is! List) return [];
+          return (r?.data! as List)
               .map((e) => LectureSection.fromJson(e))
               .toList();
         });
@@ -44,20 +47,15 @@ class MultipartusService {
       cache: true,
     );
   }
-
-  late final FutureSignal<bool> isRegistered;
-  late final FutureSignal<Map<SubjectId, Subject>> subjects;
-  late final AsyncContainer<List<LectureSection>, SubjectId> lectureSections;
-
   Future<void> registerUser(String impartusPassword) async {
-    subjects.setLoading();
+    pinnedSubjects.setLoading();
     await _backend.client?.post(
       '/impartus/user',
       data: {
         "password": impartusPassword,
       },
     );
-    await subjects.refresh();
+    await pinnedSubjects.refresh();
   }
 }
 

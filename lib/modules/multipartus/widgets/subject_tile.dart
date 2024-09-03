@@ -44,11 +44,12 @@ class SubjectTile extends StatelessWidget {
               child: Text(
                 subject.name.toUpperCase().trim(),
                 style: const TextStyle(
-                  fontSize: 28,
+                  fontSize: 26,
                   letterSpacing: 2,
                   fontWeight: FontWeight.w600,
                 ),
                 overflow: TextOverflow.ellipsis,
+                softWrap: true,
                 maxLines: 3,
               ),
             ),

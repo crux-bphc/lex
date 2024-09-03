@@ -16,6 +16,7 @@ final _darkScheme = ColorScheme.fromSeed(
   onSurface: const Color(0xFFE5E2E2),
   onInverseSurface: const Color(0xFF434C5D),
   surfaceContainerHigh: const Color(0xFF2E3440),
+  surfaceContainerHighest: const Color(0xFF2A2F38),
   outline: const Color(0xFF434C5D),
   outlineVariant: const Color(0xFFC3C3C3),
 );
@@ -34,6 +35,7 @@ final _lightScheme = ColorScheme.fromSeed(
   error: const Color(0xFFFFB2B7),
   onError: const Color(0xFF5D1521),
   surface: const Color(0xFFECEFF4),
+  onInverseSurface: const Color(0xFF434C5D),
   surfaceContainerHigh: const Color(0xFFe5e9f0),
 );
 

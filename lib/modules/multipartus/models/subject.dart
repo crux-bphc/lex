@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter/foundation.dart';
+import 'package:lex/modules/multipartus/models/surrealql_list_id.dart';
 
 part 'subject.freezed.dart';
 part 'subject.g.dart';
@@ -23,36 +24,30 @@ class Subject with _$Subject {
       _$SubjectFromJson(json);
 }
 
-final _regexp = RegExp(r"^subject:\['(.+)', '(.+)'\]$");
+class SubjectId extends SurrealQlListId<String> {
+  late final String department = items[0];
+  late final String code = items[1];
 
-class SubjectId {
-  final String department;
-  final String code;
+  late final departmentUrl = department.replaceAll('/', ',');
 
-  const SubjectId(this.department, this.code);
+  SubjectId(String department, String code) : super([department, code]);
+  SubjectId.parse(String text) : super(_parser(text));
 
-  String get routeId => '$department-$code';
-  String get backendId => "subject:['$department', '$code']";
+  static final _parser = surrealQlListIdParser(
+    'subject',
+    (text) => text.length > 2 ? text.substring(1, text.length - 1) : text,
+  );
 
-  /// For parsing subject IDs that look like `subject:['CHEM', 'F111']`.
-  factory SubjectId.fromBackendId(String id) {
-    final [department, code] = _regexp.firstMatch(id.trim())!.groups([1, 2]);
-    return SubjectId(department!, code!);
-  }
-
-  /// For parsing subject IDs that look like `CHEM-F111`.
-  factory SubjectId.fromRouteId(String id) {
-    final parts = id.split('-');
-    return SubjectId(parts[0], parts[1]);
-  }
-
-  factory SubjectId.fromJson(String id) => SubjectId.fromBackendId(id);
+  factory SubjectId.fromJson(String id) => SubjectId.parse(id);
 
   @override
-  int get hashCode => routeId.hashCode;
+  String toString() => '$department $code';
+
+  @override
+  int get hashCode => toString().hashCode;
 
   @override
   bool operator ==(covariant SubjectId other) {
-    return routeId == other.routeId;
+    return other.toString() == toString();
   }
 }
