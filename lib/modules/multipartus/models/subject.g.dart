@@ -10,4 +10,5 @@ _$SubjectImpl _$$SubjectImplFromJson(Map<String, dynamic> json) =>
     _$SubjectImpl(
       id: SubjectId.fromJson(json['id'] as String),
       name: json['name'] as String,
+      isPinned: json['isPinned'] as bool? ?? false,
     );

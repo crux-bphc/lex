@@ -12,6 +12,7 @@ class Subject with _$Subject {
   const factory Subject({
     required SubjectId id,
     required String name,
+    @JsonKey(defaultValue: false) required bool isPinned,
   }) = _Subject;
 
   /// Returns the full course code in the form

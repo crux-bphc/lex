@@ -17,7 +17,8 @@ class MultipartusService {
         final r = await _backend.client?.get('/impartus/user/subjects');
         if (r?.data! is! List) return {};
 
-        final iter = (r!.data! as List).map((e) => Subject.fromJson(e));
+        final iter = (r!.data! as List)
+            .map((e) => Subject.fromJson({...e, 'isPinned': true}));
 
         return {for (final s in iter) s.id: s};
       },

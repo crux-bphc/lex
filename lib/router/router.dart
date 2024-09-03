@@ -14,11 +14,14 @@ import 'package:lex/providers/auth/auth_provider.dart';
 import 'package:lex/router/scaffold.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lex/modules/auth/auth_page.dart';
+import 'package:signals/signals_flutter.dart';
 
 final _cmsNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'cms');
 final _multipartusNavigatorKey = GlobalKey<NavigatorState>(
   debugLabel: 'multipartus',
 );
+
+final backButtonObserver = BackButtonObserver();
 
 const _defaultInitialLocation = '/multipartus';
 
@@ -103,6 +106,7 @@ final router = GoRouter(
           navigatorKey: _multipartusNavigatorKey,
           routes: [
             ShellRoute(
+              observers: [backButtonObserver],
               builder: (context, state, child) =>
                   MultipartusLoginGate(child: child),
               routes: [
@@ -133,3 +137,37 @@ final router = GoRouter(
     ),
   ],
 );
+
+class BackButtonObserver extends NavigatorObserver {
+  final showBackButton = signal(false);
+
+  void _updateSignal() {
+    showBackButton.value = navigator?.canPop() ?? false;
+  }
+
+  void pop() {
+    if (untracked(() => showBackButton())) {
+      navigator?.pop();
+    }
+  }
+
+  @override
+  void didPush(Route route, Route? previousRoute) {
+    _updateSignal();
+  }
+
+  @override
+  void didReplace({Route? newRoute, Route? oldRoute}) {
+    _updateSignal();
+  }
+
+  @override
+  void didRemove(Route route, Route? previousRoute) {
+    _updateSignal();
+  }
+
+  @override
+  void didPop(Route route, Route? previousRoute) {
+    _updateSignal();
+  }
+}

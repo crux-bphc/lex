@@ -4,7 +4,6 @@ import 'package:lex/modules/multipartus/models/lecture_section.dart';
 import 'package:lex/modules/multipartus/models/subject.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/grid_button.dart';
-import 'package:lex/widgets/back_button_wrapper.dart';
 import 'package:signals/signals_flutter.dart';
 
 class MultipartusCoursePage extends StatelessWidget {
@@ -15,9 +14,11 @@ class MultipartusCoursePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BackButtonWrapper(
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 30),
         child: CustomScrollView(
           slivers: [
+            const SliverPadding(padding: EdgeInsets.only(top: 30)),
             SliverToBoxAdapter(
               child: Watch((context) {
                 final subject = GetIt.instance<MultipartusService>()

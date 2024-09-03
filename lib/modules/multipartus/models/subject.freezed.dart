@@ -22,12 +22,18 @@ Subject _$SubjectFromJson(Map<String, dynamic> json) {
 mixin _$Subject {
   SubjectId get id => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
+  @JsonKey(defaultValue: false)
+  bool get isPinned => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
 @JsonSerializable(createToJson: false)
 class _$SubjectImpl extends _Subject with DiagnosticableTreeMixin {
-  const _$SubjectImpl({required this.id, required this.name}) : super._();
+  const _$SubjectImpl(
+      {required this.id,
+      required this.name,
+      @JsonKey(defaultValue: false) required this.isPinned})
+      : super._();
 
   factory _$SubjectImpl.fromJson(Map<String, dynamic> json) =>
       _$$SubjectImplFromJson(json);
@@ -36,10 +42,13 @@ class _$SubjectImpl extends _Subject with DiagnosticableTreeMixin {
   final SubjectId id;
   @override
   final String name;
+  @override
+  @JsonKey(defaultValue: false)
+  final bool isPinned;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'Subject(id: $id, name: $name)';
+    return 'Subject(id: $id, name: $name, isPinned: $isPinned)';
   }
 
   @override
@@ -48,14 +57,17 @@ class _$SubjectImpl extends _Subject with DiagnosticableTreeMixin {
     properties
       ..add(DiagnosticsProperty('type', 'Subject'))
       ..add(DiagnosticsProperty('id', id))
-      ..add(DiagnosticsProperty('name', name));
+      ..add(DiagnosticsProperty('name', name))
+      ..add(DiagnosticsProperty('isPinned', isPinned));
   }
 }
 
 abstract class _Subject extends Subject {
   const factory _Subject(
-      {required final SubjectId id,
-      required final String name}) = _$SubjectImpl;
+          {required final SubjectId id,
+          required final String name,
+          @JsonKey(defaultValue: false) required final bool isPinned}) =
+      _$SubjectImpl;
   const _Subject._() : super._();
 
   factory _Subject.fromJson(Map<String, dynamic> json) = _$SubjectImpl.fromJson;
@@ -64,4 +76,7 @@ abstract class _Subject extends Subject {
   SubjectId get id;
   @override
   String get name;
+  @override
+  @JsonKey(defaultValue: false)
+  bool get isPinned;
 }

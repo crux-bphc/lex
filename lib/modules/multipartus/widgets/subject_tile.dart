@@ -31,11 +31,12 @@ class SubjectTile extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              Icon(
-                Icons.favorite,
-                size: 22,
-                color: Theme.of(context).colorScheme.primary,
-              ),
+              if (subject.isPinned)
+                Icon(
+                  Icons.favorite,
+                  size: 22,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
             ],
           ),
           Expanded(

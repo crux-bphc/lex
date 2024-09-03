@@ -20,11 +20,15 @@ Future<void> main() async {
 }
 
 void _setupGetIt() {
+  SignalsObserver.instance = null;
+
   final getIt = GetIt.instance;
   getIt.registerSingleton<Preferences>(
     Preferences()..initialize(),
     dispose: (prefs) => prefs.dispose(),
   );
+
+  getIt.registerSingleton<BackButtonObserver>(backButtonObserver);
 
   getIt.registerSingletonAsync<AuthProvider>(
     () async {

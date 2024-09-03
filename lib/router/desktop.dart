@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:lex/router/router.dart';
 import 'package:lex/router/theme_switcher.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
+import 'package:signals/signals_flutter.dart';
 
 const _navItems = [
   _NavItem(
@@ -48,15 +51,9 @@ class DesktopScaffold extends StatelessWidget {
                 minWidth: 100,
                 backgroundColor: Theme.of(context).colorScheme.surface,
                 elevation: 6,
-                leading: Padding(
-                  padding: const EdgeInsets.only(top: 10, bottom: 40),
-                  child: Image.asset(
-                    (Theme.of(context).brightness == Brightness.dark)
-                        ? "assets/crux.png"
-                        : "assets/cruxDark.png",
-                    height: 60,
-                    width: 60,
-                  ),
+                leading: const Padding(
+                  padding: EdgeInsets.only(top: 10, bottom: 40),
+                  child: CruxBackButton(),
                 ),
                 destinations: [
                   for (final item in _navItems)
@@ -102,4 +99,38 @@ class _NavItem {
     required this.icon,
     required this.label,
   });
+}
+
+class CruxBackButton extends StatelessWidget {
+  const CruxBackButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Watch(
+      (context) {
+        final backProvider = GetIt.instance<BackButtonObserver>();
+        final showBack = backProvider.showBackButton();
+
+        return SizedBox.square(
+          dimension: 60,
+          child: Center(
+            child: showBack
+                ? IconButton(
+                    onPressed: backProvider.pop,
+                    style: IconButton.styleFrom(
+                      backgroundColor:
+                          Theme.of(context).colorScheme.surfaceContainerHighest,
+                    ),
+                    icon: const Icon(LucideIcons.arrow_left),
+                  )
+                : Image.asset(
+                    (Theme.of(context).brightness == Brightness.dark)
+                        ? "assets/crux.png"
+                        : "assets/cruxDark.png",
+                  ),
+          ),
+        );
+      },
+    );
+  }
 }
