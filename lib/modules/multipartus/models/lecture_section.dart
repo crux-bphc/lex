@@ -7,7 +7,7 @@ part 'lecture_section.g.dart';
 @freezed
 class LectureSection with _$LectureSection {
   const factory LectureSection({
-    required String id,
+    required LectureId id,
     required int section,
     required String professor,
   }) = _LectureSection;

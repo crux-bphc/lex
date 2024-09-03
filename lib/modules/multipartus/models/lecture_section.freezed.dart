@@ -20,7 +20,7 @@ LectureSection _$LectureSectionFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$LectureSection {
-  String get id => throw _privateConstructorUsedError;
+  LectureId get id => throw _privateConstructorUsedError;
   int get section => throw _privateConstructorUsedError;
   String get professor => throw _privateConstructorUsedError;
 }
@@ -35,7 +35,7 @@ class _$LectureSectionImpl implements _LectureSection {
       _$$LectureSectionImplFromJson(json);
 
   @override
-  final String id;
+  final LectureId id;
   @override
   final int section;
   @override
@@ -49,7 +49,7 @@ class _$LectureSectionImpl implements _LectureSection {
 
 abstract class _LectureSection implements LectureSection {
   const factory _LectureSection(
-      {required final String id,
+      {required final LectureId id,
       required final int section,
       required final String professor}) = _$LectureSectionImpl;
 
@@ -57,7 +57,7 @@ abstract class _LectureSection implements LectureSection {
       _$LectureSectionImpl.fromJson;
 
   @override
-  String get id;
+  LectureId get id;
   @override
   int get section;
   @override
