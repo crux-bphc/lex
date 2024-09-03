@@ -27,9 +27,9 @@ class MultipartusService {
 
     isRegistered = computedAsync(
       () async {
-        // TODO: change this to the actual userinfo endpoint
-        // for testing only.
-        return (await pinnedSubjects.future).isNotEmpty;
+        final r = await _backend.client?.get('/impartus/user');
+        if (r?.data is! Map) return false;
+        return r?.data['registered'] ?? false;
       },
       debugLabel: 'isRegistered',
     );
@@ -49,14 +49,14 @@ class MultipartusService {
     );
   }
   Future<void> registerUser(String impartusPassword) async {
-    pinnedSubjects.setLoading();
+    isRegistered.setLoading();
     await _backend.client?.post(
       '/impartus/user',
       data: {
         "password": impartusPassword,
       },
     );
-    await pinnedSubjects.refresh();
+    await isRegistered.refresh();
   }
 }
 

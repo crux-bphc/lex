@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:lex/modules/multipartus/widgets/delayed_button.dart';
 
 class DisclaimerDialog extends StatelessWidget {
@@ -32,7 +31,7 @@ class DisclaimerDialog extends StatelessWidget {
                   onPressed: onPressed,
                   child: const Text("PROCEED"),
                 ),
-                onPressed: () => context.pop(true),
+                onPressed: () => Navigator.of(context).pop(true),
               ),
             ],
           ),
