@@ -1,0 +1,17 @@
+name: Host a staging instance of Lex for web
+
+on: workflow_dispatch
+
+jobs:
+  staging:
+    name: Build and deploy to staging
+    runs-on: self-hosted
+    steps:
+      - name: build and deploy
+        run: |
+          cd /home/ubuntu/clones
+          cd lex-staging
+          git reset --hard HEAD
+          git pull
+          docker compose down
+          docker compose up --build -d
