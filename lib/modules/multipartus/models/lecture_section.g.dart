@@ -8,7 +8,9 @@ part of 'lecture_section.dart';
 
 _$LectureSectionImpl _$$LectureSectionImplFromJson(Map<String, dynamic> json) =>
     _$LectureSectionImpl(
-      id: LectureId.fromJson(json['id'] as String),
+      id: json['id'] as String,
+      impartusSession: (json['impartus_session'] as num).toInt(),
+      impartusSubject: (json['impartus_subject'] as num).toInt(),
       section: (json['section'] as num).toInt(),
       professor: json['professor'] as String,
     );

@@ -8,7 +8,9 @@ part of 'subject.dart';
 
 _$SubjectImpl _$$SubjectImplFromJson(Map<String, dynamic> json) =>
     _$SubjectImpl(
-      id: SubjectId.fromJson(json['id'] as String),
+      id: json['id'] as String,
       name: json['name'] as String,
+      department: json['department'] as String,
+      code: json['code'] as String,
       isPinned: json['isPinned'] as bool? ?? false,
     );

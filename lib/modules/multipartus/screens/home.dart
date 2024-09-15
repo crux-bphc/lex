@@ -67,14 +67,12 @@ class _Subjects extends StatelessWidget {
         const SizedBox(height: 20),
         Expanded(
           child: Watch((context) {
-            final subjects =
-                GetIt.instance<MultipartusService>().pinnedSubjects();
+            final subjects = GetIt.instance<MultipartusService>().subjects();
             return subjects.map(
               data: (data) => _SubjectGrid(
                 subjects: data.values.toList(),
-                onPressed: (id) {
-                  context.go(
-                      '/multipartus/courses/${id.departmentUrl}/${id.code}');
+                onPressed: (subject) {
+                  context.go('/multipartus/courses/${subject.id}');
                 },
               ),
               error: (e, _) => Text("Error: $e"),
@@ -91,7 +89,7 @@ class _SubjectGrid extends StatelessWidget {
   const _SubjectGrid({required this.subjects, required this.onPressed});
 
   final List<Subject> subjects;
-  final void Function(SubjectId id) onPressed;
+  final void Function(Subject subject) onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -103,7 +101,7 @@ class _SubjectGrid extends StatelessWidget {
         maxCrossAxisExtent: 340,
       ),
       itemBuilder: (context, i) => SubjectTile(
-        onPressed: () => onPressed(subjects[i].id),
+        onPressed: () => onPressed(subjects[i]),
         subject: subjects[i],
       ),
       itemCount: subjects.length,

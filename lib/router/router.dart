@@ -5,7 +5,6 @@ import 'package:lex/modules/cms/screens/forum.dart';
 import 'package:lex/modules/cms/screens/home.dart';
 import 'package:lex/modules/cms/screens/search.dart';
 import 'package:lex/modules/cms/widgets/ensure_login.dart';
-import 'package:lex/modules/multipartus/models/subject.dart';
 import 'package:lex/modules/multipartus/screens/course.dart';
 import 'package:lex/modules/multipartus/screens/home.dart';
 import 'package:lex/modules/multipartus/widgets/login_gate.dart';
@@ -115,12 +114,9 @@ final router = GoRouter(
                   builder: (context, state) => const MultipartusHomePage(),
                   routes: [
                     GoRoute(
-                      path: 'courses/:department/:code',
+                      path: 'courses/:subjectId',
                       builder: (context, state) => MultipartusCoursePage(
-                        subjectId: SubjectId(
-                          state.pathParameters['department']!,
-                          state.pathParameters['code']!,
-                        ),
+                        subjectId: state.pathParameters['subjectId']!,
                       ),
                     ),
                   ],
