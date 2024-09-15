@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:lex/modules/multipartus/models/subject.dart';
+import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/grid_button.dart';
 
 class SubjectTile extends StatelessWidget {
@@ -30,13 +32,23 @@ class SubjectTile extends StatelessWidget {
                   color: Theme.of(context).colorScheme.primary,
                 ),
               ),
+              // const Spacer(),
               const Spacer(),
-              if (subject.isPinned)
-                Icon(
-                  Icons.favorite,
+              IconButton(
+                onPressed: () {
+                  if (subject.isPinned) {
+                    GetIt.instance<MultipartusService>()
+                        .unpinSubject(subject.id);
+                  } else {
+                    GetIt.instance<MultipartusService>().pinSubject(subject.id);
+                  }
+                },
+                icon: Icon(
+                  subject.isPinned ? Icons.favorite : Icons.favorite_border,
                   size: 22,
                   color: Theme.of(context).colorScheme.primary,
                 ),
+              ),
             ],
           ),
           Expanded(

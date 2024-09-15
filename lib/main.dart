@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
 import 'package:lex/providers/auth/keycloak_auth.dart';
@@ -13,6 +14,7 @@ import 'package:signals/signals_flutter.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   MediaKit.ensureInitialized();
+  await initializeDateFormatting();
 
   _setupGetIt();
 
