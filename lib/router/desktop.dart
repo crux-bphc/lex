@@ -111,6 +111,8 @@ class CruxBackButton extends StatelessWidget {
         final backProvider = GetIt.instance<BackButtonObserver>();
         final showBack = backProvider.showBackButton();
 
+        final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
         return SizedBox.square(
           dimension: 60,
           child: Center(
@@ -123,10 +125,12 @@ class CruxBackButton extends StatelessWidget {
                     ),
                     icon: const Icon(LucideIcons.arrow_left),
                   )
-                : Image.asset(
-                    (Theme.of(context).brightness == Brightness.dark)
-                        ? "assets/crux.png"
-                        : "assets/cruxDark.png",
+                : AnimatedSwitcher(
+                    duration: kThemeChangeDuration,
+                    child: Image.asset(
+                      key: ValueKey(isDarkMode),
+                      isDarkMode ? "assets/crux.png" : "assets/cruxDark.png",
+                    ),
                   ),
           ),
         );
