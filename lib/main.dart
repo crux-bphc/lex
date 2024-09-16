@@ -43,6 +43,7 @@ void _setupGetIt() {
 
   getIt.registerSingletonWithDependencies<LexBackend>(
     () => LexBackend(getIt<AuthProvider>()),
+    dispose: (backend) => backend.dispose(),
     dependsOn: [AuthProvider],
   );
 
