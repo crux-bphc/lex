@@ -58,6 +58,7 @@ dependencies:
   oidc_default_store: ^0.2.0+9
   oidc_core: ^0.7.0
   intl: ^0.19.0
+  flutter_animate: ^4.5.0
 
 dev_dependencies:
   flutter_test:
