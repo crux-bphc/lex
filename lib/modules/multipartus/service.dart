@@ -24,24 +24,27 @@ class MultipartusService {
         final subs = {for (final s in iter) s.id: s};
         return subs;
       },
+      debugLabel: 'service | pinnedSubjects',
     );
 
     subjects = computedAsync(
       () async {
         return await pinnedSubjects.future;
-        // final r = await _backend.client?.get('/impartus/subject');
       },
-      debugLabel: 'pinnedSubjects',
+      debugLabel: 'service | subjects',
     );
 
-    _impartusSessionMap = computedAsync(() async {
-      final r = await _backend.client?.get('/impartus/session');
-      if (r?.data is! Map) return {};
-      return {
-        for (final e in (r?.data as Map).entries)
-          int.parse(e.key): (year: e.value[0], sem: e.value[1]),
-      };
-    });
+    _impartusSessionMap = computedAsync(
+      () async {
+        final r = await _backend.client?.get('/impartus/session');
+        if (r?.data is! Map) return {};
+        return {
+          for (final e in (r?.data as Map).entries)
+            int.parse(e.key): (year: e.value[0], sem: e.value[1]),
+        };
+      },
+      debugLabel: 'service | impartusSessionMap',
+    );
 
     isRegistered = computedAsync(
       () async {
@@ -49,7 +52,7 @@ class MultipartusService {
         if (r?.data is! Map) return false;
         return r?.data['registered'] ?? false;
       },
-      debugLabel: 'isRegistered',
+      debugLabel: 'service | isRegistered',
     );
   }
 
@@ -62,7 +65,8 @@ class MultipartusService {
             (r?.data! as List).map((e) => LectureSection.fromJson(e)).toList();
         return f;
       },
-      debugLabel: 'sections',
+      debugLabel: 'service | sections',
+      autoDispose: true,
     );
   }
 
@@ -76,7 +80,7 @@ class MultipartusService {
     return (r!.data as List).map((e) => ImpartusVideo.fromJson(e)).toList();
   }
 
-  FutureSignal<List<LectureVideo>> lectures({
+  FutureSignal<LecturesResult> lectures({
     required String departmentUrl,
     required String code,
   }) {
@@ -86,29 +90,40 @@ class MultipartusService {
         final sections = await s.future;
         final sessions = await _impartusSessionMap.future;
 
-        final vidsList = await Future.wait(
-          sections.map(
-            (lec) async {
-              final impartusVideos = await _fetchImpartusVideos(
-                sessionId: lec.impartusSession,
-                subjectId: lec.impartusSubject,
-              );
+        final List<LectureVideo> vidsList = (await Future.wait(
+          sections.map((lec) async {
+            final impartusVideos = await _fetchImpartusVideos(
+              sessionId: lec.impartusSession,
+              subjectId: lec.impartusSubject,
+            );
 
-              return impartusVideos
-                  .map(
-                    (v) => (
-                      section: lec,
-                      video: v,
-                      session: sessions[lec.impartusSession]!,
-                    ),
-                  )
-                  .toList();
-            },
-          ),
+            return impartusVideos
+                .map(
+                  (v) => (
+                    section: lec,
+                    video: v,
+                    session: sessions[lec.impartusSession]!,
+                  ),
+                )
+                .toList();
+          }),
+        ))
+            .reduce((a, b) => a + b);
+
+        final profMap = <String, Set<ImpartusSession>>{};
+
+        for (final v in vidsList) {
+          final prof = v.section.professor;
+          profMap.putIfAbsent(prof, () => {}).add(v.session);
+        }
+
+        return (
+          videos: vidsList,
+          professorSessionMap: profMap,
         );
-
-        return vidsList.reduce((a, b) => a + b);
       },
+      autoDispose: true,
+      debugLabel: 'service | lectures',
     );
   }
 
@@ -147,3 +162,8 @@ typedef LectureVideo = ({
 });
 
 typedef ImpartusSession = ({int year, int sem});
+
+typedef LecturesResult = ({
+  List<LectureVideo> videos,
+  Map<String, Set<ImpartusSession>> professorSessionMap,
+});
