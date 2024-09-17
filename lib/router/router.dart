@@ -114,10 +114,15 @@ final router = GoRouter(
                   builder: (context, state) => const MultipartusHomePage(),
                   routes: [
                     GoRoute(
-                      path: 'courses/:subjectId',
-                      builder: (context, state) => MultipartusCoursePage(
-                        subjectId: state.pathParameters['subjectId']!,
-                      ),
+                      path: 'courses/:department/:code',
+                      builder: (context, state) {
+                        final department = state.pathParameters['department']!
+                            .replaceAll(',', '/');
+                        final code = state.pathParameters['code']!;
+                        return MultipartusCoursePage(
+                          subjectId: "subject:['$department', '$code']",
+                        );
+                      },
                     ),
                   ],
                 ),

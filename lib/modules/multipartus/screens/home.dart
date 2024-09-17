@@ -73,7 +73,9 @@ class _Subjects extends StatelessWidget {
               data: (data) => _SubjectGrid(
                 subjects: data.values.toList(),
                 onPressed: (subject) {
-                  context.go('/multipartus/courses/${subject.id}');
+                  context.go(
+                    '/multipartus/courses/${subject.departmentUrl}/${subject.code}',
+                  );
                 },
               ),
               error: (e, _) => Text("Error: $e"),
