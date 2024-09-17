@@ -6,6 +6,7 @@ import 'package:lex/modules/multipartus/models/subject.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/multipartus_title.dart';
 import 'package:lex/modules/multipartus/widgets/subject_tile.dart';
+import 'package:lex/widgets/delayed_progress_indicator.dart';
 import 'package:signals/signals_flutter.dart';
 
 class MultipartusHomePage extends StatelessWidget {
@@ -76,7 +77,7 @@ class _Subjects extends StatelessWidget {
                 },
               ),
               error: (e, _) => Text("Error: $e"),
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(child: DelayedProgressIndicator()),
             );
           }),
         ),

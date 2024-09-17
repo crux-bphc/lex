@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
 import 'package:lex/utils/cached.dart';
 import 'package:signals/signals.dart';

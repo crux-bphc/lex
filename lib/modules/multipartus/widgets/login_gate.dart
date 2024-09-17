@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/disclaimer_dialog.dart';
 import 'package:lex/modules/multipartus/widgets/multipartus_title.dart';
+import 'package:lex/widgets/delayed_progress_indicator.dart';
 import 'package:signals/signals_flutter.dart';
 
 /// Displays [child] when the user is registered to Multipartus, otherwise
@@ -17,17 +19,29 @@ class MultipartusLoginGate extends StatelessWidget {
     final isRegistered =
         GetIt.instance<MultipartusService>().isRegistered.watch(context);
 
-    return isRegistered.map(
-      data: (registered) => registered
-          ? child
-          : Center(
-              child: SizedBox(
-                width: 500,
-                child: _Login(onLogin: handleLogin),
+    return AnimatedSwitcher(
+      duration: 300.ms,
+      child: isRegistered.map(
+        data: (registered) => registered
+            ? child
+            : Center(
+                child: SizedBox(
+                  width: 500,
+                  child: _Login(onLogin: handleLogin),
+                ),
               ),
-            ),
-      error: (e, _) => Text("error: $e"),
-      loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Text("error: $e"),
+        loading: () => const Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              MultipartusTitle(),
+              SizedBox(height: 30),
+              DelayedProgressIndicator(),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

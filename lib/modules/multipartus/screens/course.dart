@@ -4,6 +4,7 @@ import 'package:lex/modules/multipartus/models/subject.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/course_title_box.dart';
 import 'package:lex/modules/multipartus/widgets/filterable_video_grid.dart';
+import 'package:lex/widgets/delayed_progress_indicator.dart';
 import 'package:signals/signals_flutter.dart';
 
 class MultipartusCoursePage extends StatelessWidget {
@@ -63,7 +64,7 @@ class _ContentState extends State<_Content> {
       (context) => lectures().map(
         error: (e, s) => SliverToBoxAdapter(child: Text("error $e")),
         loading: () => const SliverFillRemaining(
-          child: Center(child: CircularProgressIndicator()),
+          child: Center(child: DelayedProgressIndicator()),
         ),
         data: (data) {
           return FilterableVideoGrid(

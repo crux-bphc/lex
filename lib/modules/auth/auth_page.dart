@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
+import 'package:lex/widgets/delayed_progress_indicator.dart';
 import 'package:lex/widgets/powered_by_crux.dart';
 import 'package:signals/signals_flutter.dart';
 
@@ -87,7 +88,7 @@ class _AllReadyWidget extends StatelessWidget {
         return isLoading
             ? const SizedBox.square(
                 dimension: 26,
-                child: CircularProgressIndicator.adaptive(),
+                child: DelayedProgressIndicator(),
               )
             : OutlinedButton.icon(
                 onPressed: () async {

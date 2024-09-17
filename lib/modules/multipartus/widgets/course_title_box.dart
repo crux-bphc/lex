@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lex/modules/multipartus/models/subject.dart';
 
 class CourseTitleBox extends StatelessWidget {
-  const CourseTitleBox({required this.subject});
+  const CourseTitleBox({super.key, required this.subject});
 
   final Subject subject;
 
