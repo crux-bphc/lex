@@ -8,7 +8,6 @@ part of 'subject.dart';
 
 _$SubjectImpl _$$SubjectImplFromJson(Map<String, dynamic> json) =>
     _$SubjectImpl(
-      id: json['id'] as String,
       name: json['name'] as String,
       department: json['department'] as String,
       code: json['code'] as String,

@@ -20,7 +20,6 @@ LectureSection _$LectureSectionFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$LectureSection {
-  String get id => throw _privateConstructorUsedError;
   @JsonKey(name: 'impartus_session')
   int get impartusSession => throw _privateConstructorUsedError;
   @JsonKey(name: 'impartus_subject')
@@ -33,8 +32,7 @@ mixin _$LectureSection {
 @JsonSerializable(createToJson: false)
 class _$LectureSectionImpl implements _LectureSection {
   const _$LectureSectionImpl(
-      {required this.id,
-      @JsonKey(name: 'impartus_session') required this.impartusSession,
+      {@JsonKey(name: 'impartus_session') required this.impartusSession,
       @JsonKey(name: 'impartus_subject') required this.impartusSubject,
       required this.section,
       required this.professor});
@@ -42,8 +40,6 @@ class _$LectureSectionImpl implements _LectureSection {
   factory _$LectureSectionImpl.fromJson(Map<String, dynamic> json) =>
       _$$LectureSectionImplFromJson(json);
 
-  @override
-  final String id;
   @override
   @JsonKey(name: 'impartus_session')
   final int impartusSession;
@@ -57,14 +53,13 @@ class _$LectureSectionImpl implements _LectureSection {
 
   @override
   String toString() {
-    return 'LectureSection(id: $id, impartusSession: $impartusSession, impartusSubject: $impartusSubject, section: $section, professor: $professor)';
+    return 'LectureSection(impartusSession: $impartusSession, impartusSubject: $impartusSubject, section: $section, professor: $professor)';
   }
 }
 
 abstract class _LectureSection implements LectureSection {
   const factory _LectureSection(
-      {required final String id,
-      @JsonKey(name: 'impartus_session') required final int impartusSession,
+      {@JsonKey(name: 'impartus_session') required final int impartusSession,
       @JsonKey(name: 'impartus_subject') required final int impartusSubject,
       required final int section,
       required final String professor}) = _$LectureSectionImpl;
@@ -72,8 +67,6 @@ abstract class _LectureSection implements LectureSection {
   factory _LectureSection.fromJson(Map<String, dynamic> json) =
       _$LectureSectionImpl.fromJson;
 
-  @override
-  String get id;
   @override
   @JsonKey(name: 'impartus_session')
   int get impartusSession;

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/video_tile.dart';
 import 'package:signals/signals_flutter.dart';
@@ -116,7 +118,7 @@ class _FilterableVideoGridState extends State<FilterableVideoGrid> {
                 ),
               ],
             ),
-          ),
+          ).animate().fadeIn(duration: 250.ms),
         ),
         SliverPadding(
           padding: const EdgeInsets.only(top: 12),
@@ -144,8 +146,9 @@ class _ImpartusVideoGrid extends StatelessWidget {
       itemBuilder: (context, i) {
         return VideoTile(
           video: videos[i],
-          onPressed: () {},
-        );
+          onPressed: () =>
+              context.push('/multipartus/video/${videos[i].video.ttid}'),
+        ).animate().fadeIn(duration: 400.ms);
       },
       itemCount: videos.length,
     );

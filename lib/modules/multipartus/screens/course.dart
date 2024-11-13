@@ -8,9 +8,13 @@ import 'package:lex/widgets/delayed_progress_indicator.dart';
 import 'package:signals/signals_flutter.dart';
 
 class MultipartusCoursePage extends StatelessWidget {
-  const MultipartusCoursePage({super.key, required this.subjectId});
+  const MultipartusCoursePage({
+    super.key,
+    required String department,
+    required String code,
+  }) : subjectId = (code: code, department: department);
 
-  final String subjectId;
+  final SubjectId subjectId;
 
   @override
   Widget build(BuildContext context) {
@@ -31,9 +35,7 @@ class MultipartusCoursePage extends StatelessWidget {
                     child: CourseTitleBox(subject: subject!),
                   ),
                 ),
-                _Content(
-                  subject: subject,
-                ),
+                _Content(subject: subject),
               ],
             );
           },

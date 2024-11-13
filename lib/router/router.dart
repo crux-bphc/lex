@@ -7,6 +7,7 @@ import 'package:lex/modules/cms/screens/search.dart';
 import 'package:lex/modules/cms/widgets/ensure_login.dart';
 import 'package:lex/modules/multipartus/screens/course.dart';
 import 'package:lex/modules/multipartus/screens/home.dart';
+import 'package:lex/modules/multipartus/screens/video.dart';
 import 'package:lex/modules/multipartus/widgets/login_gate.dart';
 import 'package:lex/modules/settings/screens/home.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
@@ -120,9 +121,16 @@ final router = GoRouter(
                             .replaceAll(',', '/');
                         final code = state.pathParameters['code']!;
                         return MultipartusCoursePage(
-                          subjectId: "subject:['$department', '$code']",
+                          department: department,
+                          code: code,
                         );
                       },
+                    ),
+                    GoRoute(
+                      path: 'video/:ttid',
+                      builder: (context, state) => MultipartusVideoPage(
+                        ttid: state.pathParameters['ttid']!,
+                      ),
                     ),
                   ],
                 ),

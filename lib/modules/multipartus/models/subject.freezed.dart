@@ -20,7 +20,6 @@ Subject _$SubjectFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Subject {
-  String get id => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
   String get department => throw _privateConstructorUsedError;
   String get code => throw _privateConstructorUsedError;
@@ -32,8 +31,7 @@ mixin _$Subject {
 @JsonSerializable(createToJson: false)
 class _$SubjectImpl extends _Subject with DiagnosticableTreeMixin {
   const _$SubjectImpl(
-      {required this.id,
-      required this.name,
+      {required this.name,
       required this.department,
       required this.code,
       @JsonKey(defaultValue: false) required this.isPinned})
@@ -42,8 +40,6 @@ class _$SubjectImpl extends _Subject with DiagnosticableTreeMixin {
   factory _$SubjectImpl.fromJson(Map<String, dynamic> json) =>
       _$$SubjectImplFromJson(json);
 
-  @override
-  final String id;
   @override
   final String name;
   @override
@@ -56,7 +52,7 @@ class _$SubjectImpl extends _Subject with DiagnosticableTreeMixin {
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'Subject(id: $id, name: $name, department: $department, code: $code, isPinned: $isPinned)';
+    return 'Subject(name: $name, department: $department, code: $code, isPinned: $isPinned)';
   }
 
   @override
@@ -64,7 +60,6 @@ class _$SubjectImpl extends _Subject with DiagnosticableTreeMixin {
     super.debugFillProperties(properties);
     properties
       ..add(DiagnosticsProperty('type', 'Subject'))
-      ..add(DiagnosticsProperty('id', id))
       ..add(DiagnosticsProperty('name', name))
       ..add(DiagnosticsProperty('department', department))
       ..add(DiagnosticsProperty('code', code))
@@ -74,8 +69,7 @@ class _$SubjectImpl extends _Subject with DiagnosticableTreeMixin {
 
 abstract class _Subject extends Subject {
   const factory _Subject(
-          {required final String id,
-          required final String name,
+          {required final String name,
           required final String department,
           required final String code,
           @JsonKey(defaultValue: false) required final bool isPinned}) =
@@ -84,8 +78,6 @@ abstract class _Subject extends Subject {
 
   factory _Subject.fromJson(Map<String, dynamic> json) = _$SubjectImpl.fromJson;
 
-  @override
-  String get id;
   @override
   String get name;
   @override

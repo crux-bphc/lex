@@ -6,7 +6,6 @@ part 'lecture_section.g.dart';
 @freezed
 class LectureSection with _$LectureSection {
   const factory LectureSection({
-    required String id,
     @JsonKey(name: 'impartus_session') required int impartusSession,
     @JsonKey(name: 'impartus_subject') required int impartusSubject,
     required int section,

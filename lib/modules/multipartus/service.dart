@@ -8,8 +8,8 @@ class MultipartusService {
   final LexBackend _backend;
 
   late final FutureSignal<bool> isRegistered;
-  late final FutureSignal<Map<String, Subject>> subjects;
-  late final FutureSignal<Map<String, Subject>> pinnedSubjects;
+  late final FutureSignal<Map<SubjectId, Subject>> subjects;
+  late final FutureSignal<Map<SubjectId, Subject>> pinnedSubjects;
   late final FutureSignal<Map<int, ImpartusSession>> _impartusSessionMap;
 
   MultipartusService(this._backend) {
@@ -21,7 +21,9 @@ class MultipartusService {
             .cast<Map>()
             .map((e) => Subject.fromJson({...e, 'isPinned': true}));
 
-        final subs = {for (final s in iter) s.id: s};
+        final subs = <SubjectId, Subject>{
+          for (final s in iter) (department: s.departmentUrl, code: s.code): s,
+        };
         return subs;
       },
       debugLabel: 'service | pinnedSubjects',

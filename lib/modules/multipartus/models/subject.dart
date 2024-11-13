@@ -9,7 +9,6 @@ class Subject with _$Subject {
   const Subject._();
 
   const factory Subject({
-    required String id,
     required String name,
     required String department,
     required String code,
@@ -27,3 +26,5 @@ class Subject with _$Subject {
   factory Subject.fromJson(Map<String, Object?> json) =>
       _$SubjectFromJson(json);
 }
+
+typedef SubjectId = ({String department, String code});

@@ -37,10 +37,10 @@ class SubjectTile extends StatelessWidget {
               IconButton(
                 onPressed: () {
                   if (subject.isPinned) {
-                    GetIt.instance<MultipartusService>()
-                        .unpinSubject(subject.id);
+                    // GetIt.instance<MultipartusService>()
+                    // .unpinSubject(subject.);
                   } else {
-                    GetIt.instance<MultipartusService>().pinSubject(subject.id);
+                    // GetIt.instance<MultipartusService>().pinSubject(subject.id);
                   }
                 },
                 icon: Icon(
