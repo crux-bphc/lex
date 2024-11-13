@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lex/router/router.dart';
 import 'package:lex/router/theme_switcher.dart';
@@ -111,30 +112,69 @@ class CruxBackButton extends StatelessWidget {
         final backProvider = GetIt.instance<BackButtonObserver>();
         final showBack = backProvider.showBackButton();
 
-        final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
         return SizedBox.square(
           dimension: 60,
           child: Center(
-            child: showBack
-                ? IconButton(
-                    onPressed: backProvider.pop,
-                    style: IconButton.styleFrom(
-                      backgroundColor:
-                          Theme.of(context).colorScheme.surfaceContainerHighest,
-                    ),
-                    icon: const Icon(LucideIcons.arrow_left),
-                  )
-                : AnimatedSwitcher(
-                    duration: kThemeChangeDuration,
-                    child: Image.asset(
-                      key: ValueKey(isDarkMode),
-                      isDarkMode ? "assets/crux.png" : "assets/cruxDark.png",
-                    ),
-                  ),
+            child: const _CruxIcon()
+                .animate(target: showBack ? 1 : 0)
+                .fadeOut(duration: 160.ms, curve: Curves.easeOutCubic)
+                .slideX(
+                  begin: 0,
+                  end: -0.2,
+                  duration: 180.ms,
+                  curve: Curves.easeIn,
+                )
+                .swap(
+                  duration: 180.ms,
+                  builder: (_, __) => _BackButton(onPressed: backProvider.pop)
+                      .animate()
+                      .fadeIn(duration: 100.ms, curve: Curves.easeOutCubic)
+                      .slideX(
+                        begin: 0.1,
+                        end: 0,
+                        duration: 120.ms,
+                        curve: Curves.easeOutQuad,
+                      ),
+                ),
           ),
         );
       },
+    );
+  }
+}
+
+class _CruxIcon extends StatelessWidget {
+  const _CruxIcon({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    return AnimatedSwitcher(
+      duration: kThemeChangeDuration,
+      child: Image.asset(
+        key: ValueKey(isDarkMode),
+        isDarkMode ? "assets/crux.png" : "assets/cruxDark.png",
+      ),
+    );
+  }
+}
+
+class _BackButton extends StatelessWidget {
+  const _BackButton({
+    super.key,
+    required this.onPressed,
+  });
+
+  final void Function() onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: onPressed,
+      style: IconButton.styleFrom(
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+      ),
+      icon: const Icon(LucideIcons.arrow_left),
     );
   }
 }

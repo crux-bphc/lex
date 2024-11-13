@@ -15,15 +15,11 @@ class DelayedProgressIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox.square(
       dimension: size,
-      child: FutureBuilder(
-        future: Future.delayed(duration),
-        builder: (context, snapshot) =>
-            snapshot.connectionState == ConnectionState.done
-                ? const CircularProgressIndicator.adaptive(
-                    strokeWidth: 3,
-                    strokeCap: StrokeCap.round,
-                  ).animate().fadeIn(duration: 400.ms)
-                : Container(),
+      child: Center(
+        child: const CircularProgressIndicator.adaptive(
+          strokeWidth: 3,
+          strokeCap: StrokeCap.round,
+        ).animate(delay: duration).fade(duration: 400.ms),
       ),
     );
   }

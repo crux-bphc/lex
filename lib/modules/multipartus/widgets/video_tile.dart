@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:intl/intl.dart';
 import 'package:lex/modules/multipartus/service.dart';
@@ -9,6 +10,7 @@ final _dateFormat = DateFormat.yMMMd().add_jm();
 
 class VideoTile extends StatelessWidget {
   const VideoTile({
+    super.key,
     required this.onPressed,
     required this.video,
   });
@@ -34,11 +36,9 @@ class VideoTile extends StatelessWidget {
               frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
                 // fade in image
                 if (wasSynchronouslyLoaded) return child;
-                return AnimatedOpacity(
-                  duration: const Duration(milliseconds: 400),
-                  opacity: frame != null ? 1 : 0,
-                  child: child,
-                );
+                return child
+                    .animate(target: frame != null ? 1 : 0)
+                    .fadeIn(duration: 400.ms);
               },
               errorBuilder: (context, error, stackTrace) => Center(
                 child: Icon(
