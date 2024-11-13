@@ -20,30 +20,32 @@ class AutoTooltipText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      final span = TextSpan(text: text, style: style);
-      final painter = TextPainter(
-        text: span,
-        maxLines: maxLines,
-        textDirection: Directionality.of(context),
-        textAlign: TextAlign.left,
-      );
-
-      painter.layout(maxWidth: constraints.maxWidth);
-
-      final showTooltip = painter.didExceedMaxLines;
-
-      painter.dispose();
-
-      return Tooltip(
-        message: showTooltip ? tooltipText : '',
-        preferBelow: false,
-        child: Text.rich(
-          span,
-          overflow: overflow,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final span = TextSpan(text: text, style: style);
+        final painter = TextPainter(
+          text: span,
           maxLines: maxLines,
-        ),
-      );
-    });
+          textDirection: Directionality.of(context),
+          textAlign: TextAlign.left,
+        );
+
+        painter.layout(maxWidth: constraints.maxWidth);
+
+        final showTooltip = painter.didExceedMaxLines;
+
+        painter.dispose();
+
+        return Tooltip(
+          message: showTooltip ? tooltipText : '',
+          preferBelow: false,
+          child: Text.rich(
+            span,
+            overflow: overflow,
+            maxLines: maxLines,
+          ),
+        );
+      },
+    );
   }
 }
