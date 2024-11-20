@@ -1,9 +1,12 @@
 import 'package:dio/dio.dart';
+import 'package:get_it/get_it.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
+import 'package:lex/providers/error.dart';
 import 'package:lex/utils/cached.dart';
 import 'package:signals/signals.dart';
 
-const _baseUrl = 'https://staging.lex.crux-bphc.com/api/';
+// const _baseUrl = 'https://staging.lex.crux-bphc.com/api/';
+const _baseUrl = 'http://localhost:8090/';
 
 class LexBackend {
   final AuthProvider _authProvider;
@@ -47,25 +50,106 @@ class LexBackend {
   /// and base URL set to the backend's base URL.
   ///
   /// Returns null if there's no current user.
-  Dio? get client => _clientSignal()();
+  Dio? get dioClient => _clientSignal()();
+
+  Future<Response?>? get(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+    Object? data,
+    Options? options,
+  }) async {
+    try {
+      return await dioClient?.get(
+        path,
+        queryParameters: queryParameters,
+        data: data,
+        options: options,
+      );
+    } on DioException catch (e) {
+      _handleDioException(e);
+      return null;
+    }
+  }
+
+  Future<Response?>? post(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+    Object? data,
+    Options? options,
+  }) async {
+    try {
+      return await dioClient?.post(
+        path,
+        queryParameters: queryParameters,
+        data: data,
+        options: options,
+      );
+    } on DioException catch (e) {
+      _handleDioException(e);
+      return null;
+    }
+  }
+
+  Future<Response?>? delete(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+    Object? data,
+    Options? options,
+  }) async {
+    try {
+      return await dioClient?.delete(
+        path,
+        queryParameters: queryParameters,
+        data: data,
+        options: options,
+      );
+    } on DioException catch (e) {
+      _handleDioException(e);
+      return null;
+    }
+  }
+
+  /// customHandler should return true if the exception was handled
+  void _handleDioException(
+    DioException exception, {
+    bool Function(DioException e)? customHandler,
+  }) {
+    if (customHandler?.call(exception) ?? false) return;
+    final service = GetIt.instance<ErrorService>();
+    switch (exception.type) {
+      case DioExceptionType.connectionError:
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.receiveTimeout:
+      case DioExceptionType.sendTimeout:
+        service.reportError("There was a problem connecting to our servers");
+        break;
+
+      case DioExceptionType.badResponse:
+        service.reportError("There was a problem with the request");
+        break;
+
+      default:
+        service.reportError(
+          "Something wrong occurred on our end. Please try again later",
+        );
+    }
+  }
 
   void dispose() {
-    // _toDispose();
     _clientSignal.dispose();
     _dummy.dispose();
   }
 }
 
 final clientCreator = cached((String? accessToken) {
-  return accessToken != null
-      ? Dio(
-          BaseOptions(
-            baseUrl: _baseUrl,
-            headers: {
-              'Authorization': 'Bearer $accessToken',
-            },
-            validateStatus: (status) => true,
-          ),
-        )
-      : null;
+  final client = Dio(
+    BaseOptions(
+      baseUrl: _baseUrl,
+      headers: {
+        'Authorization': 'Bearer $accessToken',
+      },
+      validateStatus: (status) => status != null && status < 400,
+    ),
+  );
+  return accessToken != null ? client : null;
 });

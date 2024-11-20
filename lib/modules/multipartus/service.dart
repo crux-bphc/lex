@@ -15,7 +15,8 @@ class MultipartusService {
   MultipartusService(this._backend) {
     pinnedSubjects = computedAsync(
       () async {
-        final r = await _backend.client?.get('/impartus/user/subjects');
+        final r = await _backend.get('/impartus/user/subjects');
+
         if (r?.data! is! List) return {};
         final iter = (r!.data! as List)
             .cast<Map>()
@@ -38,7 +39,7 @@ class MultipartusService {
 
     _impartusSessionMap = computedAsync(
       () async {
-        final r = await _backend.client?.get('/impartus/session');
+        final r = await _backend.get('/impartus/session');
         if (r?.data is! Map) return {};
         return {
           for (final e in (r?.data as Map).entries)
@@ -50,7 +51,7 @@ class MultipartusService {
 
     isRegistered = computedAsync(
       () async {
-        final r = await _backend.client?.get('/impartus/user');
+        final r = await _backend.get('/impartus/user');
         if (r?.data is! Map) return false;
         return r?.data['registered'] ?? false;
       },
@@ -61,7 +62,7 @@ class MultipartusService {
   FutureSignal<List<LectureSection>> lectureSections(String id) {
     return computedAsync(
       () async {
-        final r = await _backend.client?.get('/impartus/subject/$id');
+        final r = await _backend.get('/impartus/subject/$id');
         if (r?.data is! List) return [];
         final f =
             (r?.data! as List).map((e) => LectureSection.fromJson(e)).toList();
@@ -76,8 +77,7 @@ class MultipartusService {
     required int sessionId,
     required int subjectId,
   }) async {
-    final r =
-        await _backend.client?.get('/impartus/lecture/$sessionId/$subjectId');
+    final r = await _backend.get('/impartus/lecture/$sessionId/$subjectId');
     if (r?.data is! List) return [];
     return (r!.data as List).map((e) => ImpartusVideo.fromJson(e)).toList();
   }
@@ -130,7 +130,7 @@ class MultipartusService {
   }
 
   Future<void> pinSubject(String id) async {
-    await _backend.client?.post(
+    await _backend.post(
       '/impartus/user/subjects',
       queryParameters: {'id': id},
     );
@@ -138,7 +138,7 @@ class MultipartusService {
   }
 
   Future<void> unpinSubject(String id) async {
-    await _backend.client?.delete(
+    await _backend.delete(
       '/impartus/user/subjects',
       queryParameters: {'id': id},
     );
@@ -147,7 +147,7 @@ class MultipartusService {
 
   Future<void> registerUser(String impartusPassword) async {
     isRegistered.setLoading();
-    await _backend.client?.post(
+    await _backend.post(
       '/impartus/user',
       data: {
         "password": impartusPassword,

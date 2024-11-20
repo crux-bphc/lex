@@ -22,7 +22,7 @@ class AutoTooltipText extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final span = TextSpan(text: text, style: style);
+        final span = TextSpan(text: "$text...", style: style);
         final painter = TextPainter(
           text: span,
           maxLines: maxLines,
@@ -39,10 +39,11 @@ class AutoTooltipText extends StatelessWidget {
         return Tooltip(
           message: showTooltip ? tooltipText : '',
           preferBelow: false,
-          child: Text.rich(
-            span,
+          child: Text(
+            text,
             overflow: overflow,
             maxLines: maxLines,
+            style: style,
           ),
         );
       },

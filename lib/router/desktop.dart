@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get_it/get_it.dart';
+import 'package:lex/providers/error.dart';
 import 'package:lex/router/router.dart';
 import 'package:lex/router/theme_switcher.dart';
 import 'package:go_router/go_router.dart';
@@ -84,11 +87,67 @@ class DesktopScaffold extends StatelessWidget {
                 ),
               ),
             ),
-            Expanded(child: body),
+            _Body(body: body),
           ],
         ),
       ),
     );
+  }
+}
+
+class _Body extends StatefulWidget {
+  const _Body({required this.body});
+
+  final Widget body;
+
+  @override
+  State<_Body> createState() => _BodyState();
+}
+
+class _BodyState extends State<_Body> {
+  StreamSubscription? _errorSub;
+  String _previousError = '';
+
+  @override
+  void initState() {
+    super.initState();
+
+    _errorSub = GetIt.instance<ErrorService>().errorStream.listen((message) {
+      if (!mounted || message == _previousError) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            message,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Colors.red.shade50,
+            ),
+          ),
+          elevation: 0,
+          showCloseIcon: true,
+          closeIconColor: Colors.red.shade50,
+          backgroundColor: Colors.red.shade400,
+          duration: Duration(seconds: 8),
+          dismissDirection: DismissDirection.horizontal,
+        ),
+      );
+
+      _previousError = message;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(child: widget.body);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    _errorSub?.cancel();
   }
 }
 
@@ -107,44 +166,50 @@ class CruxBackButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Watch(
-      (context) {
-        final backProvider = GetIt.instance<BackButtonObserver>();
-        final showBack = backProvider.showBackButton();
+    final isRegistered = GetIt.instance.isRegistered<BackButtonObserver>();
+    return SizedBox.square(
+      dimension: 60,
+      child: Center(
+        child: isRegistered
+            ? Watch(
+                (context) {
+                  final backProvider = GetIt.instance<BackButtonObserver>();
+                  final showBack = backProvider.showBackButton();
 
-        return SizedBox.square(
-          dimension: 60,
-          child: Center(
-            child: const _CruxIcon()
-                .animate(target: showBack ? 1 : 0)
-                .fadeOut(duration: 160.ms, curve: Curves.easeOutCubic)
-                .slideX(
-                  begin: 0,
-                  end: -0.2,
-                  duration: 180.ms,
-                  curve: Curves.easeIn,
-                )
-                .swap(
-                  duration: 180.ms,
-                  builder: (_, __) => _BackButton(onPressed: backProvider.pop)
-                      .animate()
-                      .fadeIn(duration: 100.ms, curve: Curves.easeOutCubic)
+                  return const _CruxIcon()
+                      .animate(target: showBack ? 1 : 0)
+                      .fadeOut(duration: 160.ms, curve: Curves.easeOutCubic)
                       .slideX(
-                        begin: 0.1,
-                        end: 0,
-                        duration: 120.ms,
-                        curve: Curves.easeOutQuad,
-                      ),
-                ),
-          ),
-        );
-      },
+                        begin: 0,
+                        end: -0.2,
+                        duration: 180.ms,
+                        curve: Curves.easeIn,
+                      )
+                      .swap(
+                        duration: 180.ms,
+                        builder: (_, __) =>
+                            _BackButton(onPressed: backProvider.pop)
+                                .animate()
+                                .fadeIn(
+                                    duration: 100.ms,
+                                    curve: Curves.easeOutCubic)
+                                .slideX(
+                                  begin: 0.1,
+                                  end: 0,
+                                  duration: 120.ms,
+                                  curve: Curves.easeOutQuad,
+                                ),
+                      );
+                },
+              )
+            : const _CruxIcon(),
+      ),
     );
   }
 }
 
 class _CruxIcon extends StatelessWidget {
-  const _CruxIcon({super.key});
+  const _CruxIcon();
 
   @override
   Widget build(BuildContext context) {
@@ -160,10 +225,7 @@ class _CruxIcon extends StatelessWidget {
 }
 
 class _BackButton extends StatelessWidget {
-  const _BackButton({
-    super.key,
-    required this.onPressed,
-  });
+  const _BackButton({required this.onPressed});
 
   final void Function() onPressed;
 

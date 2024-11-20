@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lex/modules/multipartus/models/subject.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/course_title_box.dart';
@@ -11,8 +12,8 @@ class MultipartusCoursePage extends StatelessWidget {
   const MultipartusCoursePage({
     super.key,
     required String department,
-    required String code,
-  }) : subjectId = (code: code, department: department);
+    required String subjectCode,
+  }) : subjectId = (code: subjectCode, department: department);
 
   final SubjectId subjectId;
 
@@ -22,23 +23,27 @@ class MultipartusCoursePage extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 30),
         child: Watch(
-          (context) {
-            final subject = GetIt.instance<MultipartusService>()
-                .subjects()
-                .value?[subjectId];
-
-            return CustomScrollView(
-              slivers: [
-                SliverPadding(
-                  padding: const EdgeInsets.only(top: 30, bottom: 12),
-                  sliver: SliverToBoxAdapter(
-                    child: CourseTitleBox(subject: subject!),
-                  ),
-                ),
-                _Content(subject: subject),
-              ],
-            );
-          },
+          (context) => GetIt.instance<MultipartusService>().subjects().map(
+                data: (subjects) {
+                  final subject = subjects[subjectId];
+                  if (subject == null) {
+                    return const Center(child: Text("Subject not found"));
+                  }
+                  return CustomScrollView(
+                    slivers: [
+                      SliverPadding(
+                        padding: const EdgeInsets.only(top: 30, bottom: 12),
+                        sliver: SliverToBoxAdapter(
+                          child: CourseTitleBox(subject: subject),
+                        ),
+                      ),
+                      _Content(subject: subject),
+                    ],
+                  );
+                },
+                error: (_) => const Text("You shouldn't be here"),
+                loading: () => const Center(child: DelayedProgressIndicator()),
+              ),
         ),
       ),
     );
@@ -55,27 +60,42 @@ class _Content extends StatefulWidget {
 }
 
 class _ContentState extends State<_Content> {
-  late final lectures = GetIt.instance<MultipartusService>().lectures(
-    departmentUrl: widget.subject.departmentUrl,
-    code: widget.subject.code,
-  );
+  late FutureSignal<LecturesResult> lectures = _getLectures();
+
+  FutureSignal<LecturesResult> _getLectures() =>
+      GetIt.instance<MultipartusService>().lectures(
+        departmentUrl: widget.subject.departmentUrl,
+        code: widget.subject.code,
+      );
+
+  @override
+  void didUpdateWidget(covariant _Content oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.subject != widget.subject) {
+      lectures.dispose();
+      lectures = _getLectures();
+      debugPrint("update!");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Watch(
-      (context) => lectures().map(
-        error: (e, s) => SliverToBoxAdapter(child: Text("error $e")),
-        loading: () => const SliverFillRemaining(
-          child: Center(child: DelayedProgressIndicator()),
-        ),
-        data: (data) {
-          return FilterableVideoGrid(
-            professorSessionMap: data.professorSessionMap,
-            videos: data.videos,
-          );
-        },
-      ),
-    );
+    return lectures.watch(context).map(
+          error: (e, s) => SliverToBoxAdapter(child: Text("error $e")),
+          loading: () => const SliverFillRemaining(
+            child: Center(child: DelayedProgressIndicator()),
+          ),
+          data: (data) {
+            return FilterableVideoGrid(
+              professorSessionMap: data.professorSessionMap,
+              videos: data.videos,
+              onPressed: (video) => context.go(
+                '/multipartus/courses/${widget.subject.departmentUrl}'
+                '/${widget.subject.code}/watch/${video.video.ttid}',
+              ),
+            );
+          },
+        );
   }
 
   @override

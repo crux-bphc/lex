@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:go_router/go_router.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/video_tile.dart';
 import 'package:signals/signals_flutter.dart';
@@ -10,10 +9,12 @@ class FilterableVideoGrid extends StatefulWidget {
     super.key,
     required this.professorSessionMap,
     required this.videos,
+    required this.onPressed,
   });
 
   final Map<String, Set<ImpartusSession>> professorSessionMap;
   final List<LectureVideo> videos;
+  final void Function(LectureVideo video) onPressed;
 
   @override
   State<FilterableVideoGrid> createState() => _FilterableVideoGridState();
@@ -68,7 +69,6 @@ class _FilterableVideoGridState extends State<FilterableVideoGrid> {
   @override
   void dispose() {
     effectDispose();
-    debugPrint("bye");
     super.dispose();
   }
 
@@ -121,8 +121,13 @@ class _FilterableVideoGridState extends State<FilterableVideoGrid> {
           ).animate().fadeIn(duration: 250.ms),
         ),
         SliverPadding(
-          padding: const EdgeInsets.only(top: 12),
-          sliver: Watch((context) => _ImpartusVideoGrid(videos: videos())),
+          padding: const EdgeInsets.only(top: 12, bottom: 30),
+          sliver: Watch(
+            (context) => _ImpartusVideoGrid(
+              videos: videos(),
+              onPressed: widget.onPressed,
+            ),
+          ),
         ),
       ],
     );
@@ -130,9 +135,10 @@ class _FilterableVideoGridState extends State<FilterableVideoGrid> {
 }
 
 class _ImpartusVideoGrid extends StatelessWidget {
-  const _ImpartusVideoGrid({required this.videos});
+  const _ImpartusVideoGrid({required this.videos, required this.onPressed});
 
   final List<LectureVideo> videos;
+  final void Function(LectureVideo) onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -146,9 +152,8 @@ class _ImpartusVideoGrid extends StatelessWidget {
       itemBuilder: (context, i) {
         return VideoTile(
           video: videos[i],
-          onPressed: () =>
-              context.push('/multipartus/video/${videos[i].video.ttid}'),
-        ).animate().fadeIn(duration: 400.ms);
+          onPressed: () => onPressed(videos[i]),
+        );
       },
       itemCount: videos.length,
     );

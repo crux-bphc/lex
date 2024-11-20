@@ -109,12 +109,11 @@ ThemeData buildTheme(ThemeMode mode) {
     barrierColor: Colors.black.withOpacity(0.3),
   );
 
-  return ThemeData.from(
+  return ThemeData(
     colorScheme: scheme,
     useMaterial3: true,
-  ).copyWith(
-    scaffoldBackgroundColor: scheme.surface,
     splashFactory: NoSplash.splashFactory,
+    scaffoldBackgroundColor: scheme.surface,
     inputDecorationTheme: inputDecoration,
     searchBarTheme: searchBarTheme,
     outlinedButtonTheme: outlineButtonTheme,

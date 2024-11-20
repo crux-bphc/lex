@@ -122,15 +122,25 @@ final router = GoRouter(
                         final code = state.pathParameters['code']!;
                         return MultipartusCoursePage(
                           department: department,
-                          code: code,
+                          subjectCode: code,
                         );
                       },
-                    ),
-                    GoRoute(
-                      path: 'video/:ttid',
-                      builder: (context, state) => MultipartusVideoPage(
-                        ttid: state.pathParameters['ttid']!,
-                      ),
+                      routes: [
+                        GoRoute(
+                          path: 'watch/:ttid',
+                          builder: (context, state) {
+                            final department = state
+                                .pathParameters['department']!
+                                .replaceAll(',', '/');
+                            final code = state.pathParameters['code']!;
+                            return MultipartusVideoPage(
+                              departmentUrl: department,
+                              subjectCode: code,
+                              ttid: state.pathParameters['ttid']!,
+                            );
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),
