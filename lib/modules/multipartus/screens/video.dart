@@ -137,7 +137,38 @@ class __PlayerState extends State<_Player> {
             width: constraints.maxWidth,
             child: AspectRatio(
               aspectRatio: 1280 / 720,
-              child: Video(controller: controller),
+              child: MaterialDesktopVideoControlsTheme(
+                normal: MaterialDesktopVideoControlsThemeData(
+                  seekBarPositionColor: Theme.of(context).colorScheme.primary,
+                  seekBarThumbColor: Theme.of(context).colorScheme.primary,
+                  bottomButtonBar: [
+                    MaterialDesktopPlayOrPauseButton(),
+                    MaterialDesktopVolumeButton(
+                      volumeLowIcon: Icon(Icons.volume_down_rounded),
+                      volumeHighIcon: Icon(Icons.volume_up_rounded),
+                      volumeMuteIcon: Icon(Icons.volume_off_rounded),
+                    ),
+                    MaterialDesktopPositionIndicator(),
+                    Spacer(),
+                    MaterialDesktopCustomButton(
+                      onPressed: () {
+                        final rate =
+                            controller.player.state.rate == 1.0 ? 1.75 : 1.0;
+                        player.setRate(rate);
+                      },
+                      icon: Tooltip(
+                        message: "1.75x",
+                        child: Icon(Icons.fast_forward_rounded),
+                      ),
+                    ),
+                    MaterialFullscreenButton(
+                      icon: Icon(Icons.fullscreen_rounded),
+                    ),
+                  ],
+                ),
+                fullscreen: MaterialDesktopVideoControlsThemeData(),
+                child: Video(controller: controller),
+              ),
             ),
           );
         },
