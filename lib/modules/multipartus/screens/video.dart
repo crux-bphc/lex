@@ -17,12 +17,6 @@ class MultipartusVideoPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final client = GetIt.instance<LexBackend>().dioClient!;
-    final accessToken = Uri.encodeQueryComponent(
-      GetIt.instance<AuthProvider>().currentUser.value!.accessToken!,
-    );
-    final baseUrl = client.options.baseUrl;
-
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(30),
@@ -33,10 +27,7 @@ class MultipartusVideoPage extends StatelessWidget {
               child: CustomScrollView(
                 slivers: [
                   SliverToBoxAdapter(
-                    child: _Player(
-                      link:
-                          '${baseUrl}impartus/video/$ttid/m3u8?token=$accessToken',
-                    ),
+                    child: _Player(ttid: ttid),
                   ),
                   SliverPadding(
                     padding: EdgeInsets.only(top: 20, bottom: 14),
@@ -83,9 +74,9 @@ class MultipartusVideoPage extends StatelessWidget {
 }
 
 class _Player extends StatefulWidget {
-  const _Player({required this.link});
+  const _Player({required this.ttid});
 
-  final String link;
+  final String ttid;
 
   @override
   State<_Player> createState() => __PlayerState();
@@ -124,7 +115,19 @@ class __PlayerState extends State<_Player> {
   }
 
   void _setup() async {
-    await player.open(Media(widget.link));
+    final client = GetIt.instance<LexBackend>().dioClient!;
+    final accessToken = Uri.encodeQueryComponent(
+      GetIt.instance<AuthProvider>().currentUser.value!.accessToken!,
+    );
+    late final baseUrl = client.options.baseUrl;
+    await player.open(
+      Media(
+        '${baseUrl}impartus/video/${widget.ttid}/m3u8',
+        httpHeaders: {
+          'Authorization': 'Bearer $accessToken',
+        },
+      ),
+    );
   }
 
   @override
@@ -133,41 +136,17 @@ class __PlayerState extends State<_Player> {
       borderRadius: BorderRadius.circular(10),
       child: LayoutBuilder(
         builder: (context, constraints) {
+          final controls = buildDesktopControls(context);
           return SizedBox(
             width: constraints.maxWidth,
             child: AspectRatio(
               aspectRatio: 1280 / 720,
               child: MaterialDesktopVideoControlsTheme(
-                normal: MaterialDesktopVideoControlsThemeData(
-                  seekBarPositionColor: Theme.of(context).colorScheme.primary,
-                  seekBarThumbColor: Theme.of(context).colorScheme.primary,
-                  bottomButtonBar: [
-                    MaterialDesktopPlayOrPauseButton(),
-                    MaterialDesktopVolumeButton(
-                      volumeLowIcon: Icon(Icons.volume_down_rounded),
-                      volumeHighIcon: Icon(Icons.volume_up_rounded),
-                      volumeMuteIcon: Icon(Icons.volume_off_rounded),
-                    ),
-                    MaterialDesktopPositionIndicator(),
-                    Spacer(),
-                    MaterialDesktopCustomButton(
-                      onPressed: () {
-                        final rate =
-                            controller.player.state.rate == 1.0 ? 1.75 : 1.0;
-                        player.setRate(rate);
-                      },
-                      icon: Tooltip(
-                        message: "1.75x",
-                        child: Icon(Icons.fast_forward_rounded),
-                      ),
-                    ),
-                    MaterialFullscreenButton(
-                      icon: Icon(Icons.fullscreen_rounded),
-                    ),
-                  ],
+                normal: controls,
+                fullscreen: controls,
+                child: Video(
+                  controller: controller,
                 ),
-                fullscreen: MaterialDesktopVideoControlsThemeData(),
-                child: Video(controller: controller),
               ),
             ),
           );
@@ -175,4 +154,45 @@ class __PlayerState extends State<_Player> {
       ),
     );
   }
+}
+
+VideoController getController(BuildContext context) =>
+    VideoStateInheritedWidget.of(context).state.widget.controller;
+
+MaterialDesktopVideoControlsThemeData buildDesktopControls(
+  BuildContext context,
+) {
+  return MaterialDesktopVideoControlsThemeData(
+    seekBarPositionColor: Theme.of(context).colorScheme.primary,
+    seekBarThumbColor: Theme.of(context).colorScheme.primary,
+    hideMouseOnControlsRemoval: true,
+    bottomButtonBar: [
+      MaterialDesktopPlayOrPauseButton(),
+      MaterialDesktopVolumeButton(
+        volumeLowIcon: Icon(Icons.volume_down_rounded),
+        volumeHighIcon: Icon(Icons.volume_up_rounded),
+        volumeMuteIcon: Icon(Icons.volume_off_rounded),
+      ),
+      MaterialDesktopPositionIndicator(),
+      Spacer(),
+      Builder(
+        builder: (context) {
+          final controller = getController(context);
+          return MaterialDesktopCustomButton(
+            onPressed: () {
+              final rate = controller.player.state.rate == 1.0 ? 1.75 : 1.0;
+              controller.player.setRate(rate);
+            },
+            icon: Tooltip(
+              message: "1.75x",
+              child: Icon(Icons.fast_forward_rounded),
+            ),
+          );
+        },
+      ),
+      MaterialFullscreenButton(
+        icon: Icon(Icons.fullscreen_rounded),
+      ),
+    ],
+  );
 }
