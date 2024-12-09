@@ -97,6 +97,7 @@ class _AppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       routerConfig: router,
+      title: "Lex",
       themeMode: getIt<Preferences>().themeMode.watch(context),
       theme: buildTheme(ThemeMode.light),
       darkTheme: buildTheme(ThemeMode.dark),
