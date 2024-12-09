@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
 import 'package:lex/providers/backend.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
+
+String _getVideoUrl(String baseUrl, String ttid) {
+  return '$baseUrl/impartus/video/$ttid/m3u8';
+}
 
 class MultipartusVideoPage extends StatelessWidget {
   const MultipartusVideoPage({
@@ -109,9 +114,9 @@ class __PlayerState extends State<_Player> {
 
   @override
   void didUpdateWidget(covariant _Player oldWidget) {
-    _setup();
-
     super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.ttid != widget.ttid) _setup();
   }
 
   void _setup() async {
@@ -122,7 +127,7 @@ class __PlayerState extends State<_Player> {
     late final baseUrl = client.options.baseUrl;
     await player.open(
       Media(
-        '${baseUrl}impartus/video/${widget.ttid}/m3u8',
+        _getVideoUrl(baseUrl, widget.ttid),
         httpHeaders: {
           'Authorization': 'Bearer $accessToken',
         },
@@ -132,25 +137,30 @@ class __PlayerState extends State<_Player> {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final controls = buildDesktopControls(context);
-          return SizedBox(
-            width: constraints.maxWidth,
-            child: AspectRatio(
-              aspectRatio: 1280 / 720,
-              child: MaterialDesktopVideoControlsTheme(
-                normal: controls,
-                fullscreen: controls,
-                child: Video(
-                  controller: controller,
+    return Hero(
+      tag: widget.ttid,
+      createRectTween: (begin, end) =>
+          CurvedRectTween(begin: begin!, end: end!),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final controls = buildDesktopControls(context);
+            return SizedBox(
+              width: constraints.maxWidth,
+              child: AspectRatio(
+                aspectRatio: 1280 / 720,
+                child: MaterialDesktopVideoControlsTheme(
+                  normal: controls,
+                  fullscreen: controls,
+                  child: Video(
+                    controller: controller,
+                  ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
@@ -166,33 +176,158 @@ MaterialDesktopVideoControlsThemeData buildDesktopControls(
     seekBarPositionColor: Theme.of(context).colorScheme.primary,
     seekBarThumbColor: Theme.of(context).colorScheme.primary,
     hideMouseOnControlsRemoval: true,
+    displaySeekBar: false,
+    buttonBarHeight: 100,
+    seekBarMargin: EdgeInsets.zero,
+    // bottomButtonBarMargin: EdgeInsets.zero,
+    seekBarContainerHeight: 8,
     bottomButtonBar: [
-      MaterialDesktopPlayOrPauseButton(),
-      MaterialDesktopVolumeButton(
-        volumeLowIcon: Icon(Icons.volume_down_rounded),
-        volumeHighIcon: Icon(Icons.volume_up_rounded),
-        volumeMuteIcon: Icon(Icons.volume_off_rounded),
-      ),
-      MaterialDesktopPositionIndicator(),
-      Spacer(),
-      Builder(
-        builder: (context) {
-          final controller = getController(context);
-          return MaterialDesktopCustomButton(
-            onPressed: () {
-              final rate = controller.player.state.rate == 1.0 ? 1.75 : 1.0;
-              controller.player.setRate(rate);
-            },
-            icon: Tooltip(
-              message: "1.75x",
-              child: Icon(Icons.fast_forward_rounded),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            MaterialDesktopSeekBar(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _PlayPauseButton(),
+                _VolumeButton(),
+                Spacer(),
+                _SwitchViewButton(),
+                _SpeedButton(),
+                // _PitchButton(),
+                _FullscreenButton(),
+              ],
             ),
-          );
-        },
-      ),
-      MaterialFullscreenButton(
-        icon: Icon(Icons.fullscreen_rounded),
+          ],
+        ),
       ),
     ],
   );
+}
+
+class PitchButton extends StatelessWidget {
+  const PitchButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = getController(context);
+    return MaterialDesktopCustomButton(
+      onPressed: () {
+        controller.player
+            .setPitch(controller.player.state.pitch == 1.0 ? 1.6 : 1.0);
+      },
+      icon: Icon(LucideIcons.audio_waveform),
+    );
+  }
+}
+
+class _VolumeButton extends StatelessWidget {
+  const _VolumeButton({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialDesktopVolumeButton(
+      volumeLowIcon: Icon(LucideIcons.volume_1),
+      volumeHighIcon: Icon(LucideIcons.volume_2),
+      volumeMuteIcon: Icon(LucideIcons.volume_x),
+    );
+  }
+}
+
+class _FullscreenButton extends StatelessWidget {
+  const _FullscreenButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialFullscreenButton(
+      icon: Icon(
+        isFullscreen(context) ? LucideIcons.minimize : LucideIcons.maximize,
+      ),
+    );
+  }
+}
+
+class _SpeedButton extends StatelessWidget {
+  const _SpeedButton();
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = getController(context);
+    return MaterialDesktopCustomButton(
+      onPressed: () {
+        final rate = controller.player.state.rate == 1.0 ? 1.75 : 1.0;
+        controller.player.setRate(rate);
+      },
+      icon: Tooltip(
+        message: "1.75x",
+        child: Icon(LucideIcons.chevrons_right),
+      ),
+    );
+  }
+}
+
+class _SwitchViewButton extends StatelessWidget {
+  const _SwitchViewButton();
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = getController(context);
+    return MaterialCustomButton(
+      onPressed: () {
+        final total = controller.player.state.duration.inMilliseconds;
+        final totalHalf = total ~/ 2;
+        final current = controller.player.state.position.inMilliseconds;
+        final newPos =
+            (current > totalHalf ? current - totalHalf : current + totalHalf)
+                .clamp(0, total);
+
+        controller.player.seek(Duration(milliseconds: newPos));
+      },
+      icon: Tooltip(
+        message: 'Switch view',
+        child: Icon(LucideIcons.columns_2),
+      ),
+    );
+  }
+}
+
+class _PlayPauseButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final controller = getController(context);
+    return MaterialCustomButton(
+      icon: StreamBuilder(
+        stream: controller.player.stream.playing,
+        initialData: controller.player.state.playing,
+        builder: (context, snapshot) {
+          return Icon(
+            snapshot.data! ? LucideIcons.pause : LucideIcons.play,
+          );
+        },
+      ),
+      onPressed: controller.player.playOrPause,
+    );
+  }
+}
+
+class CurvedRectTween extends Tween<Rect> {
+  CurvedRectTween({
+    required Rect begin,
+    required Rect end,
+  }) : super(begin: begin, end: end);
+
+  static const Curve _curve = Curves.easeOutQuad;
+
+  @override
+  Rect lerp(double t) {
+    return Rect.lerp(
+      begin,
+      end,
+      _curve.transform(t),
+    )!;
+  }
 }

@@ -128,15 +128,30 @@ final router = GoRouter(
                       routes: [
                         GoRoute(
                           path: 'watch/:ttid',
-                          builder: (context, state) {
+                          pageBuilder: (context, state) {
                             final department = state
                                 .pathParameters['department']!
                                 .replaceAll(',', '/');
                             final code = state.pathParameters['code']!;
-                            return MultipartusVideoPage(
-                              departmentUrl: department,
-                              subjectCode: code,
-                              ttid: state.pathParameters['ttid']!,
+                            return CustomTransitionPage(
+                              child: MultipartusVideoPage(
+                                departmentUrl: department,
+                                subjectCode: code,
+                                ttid: state.pathParameters['ttid']!,
+                              ),
+                              transitionDuration: Duration(milliseconds: 300),
+                              reverseTransitionDuration:
+                                  Duration(milliseconds: 300),
+                              transitionsBuilder: (
+                                context,
+                                animation,
+                                secondaryAnimation,
+                                child,
+                              ) =>
+                                  FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              ),
                             );
                           },
                         ),

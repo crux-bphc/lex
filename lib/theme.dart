@@ -109,6 +109,10 @@ ThemeData buildTheme(ThemeMode mode) {
     barrierColor: Colors.black.withOpacity(0.3),
   );
 
+  final tooltipTheme = TooltipThemeData(
+    preferBelow: false,
+  );
+
   return ThemeData(
     colorScheme: scheme,
     useMaterial3: true,
@@ -118,5 +122,6 @@ ThemeData buildTheme(ThemeMode mode) {
     searchBarTheme: searchBarTheme,
     outlinedButtonTheme: outlineButtonTheme,
     dialogTheme: dialogTheme,
+    tooltipTheme: tooltipTheme,
   );
 }
