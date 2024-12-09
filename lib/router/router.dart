@@ -117,8 +117,7 @@ final router = GoRouter(
                     GoRoute(
                       path: 'courses/:department/:code',
                       builder: (context, state) {
-                        final department = state.pathParameters['department']!
-                            .replaceAll(',', '/');
+                        final department = state.pathParameters['department']!;
                         final code = state.pathParameters['code']!;
                         return MultipartusCoursePage(
                           department: department,
