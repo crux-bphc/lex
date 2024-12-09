@@ -12,7 +12,7 @@ part of 'profile.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 ImpartusProfile _$ImpartusProfileFromJson(Map<String, dynamic> json) {
   return _ImpartusProfile.fromJson(json);
@@ -29,16 +29,16 @@ mixin _$ImpartusProfile {
 
 /// @nodoc
 @JsonSerializable(createToJson: false)
-class _$_ImpartusProfile implements _ImpartusProfile {
-  const _$_ImpartusProfile(
+class _$ImpartusProfileImpl implements _ImpartusProfile {
+  const _$ImpartusProfileImpl(
       {required this.userId,
       required this.fname,
       required this.sessionId,
       required this.batchName,
       required this.batchId});
 
-  factory _$_ImpartusProfile.fromJson(Map<String, dynamic> json) =>
-      _$$_ImpartusProfileFromJson(json);
+  factory _$ImpartusProfileImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ImpartusProfileImplFromJson(json);
 
   @override
   final int userId;
@@ -63,10 +63,10 @@ abstract class _ImpartusProfile implements ImpartusProfile {
       required final String fname,
       required final int sessionId,
       required final String batchName,
-      required final String batchId}) = _$_ImpartusProfile;
+      required final String batchId}) = _$ImpartusProfileImpl;
 
   factory _ImpartusProfile.fromJson(Map<String, dynamic> json) =
-      _$_ImpartusProfile.fromJson;
+      _$ImpartusProfileImpl.fromJson;
 
   @override
   int get userId;

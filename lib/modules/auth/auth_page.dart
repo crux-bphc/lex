@@ -1,6 +1,10 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
+import 'package:lex/widgets/delayed_progress_indicator.dart';
+import 'package:lex/widgets/powered_by_crux.dart';
 import 'package:signals/signals_flutter.dart';
 
 /// Auth page shown while the app is starting up or when the user is not logged
@@ -10,38 +14,55 @@ class AuthPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double deviceWidth = MediaQuery.sizeOf(context).width;
+    double deviceHeight = MediaQuery.sizeOf(context).height;
+    double scale = max(deviceWidth, deviceHeight);
+
     return Scaffold(
-      body: Center(
-        child: IntrinsicWidth(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                "LEX",
-                style: TextStyle(
-                  fontSize: 120,
-                  letterSpacing: 10,
-                  height: 1,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const Align(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  "Powered by cruX",
-                  style: TextStyle(
-                    letterSpacing: 1,
+      body: Stack(
+        children: [
+          Positioned(
+            left: -0.12 * scale,
+            bottom: -0.12 * scale,
+            width: scale * 0.4,
+            height: scale * 0.4,
+            child: Image.asset(
+              "assets/landing.png",
+            ),
+          ),
+          Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const PoweredByCrux(
+                  child: Text(
+                    "LEX",
+                    style: TextStyle(
+                      fontSize: 120,
+                      letterSpacing: 10,
+                      height: 1,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              ),
-              Container(
-                height: 100,
-                padding: const EdgeInsets.only(bottom: 30),
-                child: const Center(child: _AllReadyWidget()),
-              ),
-            ],
+                // const Align(
+                //   alignment: Alignment.centerRight,
+                //   child: Text(
+                //     "Powered by cruX",
+                //     style: TextStyle(
+                //       letterSpacing: 1,
+                //     ),
+                //   ),
+                // ),
+                Container(
+                  height: 100,
+                  padding: const EdgeInsets.only(bottom: 30),
+                  child: const Center(child: _AllReadyWidget()),
+                ),
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -67,7 +88,7 @@ class _AllReadyWidget extends StatelessWidget {
         return isLoading
             ? const SizedBox.square(
                 dimension: 26,
-                child: CircularProgressIndicator.adaptive(),
+                child: DelayedProgressIndicator(),
               )
             : OutlinedButton.icon(
                 onPressed: () async {

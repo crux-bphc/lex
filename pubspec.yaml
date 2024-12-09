@@ -30,6 +30,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -47,16 +49,26 @@ dependencies:
   path_provider: ^2.0.15
   path: ^1.8.3
   html_unescape: ^2.0.0
-  fast_immutable_collections: ^10.1.0
-  media_kit: ^1.1.10
-  media_kit_video: ^1.2.4
-  media_kit_libs_video: ^1.0.4
+  fast_immutable_collections: ^11.0.0
+  media_kit: ^1.1.11
+  media_kit_video: ^1.2.5
+  media_kit_libs_video: ^1.0.5
   flutter_lucide: ^1.1.2
-  signals: ^5.2.2
-  get_it: ^7.6.7
-  oidc: ^0.7.0
-  oidc_default_store: ^0.2.0+9
-  oidc_core: ^0.7.0
+  signals: ^6.0.2
+  get_it: ^8.0.2
+  oidc: ^0.9.0
+  oidc_default_store: ^0.2.0
+  oidc_core: ^0.9.0
+  intl: ^0.20.0
+  flutter_animate: ^4.5.0
+
+dependency_overrides:
+  media_kit:
+    git:
+      url: https://github.com/media-kit/media-kit.git
+      ref: c986dff78a0c7e2752c1bdb50b40c4a919887b0b
+      path: media_kit
+  js: ^0.7.1
 
 dev_dependencies:
   flutter_test:
@@ -67,9 +79,8 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^4.0.0
+  flutter_lints: ^5.0.0
   custom_lint: ^0.6.0
-  riverpod_lint: ^2.0.1
   build_runner: ^2.4.6
   freezed: ^2.4.1
   json_serializable: ^6.7.1
@@ -86,9 +97,10 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+   - assets/crux.png
+   - assets/cruxDark.png
+   - assets/landing.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

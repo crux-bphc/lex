@@ -5,17 +5,23 @@ import 'package:lex/modules/cms/screens/forum.dart';
 import 'package:lex/modules/cms/screens/home.dart';
 import 'package:lex/modules/cms/screens/search.dart';
 import 'package:lex/modules/cms/widgets/ensure_login.dart';
+import 'package:lex/modules/multipartus/screens/course.dart';
 import 'package:lex/modules/multipartus/screens/home.dart';
+import 'package:lex/modules/multipartus/screens/video.dart';
+import 'package:lex/modules/multipartus/widgets/login_gate.dart';
 import 'package:lex/modules/settings/screens/home.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
 import 'package:lex/router/scaffold.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lex/modules/auth/auth_page.dart';
+import 'package:signals/signals_flutter.dart';
 
 final _cmsNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'cms');
 final _multipartusNavigatorKey = GlobalKey<NavigatorState>(
   debugLabel: 'multipartus',
 );
+
+final backButtonObserver = BackButtonObserver();
 
 const _defaultInitialLocation = '/multipartus';
 
@@ -99,9 +105,61 @@ final router = GoRouter(
         StatefulShellBranch(
           navigatorKey: _multipartusNavigatorKey,
           routes: [
-            GoRoute(
-              path: '/multipartus',
-              builder: (context, state) => const MultipartusHomePage(),
+            ShellRoute(
+              observers: [backButtonObserver],
+              builder: (context, state, child) =>
+                  MultipartusLoginGate(child: child),
+              routes: [
+                GoRoute(
+                  path: '/multipartus',
+                  builder: (context, state) => const MultipartusHomePage(),
+                  routes: [
+                    GoRoute(
+                      path: 'courses/:department/:code',
+                      builder: (context, state) {
+                        final department = state.pathParameters['department']!
+                            .replaceAll(',', '/');
+                        final code = state.pathParameters['code']!;
+                        return MultipartusCoursePage(
+                          department: department,
+                          subjectCode: code,
+                        );
+                      },
+                      routes: [
+                        GoRoute(
+                          path: 'watch/:ttid',
+                          pageBuilder: (context, state) {
+                            final department = state
+                                .pathParameters['department']!
+                                .replaceAll(',', '/');
+                            final code = state.pathParameters['code']!;
+                            return CustomTransitionPage(
+                              child: MultipartusVideoPage(
+                                departmentUrl: department,
+                                subjectCode: code,
+                                ttid: state.pathParameters['ttid']!,
+                              ),
+                              transitionDuration: Duration(milliseconds: 300),
+                              reverseTransitionDuration:
+                                  Duration(milliseconds: 300),
+                              transitionsBuilder: (
+                                context,
+                                animation,
+                                secondaryAnimation,
+                                child,
+                              ) =>
+                                  FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
             ),
           ],
         ),
@@ -113,3 +171,37 @@ final router = GoRouter(
     ),
   ],
 );
+
+class BackButtonObserver extends NavigatorObserver {
+  final showBackButton = signal(false);
+
+  void _updateSignal() {
+    showBackButton.value = navigator?.canPop() ?? false;
+  }
+
+  void pop() {
+    if (untracked(() => showBackButton())) {
+      navigator?.pop();
+    }
+  }
+
+  @override
+  void didPush(Route route, Route? previousRoute) {
+    _updateSignal();
+  }
+
+  @override
+  void didReplace({Route? newRoute, Route? oldRoute}) {
+    _updateSignal();
+  }
+
+  @override
+  void didRemove(Route route, Route? previousRoute) {
+    _updateSignal();
+  }
+
+  @override
+  void didPop(Route route, Route? previousRoute) {
+    _updateSignal();
+  }
+}

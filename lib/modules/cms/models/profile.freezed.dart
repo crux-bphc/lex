@@ -12,7 +12,7 @@ part of 'profile.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 CMSUser _$CMSUserFromJson(Map<String, dynamic> json) {
   return _CMSUser.fromJson(json);
@@ -27,12 +27,12 @@ mixin _$CMSUser {
 
 /// @nodoc
 @JsonSerializable(createToJson: false)
-class _$_CMSUser implements _CMSUser {
-  const _$_CMSUser(
+class _$CMSUserImpl implements _CMSUser {
+  const _$CMSUserImpl(
       {required this.username, required this.firstname, required this.userid});
 
-  factory _$_CMSUser.fromJson(Map<String, dynamic> json) =>
-      _$$_CMSUserFromJson(json);
+  factory _$CMSUserImpl.fromJson(Map<String, dynamic> json) =>
+      _$$CMSUserImplFromJson(json);
 
   @override
   final String username;
@@ -51,9 +51,9 @@ abstract class _CMSUser implements CMSUser {
   const factory _CMSUser(
       {required final String username,
       required final String firstname,
-      required final int userid}) = _$_CMSUser;
+      required final int userid}) = _$CMSUserImpl;
 
-  factory _CMSUser.fromJson(Map<String, dynamic> json) = _$_CMSUser.fromJson;
+  factory _CMSUser.fromJson(Map<String, dynamic> json) = _$CMSUserImpl.fromJson;
 
   @override
   String get username;

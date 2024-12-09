@@ -12,7 +12,7 @@ part of 'course.dart';
 T _$identity<T>(T value) => value;
 
 final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#custom-getters-and-methods');
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 CMSCourseContent _$CMSCourseContentFromJson(Map<String, dynamic> json) {
   return _CMSCourseContent.fromJson(json);
@@ -27,15 +27,15 @@ mixin _$CMSCourseContent {
 
 /// @nodoc
 @JsonSerializable(createToJson: false)
-class _$_CMSCourseContent implements _CMSCourseContent {
-  const _$_CMSCourseContent(
+class _$CMSCourseContentImpl implements _CMSCourseContent {
+  const _$CMSCourseContentImpl(
       {required this.id,
       required this.name,
       final List<CMSCourseModule> modules = const []})
       : _modules = modules;
 
-  factory _$_CMSCourseContent.fromJson(Map<String, dynamic> json) =>
-      _$$_CMSCourseContentFromJson(json);
+  factory _$CMSCourseContentImpl.fromJson(Map<String, dynamic> json) =>
+      _$$CMSCourseContentImplFromJson(json);
 
   @override
   final int id;
@@ -60,10 +60,10 @@ abstract class _CMSCourseContent implements CMSCourseContent {
   const factory _CMSCourseContent(
       {required final int id,
       required final String name,
-      final List<CMSCourseModule> modules}) = _$_CMSCourseContent;
+      final List<CMSCourseModule> modules}) = _$CMSCourseContentImpl;
 
   factory _CMSCourseContent.fromJson(Map<String, dynamic> json) =
-      _$_CMSCourseContent.fromJson;
+      _$CMSCourseContentImpl.fromJson;
 
   @override
   int get id;
@@ -89,8 +89,8 @@ mixin _$CMSCourseModule {
 
 /// @nodoc
 @JsonSerializable(createToJson: false)
-class _$_CMSCourseModule implements _CMSCourseModule {
-  _$_CMSCourseModule(
+class _$CMSCourseModuleImpl implements _CMSCourseModule {
+  _$CMSCourseModuleImpl(
       {required this.id,
       required this.name,
       required this.modname,
@@ -98,8 +98,8 @@ class _$_CMSCourseModule implements _CMSCourseModule {
       this.description,
       this.contents});
 
-  factory _$_CMSCourseModule.fromJson(Map<String, dynamic> json) =>
-      _$$_CMSCourseModuleFromJson(json);
+  factory _$CMSCourseModuleImpl.fromJson(Map<String, dynamic> json) =>
+      _$$CMSCourseModuleImplFromJson(json);
 
   @override
   final int id;
@@ -127,10 +127,10 @@ abstract class _CMSCourseModule implements CMSCourseModule {
       required final String modname,
       required final int instance,
       final String? description,
-      final CMSCourseFile? contents}) = _$_CMSCourseModule;
+      final CMSCourseFile? contents}) = _$CMSCourseModuleImpl;
 
   factory _CMSCourseModule.fromJson(Map<String, dynamic> json) =
-      _$_CMSCourseModule.fromJson;
+      _$CMSCourseModuleImpl.fromJson;
 
   @override
   int get id;
@@ -158,11 +158,11 @@ mixin _$CMSCourseFile {
 
 /// @nodoc
 @JsonSerializable(createToJson: false)
-class _$_CMSCourseFile implements _CMSCourseFile {
-  const _$_CMSCourseFile({required this.filename, required this.fileurl});
+class _$CMSCourseFileImpl implements _CMSCourseFile {
+  const _$CMSCourseFileImpl({required this.filename, required this.fileurl});
 
-  factory _$_CMSCourseFile.fromJson(Map<String, dynamic> json) =>
-      _$$_CMSCourseFileFromJson(json);
+  factory _$CMSCourseFileImpl.fromJson(Map<String, dynamic> json) =>
+      _$$CMSCourseFileImplFromJson(json);
 
   @override
   final String filename;
@@ -178,10 +178,10 @@ class _$_CMSCourseFile implements _CMSCourseFile {
 abstract class _CMSCourseFile implements CMSCourseFile {
   const factory _CMSCourseFile(
       {required final String filename,
-      required final String fileurl}) = _$_CMSCourseFile;
+      required final String fileurl}) = _$CMSCourseFileImpl;
 
   factory _CMSCourseFile.fromJson(Map<String, dynamic> json) =
-      _$_CMSCourseFile.fromJson;
+      _$CMSCourseFileImpl.fromJson;
 
   @override
   String get filename;
@@ -201,11 +201,12 @@ mixin _$CMSRegisteredCourse {
 
 /// @nodoc
 @JsonSerializable(createToJson: false)
-class _$_CMSRegisteredCourse implements _CMSRegisteredCourse {
-  const _$_CMSRegisteredCourse({required this.id, required this.displayname});
+class _$CMSRegisteredCourseImpl implements _CMSRegisteredCourse {
+  const _$CMSRegisteredCourseImpl(
+      {required this.id, required this.displayname});
 
-  factory _$_CMSRegisteredCourse.fromJson(Map<String, dynamic> json) =>
-      _$$_CMSRegisteredCourseFromJson(json);
+  factory _$CMSRegisteredCourseImpl.fromJson(Map<String, dynamic> json) =>
+      _$$CMSRegisteredCourseImplFromJson(json);
 
   @override
   final int id;
@@ -221,10 +222,10 @@ class _$_CMSRegisteredCourse implements _CMSRegisteredCourse {
 abstract class _CMSRegisteredCourse implements CMSRegisteredCourse {
   const factory _CMSRegisteredCourse(
       {required final int id,
-      required final String displayname}) = _$_CMSRegisteredCourse;
+      required final String displayname}) = _$CMSRegisteredCourseImpl;
 
   factory _CMSRegisteredCourse.fromJson(Map<String, dynamic> json) =
-      _$_CMSRegisteredCourse.fromJson;
+      _$CMSRegisteredCourseImpl.fromJson;
 
   @override
   int get id;

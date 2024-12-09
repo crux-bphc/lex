@@ -8,6 +8,8 @@ class AuthUser {
   Dio get bearerClient => _client;
 
   String? get refreshToken => _oidcUser.token.refreshToken;
+  String? get accessToken => _oidcUser.token.accessToken;
+  String? get uid => _oidcUser.uid;
 
   AuthUser.fromOidcUser(OidcUser user)
       : _oidcUser = user,

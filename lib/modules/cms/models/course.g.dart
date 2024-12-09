@@ -6,9 +6,10 @@ part of 'course.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$_CMSCourseContent _$$_CMSCourseContentFromJson(Map<String, dynamic> json) =>
-    _$_CMSCourseContent(
-      id: json['id'] as int,
+_$CMSCourseContentImpl _$$CMSCourseContentImplFromJson(
+        Map<String, dynamic> json) =>
+    _$CMSCourseContentImpl(
+      id: (json['id'] as num).toInt(),
       name: json['name'] as String,
       modules: (json['modules'] as List<dynamic>?)
               ?.map((e) => CMSCourseModule.fromJson(e as Map<String, dynamic>))
@@ -16,27 +17,28 @@ _$_CMSCourseContent _$$_CMSCourseContentFromJson(Map<String, dynamic> json) =>
           const [],
     );
 
-_$_CMSCourseModule _$$_CMSCourseModuleFromJson(Map<String, dynamic> json) =>
-    _$_CMSCourseModule(
-      id: json['id'] as int,
+_$CMSCourseModuleImpl _$$CMSCourseModuleImplFromJson(
+        Map<String, dynamic> json) =>
+    _$CMSCourseModuleImpl(
+      id: (json['id'] as num).toInt(),
       name: json['name'] as String,
       modname: json['modname'] as String,
-      instance: json['instance'] as int,
+      instance: (json['instance'] as num).toInt(),
       description: json['description'] as String?,
       contents: json['contents'] == null
           ? null
           : CMSCourseFile.fromJson(json['contents'] as Map<String, dynamic>),
     );
 
-_$_CMSCourseFile _$$_CMSCourseFileFromJson(Map<String, dynamic> json) =>
-    _$_CMSCourseFile(
+_$CMSCourseFileImpl _$$CMSCourseFileImplFromJson(Map<String, dynamic> json) =>
+    _$CMSCourseFileImpl(
       filename: json['filename'] as String,
       fileurl: json['fileurl'] as String,
     );
 
-_$_CMSRegisteredCourse _$$_CMSRegisteredCourseFromJson(
+_$CMSRegisteredCourseImpl _$$CMSRegisteredCourseImplFromJson(
         Map<String, dynamic> json) =>
-    _$_CMSRegisteredCourse(
-      id: json['id'] as int,
+    _$CMSRegisteredCourseImpl(
+      id: (json['id'] as num).toInt(),
       displayname: json['displayname'] as String,
     );
