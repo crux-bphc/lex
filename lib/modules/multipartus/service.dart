@@ -15,12 +15,12 @@ class MultipartusService {
   MultipartusService(this._backend) {
     pinnedSubjects = computedAsync(
       () async {
-        final r = await _backend.get('/impartus/user/subjects');
+        final r = await _backend.get('/impartus/subject');
 
         if (r?.data! is! List) return {};
         final iter = (r!.data! as List)
             .cast<Map>()
-            .map((e) => Subject.fromJson({...e, 'isPinned': true}));
+            .map((e) => Subject.fromJson({...e, 'isPinned': false}));
 
         final subs = <SubjectId, Subject>{
           for (final s in iter) (department: s.departmentUrl, code: s.code): s,

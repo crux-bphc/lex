@@ -32,21 +32,21 @@ class SubjectTile extends StatelessWidget {
               ),
               // const Spacer(),
               const Spacer(),
-              IconButton(
-                onPressed: () {
-                  if (subject.isPinned) {
-                    // GetIt.instance<MultipartusService>()
-                    // .unpinSubject(subject.);
-                  } else {
-                    // GetIt.instance<MultipartusService>().pinSubject(subject.id);
-                  }
-                },
-                icon: Icon(
-                  subject.isPinned ? Icons.favorite : Icons.favorite_border,
-                  size: 22,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              ),
+              // IconButton(
+              //   onPressed: () {
+              //     if (subject.isPinned) {
+              //       // GetIt.instance<MultipartusService>()
+              //       // .unpinSubject(subject.);
+              //     } else {
+              //       // GetIt.instance<MultipartusService>().pinSubject(subject.id);
+              //     }
+              //   },
+              //   icon: Icon(
+              //     subject.isPinned ? Icons.favorite : Icons.favorite_border,
+              //     size: 22,
+              //     color: Theme.of(context).colorScheme.primary,
+              //   ),
+              // ),
             ],
           ),
           Expanded(
