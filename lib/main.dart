@@ -37,9 +37,7 @@ void _prelaunchTasks() async {
     dispose: (prefs) => prefs.dispose(),
   );
 
-  if (!kIsWeb) {
-    getIt.registerSingleton<BackButtonObserver>(backButtonObserver);
-  }
+  getIt.registerSingleton<BackButtonObserver>(backButtonObserver);
 
   getIt.registerSingleton<ErrorService>(DioErrorService());
 
