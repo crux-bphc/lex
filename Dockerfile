@@ -18,6 +18,13 @@ COPY . /app
 RUN flutter pub get
 RUN flutter build web --no-tree-shake-icons
 
-FROM nginx:1.21.1-alpine
+FROM nginx:1.25.3-alpine-slim
+WORKDIR /usr/share/nginx/html
 
-COPY --from=build /app/build/web /usr/share/nginx/html
+RUN mkdir /usr/log
+RUN rm -rf ./*
+COPY nginx.conf /etc/nginx/nginx.conf
+
+COPY --from=build /app/build/web .
+
+CMD ["nginx", "-g", "daemon off;"]
