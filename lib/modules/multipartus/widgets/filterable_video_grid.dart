@@ -113,6 +113,9 @@ class _FilterableVideoGridState extends State<FilterableVideoGrid> {
                         ),
                     ],
                     hintText: "SESSION",
+                    onSelected: (value) {
+                      session.value = value;
+                    },
                     initialSelection: sessions().first,
                   ),
                 ),
