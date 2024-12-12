@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:get_it/get_it.dart';
+import 'package:lex/modules/multipartus/widgets/seekbar.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
 import 'package:lex/providers/backend.dart';
+import 'package:lex/utils/extensions.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
+import 'package:signals/signals_flutter.dart';
 
 String _getVideoUrl(String baseUrl, String ttid) {
   return '$baseUrl/impartus/video/$ttid/m3u8';
@@ -177,9 +180,8 @@ MaterialDesktopVideoControlsThemeData buildDesktopControls(
     seekBarThumbColor: Theme.of(context).colorScheme.primary,
     hideMouseOnControlsRemoval: true,
     displaySeekBar: false,
-    buttonBarHeight: 100,
+    buttonBarHeight: 110,
     seekBarMargin: EdgeInsets.zero,
-    // bottomButtonBarMargin: EdgeInsets.zero,
     seekBarContainerHeight: 8,
     bottomButtonBar: [
       Expanded(
@@ -187,7 +189,7 @@ MaterialDesktopVideoControlsThemeData buildDesktopControls(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            MaterialDesktopSeekBar(),
+            _ImpartusSeekBar(),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -224,9 +226,7 @@ class PitchButton extends StatelessWidget {
 }
 
 class _VolumeButton extends StatelessWidget {
-  const _VolumeButton({
-    super.key,
-  });
+  const _VolumeButton();
 
   @override
   Widget build(BuildContext context) {
@@ -331,3 +331,61 @@ class CurvedRectTween extends Tween<Rect> {
     )!;
   }
 }
+
+class _ImpartusSeekBar extends StatefulWidget {
+  const _ImpartusSeekBar();
+
+  @override
+  State<_ImpartusSeekBar> createState() => _ImpartusSeekBarState();
+}
+
+Duration actualDuration(Duration totalDuration) => totalDuration * 0.5;
+
+bool isView2(Duration position, Duration totalDuration) =>
+    position > actualDuration(totalDuration);
+
+Duration actualPosition(Duration position, Duration totalDuration) =>
+    isView2(position, totalDuration)
+        ? position - actualDuration(totalDuration)
+        : position;
+
+double actualFraction(Duration position, Duration totalDuration) =>
+    actualPosition(position, totalDuration).inMilliseconds /
+    actualDuration(totalDuration).inMilliseconds;
+
+class _ImpartusSeekBarState extends State<_ImpartusSeekBar> {
+  late final controller = getController(context);
+
+  Duration get totalDuration => controller.player.state.duration;
+
+  @override
+  Widget build(BuildContext context) {
+    return SeekBar(
+      bufferFraction: controller.player.stream.buffer.map(
+        (e) => actualFraction(e, totalDuration).clampNaN(0, 1),
+      ),
+      positionFraction: controller.player.stream.position.map(
+        (e) => actualFraction(e, totalDuration).clampNaN(0, 1),
+      ),
+      initialBuffer:
+          actualFraction(controller.player.state.buffer, totalDuration)
+              .clampNaN(0, 1),
+      initialPosition:
+          actualFraction(controller.player.state.position, totalDuration)
+              .clampNaN(0, 1),
+      formatTimestamp: (positionFraction) {
+        final pos = actualDuration(totalDuration) * positionFraction;
+        return pos.format();
+      },
+      onSeek: (p) {
+        final actual = actualDuration(totalDuration);
+        controller.player.seek(
+          isView2(controller.player.state.position, totalDuration)
+              ? actual + actual * p
+              : actual * p,
+        );
+      },
+    );
+  }
+}
+
