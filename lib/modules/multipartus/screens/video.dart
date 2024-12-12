@@ -195,6 +195,7 @@ MaterialDesktopVideoControlsThemeData buildDesktopControls(
               children: [
                 _PlayPauseButton(),
                 _VolumeButton(),
+                _ImpartusPositionIndicator(),
                 Spacer(),
                 _SwitchViewButton(),
                 _SpeedButton(),
@@ -389,3 +390,36 @@ class _ImpartusSeekBarState extends State<_ImpartusSeekBar> {
   }
 }
 
+class _ImpartusPositionIndicator extends StatefulWidget {
+  const _ImpartusPositionIndicator();
+
+  @override
+  State<_ImpartusPositionIndicator> createState() =>
+      _ImpartusPositionIndicatorState();
+}
+
+class _ImpartusPositionIndicatorState extends State<_ImpartusPositionIndicator>
+    with SignalsMixin {
+  late final controller = getController(context);
+
+  late final position = createStreamSignal(
+    () => controller.player.stream.position
+        .map((e) => actualPosition(e, totalDuration)),
+    initialValue:
+        actualPosition(controller.player.state.position, totalDuration),
+  );
+
+  late final duration = createStreamSignal(
+    () => controller.player.stream.duration.map(actualDuration),
+    initialValue: actualDuration(totalDuration),
+  );
+
+  Duration get totalDuration => controller.player.state.duration;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      "${position().value!.format()} / ${duration().value!.format()}",
+    );
+  }
+}
