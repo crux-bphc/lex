@@ -30,6 +30,7 @@ class MultipartusCoursePage extends StatelessWidget {
                     return const Center(child: Text("Subject not found"));
                   }
                   return CustomScrollView(
+                    physics: const BouncingScrollPhysics(),
                     slivers: [
                       SliverPadding(
                         padding: const EdgeInsets.only(top: 30, bottom: 12),
