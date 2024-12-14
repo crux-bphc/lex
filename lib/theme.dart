@@ -40,6 +40,10 @@ final _lightScheme = ColorScheme.fromSeed(
   surfaceContainerHigh: const Color(0xFFe5e9f0),
 );
 
+final fontLoadFuture = GoogleFonts.pendingFonts([
+  GoogleFonts.lexendDecaTextTheme(),
+]);
+
 ThemeData buildTheme(ThemeMode mode) {
   final scheme = mode == ThemeMode.dark ? _darkScheme : _lightScheme;
 

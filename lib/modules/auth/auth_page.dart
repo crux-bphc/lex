@@ -3,8 +3,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
+import 'package:lex/utils/image.dart';
 import 'package:lex/widgets/delayed_progress_indicator.dart';
-import 'package:lex/widgets/powered_by_crux.dart';
 import 'package:signals/signals_flutter.dart';
 
 /// Auth page shown while the app is starting up or when the user is not logged
@@ -28,32 +28,37 @@ class AuthPage extends StatelessWidget {
             height: scale * 0.4,
             child: Image.asset(
               "assets/landing.png",
+              frameBuilder: fadeInImageFrameBuilder(
+                duration: Duration(milliseconds: 200),
+              ),
             ),
           ),
           Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const PoweredByCrux(
-                  child: Text(
-                    "LEX",
+                Text.rich(
+                  TextSpan(
+                    text: "LEX",
                     style: TextStyle(
                       fontSize: 120,
                       letterSpacing: 10,
                       height: 1,
                       fontWeight: FontWeight.bold,
                     ),
+                    children: [
+                      TextSpan(
+                        text: "\nPowered by cruX",
+                        style: TextStyle(
+                          letterSpacing: 1,
+                          fontSize: 14,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                    ],
                   ),
+                  textAlign: TextAlign.end,
                 ),
-                // const Align(
-                //   alignment: Alignment.centerRight,
-                //   child: Text(
-                //     "Powered by cruX",
-                //     style: TextStyle(
-                //       letterSpacing: 1,
-                //     ),
-                //   ),
-                // ),
                 Container(
                   height: 100,
                   padding: const EdgeInsets.only(bottom: 30),
@@ -85,18 +90,21 @@ class _AllReadyWidget extends StatelessWidget {
         final isLoading = !isReady ||
             GetIt.instance<AuthProvider>().isLoggedIn.watch(context);
 
-        return isLoading
-            ? const SizedBox.square(
-                dimension: 26,
-                child: DelayedProgressIndicator(),
-              )
-            : OutlinedButton.icon(
-                onPressed: () async {
-                  // TODO: find exceptions that are thrown here
-                  await GetIt.instance<AuthProvider>().login();
-                },
-                label: const Text('Login using Google'),
-              );
+        return AnimatedSwitcher(
+          duration: Duration(milliseconds: 400),
+          child: isLoading
+              ? const SizedBox.square(
+                  dimension: 26,
+                  child: DelayedProgressIndicator(),
+                )
+              : OutlinedButton.icon(
+                  onPressed: () async {
+                    // TODO: find exceptions that are thrown here
+                    await GetIt.instance<AuthProvider>().login();
+                  },
+                  label: const Text('Login using Google'),
+                ),
+        );
       },
     );
   }

@@ -6,6 +6,7 @@ import 'package:lex/modules/multipartus/models/impartus_video.dart';
 import 'package:lex/modules/multipartus/screens/video.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/grid_button.dart';
+import 'package:lex/utils/image.dart';
 import 'package:lex/widgets/auto_tooltip_text.dart';
 
 final _dateFormat = DateFormat.yMMMd().add_jm();
@@ -133,13 +134,7 @@ class _Thumbnail extends StatelessWidget {
     final child = Image.network(
       "https://a.impartus.com/download1/embedded/thumbnails/$ttid.jpg",
       fit: BoxFit.cover,
-      frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-        // fade in image
-        if (wasSynchronouslyLoaded) return child;
-        return child
-            .animate(target: frame != null ? 1 : 0)
-            .fadeIn(duration: 400.ms);
-      },
+      frameBuilder: fadeInImageFrameBuilder(),
       errorBuilder: (context, error, stackTrace) => Center(
         child: Icon(
           LucideIcons.image,
