@@ -6,8 +6,9 @@ part of 'lecture_section.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$LectureSectionImpl _$$LectureSectionImplFromJson(Map<String, dynamic> json) =>
-    _$LectureSectionImpl(
+_$ImpartusSectionDataImpl _$$ImpartusSectionDataImplFromJson(
+        Map<String, dynamic> json) =>
+    _$ImpartusSectionDataImpl(
       impartusSession: (json['impartus_session'] as num).toInt(),
       impartusSubject: (json['impartus_subject'] as num).toInt(),
       section: (json['section'] as num).toInt(),

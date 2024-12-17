@@ -65,8 +65,10 @@ class _ContentState extends State<_Content> {
 
   FutureSignal<LecturesResult> _getLectures() =>
       GetIt.instance<MultipartusService>().lectures(
-        departmentUrl: widget.subject.departmentUrl,
-        code: widget.subject.code,
+        (
+          departmentUrl: widget.subject.departmentUrl,
+          code: widget.subject.code,
+        ),
       );
 
   @override
@@ -92,7 +94,7 @@ class _ContentState extends State<_Content> {
               videos: data.videos,
               onPressed: (video) => context.go(
                 '/multipartus/courses/${widget.subject.departmentUrl}'
-                '/${widget.subject.code}/watch/${video.video.ttid}',
+                '/${widget.subject.code}/watch/${video.ttid}',
               ),
             );
           },

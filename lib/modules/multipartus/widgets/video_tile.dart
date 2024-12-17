@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:intl/intl.dart';
-import 'package:lex/modules/multipartus/models/impartus_video.dart';
 import 'package:lex/modules/multipartus/screens/video.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/grid_button.dart';
@@ -42,10 +40,10 @@ class _VideoTileState extends State<VideoTile> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _Thumbnail(
-              ttid: widget.video.video.ttid.toString(),
+              ttid: widget.video.ttid.toString(),
               showPlayButton: _isHovered,
             ),
-            _Title(video: widget.video.video),
+            _Title(video: widget.video),
           ],
         ),
       ),
@@ -58,7 +56,7 @@ class _Title extends StatelessWidget {
     required this.video,
   });
 
-  final ImpartusVideo video;
+  final LectureVideo video;
 
   @override
   Widget build(BuildContext context) {
@@ -86,8 +84,8 @@ class _Title extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     AutoTooltipText(
-                      text: video.topic,
-                      tooltipText: video.topic,
+                      text: video.title,
+                      tooltipText: video.title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
