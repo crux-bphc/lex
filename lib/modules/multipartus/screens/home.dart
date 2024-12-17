@@ -103,7 +103,8 @@ class _SubjectGrid extends StatelessWidget {
         mainAxisExtent: 208,
         maxCrossAxisExtent: 340,
       ),
-      physics: BouncingScrollPhysics(),
+      physics:
+          BouncingScrollPhysics(decelerationRate: ScrollDecelerationRate.fast),
       itemBuilder: (context, i) => SubjectTile(
         onPressed: () => onPressed(subjects[i]),
         subject: subjects[i],

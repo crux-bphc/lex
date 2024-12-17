@@ -155,28 +155,12 @@ class _Thumbnail extends StatelessWidget {
                 flightDirection,
                 fromHeroContext,
                 toHeroContext,
-              ) {
-                return flightDirection == HeroFlightDirection.push
-                    ? Container(
-                        color: Colors.black,
-                        child: AnimatedBuilder(
-                          animation: CurvedAnimation(
-                            parent: animation,
-                            curve: Curves.fastLinearToSlowEaseIn,
-                          ),
-                          builder: (context, child) => Opacity(
-                            opacity:
-                                _heroFadeCurve.transform(1 - animation.value),
-                            child: child,
-                          ),
-                          child: child,
-                        ),
-                      )
-                    : FadeTransition(
-                        opacity: animation.drive(Tween(begin: 1, end: 0)),
-                        child: child,
-                      );
-              },
+              ) =>
+                  // animate only in the push direction
+                  flightDirection == HeroFlightDirection.push
+                      ? toHeroContext.widget
+                      : SizedBox(),
+              placeholderBuilder: (context, heroSize, child) => child,
               child: child,
             ),
           ),

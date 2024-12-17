@@ -140,30 +140,35 @@ class __PlayerState extends State<_Player> {
 
   @override
   Widget build(BuildContext context) {
-    return Hero(
-      tag: widget.ttid,
-      createRectTween: (begin, end) =>
-          CurvedRectTween(begin: begin!, end: end!),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final controls = buildDesktopControls(context);
-            return SizedBox(
-              width: constraints.maxWidth,
-              child: AspectRatio(
-                aspectRatio: 1280 / 720,
-                child: MaterialDesktopVideoControlsTheme(
-                  normal: controls,
-                  fullscreen: controls,
-                  child: Video(
-                    controller: controller,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final controls = buildDesktopControls(context);
+          return SizedBox(
+            width: constraints.maxWidth,
+            child: AspectRatio(
+              aspectRatio: 1280 / 720,
+              child: Stack(
+                children: [
+                  Hero(
+                    tag: widget.ttid,
+                    createRectTween: (begin, end) =>
+                        CurvedRectTween(begin: begin!, end: end!),
+                    child: Image.network(
+                      "https://a.impartus.com/download1/embedded/thumbnails/${widget.ttid}.jpg",
                   ),
-                ),
+                    fullscreen: controls,
+                    child: Video(
+                      controller: controller,
+                      fill: Colors.transparent,
+                    ),
+                  ),
+                ],
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }
