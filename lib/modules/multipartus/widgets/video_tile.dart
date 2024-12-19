@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
-import 'package:intl/intl.dart';
 import 'package:lex/modules/multipartus/screens/video.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/grid_button.dart';
 import 'package:lex/utils/image.dart';
+import 'package:lex/utils/misc.dart';
 import 'package:lex/widgets/auto_tooltip_text.dart';
-
-final _dateFormat = DateFormat.yMMMd().add_jm();
 
 class VideoTile extends StatefulWidget {
   const VideoTile({
@@ -95,7 +93,7 @@ class _Title extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      _dateFormat.format(video.createdAt),
+                      formatDate(video.createdAt),
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,

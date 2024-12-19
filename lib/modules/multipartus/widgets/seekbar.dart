@@ -7,20 +7,24 @@ import 'package:signals/signals_flutter.dart';
 class SeekBar extends StatefulWidget {
   const SeekBar({
     super.key,
-    this.barColor = const Color.fromARGB(107, 143, 143, 143),
-    this.positionColor = const Color.fromARGB(255, 28, 164, 255),
-    this.thumbColor = const Color.fromARGB(255, 28, 164, 255),
-    this.bufferColor = const Color.fromARGB(94, 164, 164, 164),
     this.height = 3,
     this.hoverHeight = 6,
     this.thumbRadius = 7,
     this.initialBuffer = 0,
     this.initialPosition = 0,
+    Color? barColor,
+    Color? thumbColor,
+    Color? bufferColor,
+    Color? positionColor,
     required this.bufferFraction,
     required this.positionFraction,
     required this.onSeek,
     required this.formatTimestamp,
-  });
+  })  : barColor = barColor ?? const Color.fromARGB(107, 143, 143, 143),
+        thumbColor = thumbColor ?? const Color.fromARGB(255, 28, 164, 255),
+        bufferColor = bufferColor ?? const Color.fromARGB(145, 164, 164, 164),
+        positionColor =
+            positionColor ?? const Color.fromARGB(255, 28, 164, 255);
 
   final Color barColor, thumbColor, bufferColor, positionColor;
   final double height, hoverHeight, thumbRadius;
@@ -121,7 +125,7 @@ class _SeekBarState extends State<SeekBar> with SignalsMixin {
                                                 constraints.maxWidth,
                                             color: isHovering()
                                                 ? widget.bufferColor
-                                                    .withOpacity(0.7)
+                                                    .withOpacity(0.8)
                                                 : Colors.transparent,
                                           ),
                                         ),
@@ -190,7 +194,7 @@ class _SeekBarState extends State<SeekBar> with SignalsMixin {
 
   void _onPointerDown(PointerDownEvent event, BoxConstraints constraints) {
     final percent = event.localPosition.dx / constraints.maxWidth;
-    widget.onSeek(percent);
+    widget.onSeek(percent.clampNaN(0, 1));
 
     if (mounted) isDragging.value = true;
   }
@@ -220,13 +224,15 @@ class _SeekBarState extends State<SeekBar> with SignalsMixin {
     if (mounted) {
       batch(() {
         isHovering.value = true;
-        pointerFraction.value = event.localPosition.dx / constraints.maxWidth;
+        pointerFraction.value =
+            (event.localPosition.dx / constraints.maxWidth).clampNaN(0, 1);
       });
     }
   }
 
   void _onMove(PointerMoveEvent event, BoxConstraints constraints) {
-    final percent = event.localPosition.dx / constraints.maxWidth;
+    final percent =
+        (event.localPosition.dx / constraints.maxWidth).clampNaN(0, 1);
     widget.onSeek(percent);
 
     if (mounted) {
