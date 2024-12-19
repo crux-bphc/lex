@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:get_it/get_it.dart';
+import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/seekbar.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
 import 'package:lex/providers/backend.dart';
 import 'package:lex/utils/extensions.dart';
+import 'package:lex/utils/misc.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:signals/signals_flutter.dart';
@@ -22,7 +25,6 @@ class MultipartusVideoPage extends StatelessWidget {
   });
 
   final String subjectCode, departmentUrl, ttid;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,20 +36,31 @@ class MultipartusVideoPage extends StatelessWidget {
               flex: 5,
               child: CustomScrollView(
                 slivers: [
-                  SliverToBoxAdapter(
-                    child: _Player(ttid: ttid),
-                  ),
-                  SliverPadding(
-                    padding: EdgeInsets.only(top: 20, bottom: 14),
-                    sliver: SliverToBoxAdapter(
-                      child: Text(
+                  SliverList.list(
+                    children: [
+                      _Player(ttid: ttid),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16),
+                        child: _Title(
+                          departmentUrl: departmentUrl,
+                          subjectCode: subjectCode,
+                          ttid: ttid,
+                        ),
+                      ),
+                      Divider(
+                        color: Theme.of(context).colorScheme.onInverseSurface,
+                        thickness: 2,
+                        height: 20,
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
                         "UP NEXT IN COURSE",
                         style: TextStyle(
                           letterSpacing: 1.5,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                    ),
+                    ],
                   ),
                 ],
               ),
@@ -157,7 +170,12 @@ class __PlayerState extends State<_Player> {
                         CurvedRectTween(begin: begin!, end: end!),
                     child: Image.network(
                       "https://a.impartus.com/download1/embedded/thumbnails/${widget.ttid}.jpg",
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                    ),
                   ),
+                  MaterialDesktopVideoControlsTheme(
+                    normal: controls,
                     fullscreen: controls,
                     child: Video(
                       controller: controller,
@@ -364,9 +382,17 @@ class _ImpartusSeekBarState extends State<_ImpartusSeekBar> {
 
   Duration get totalDuration => controller.player.state.duration;
 
+  MaterialDesktopVideoControlsThemeData? _theme(BuildContext context) =>
+      isFullscreen(context)
+          ? MaterialDesktopVideoControlsTheme.maybeOf(context)?.fullscreen
+          : MaterialDesktopVideoControlsTheme.maybeOf(context)?.normal;
+
   @override
   Widget build(BuildContext context) {
     return SeekBar(
+      barColor: _theme(context)?.seekBarColor,
+      thumbColor: _theme(context)?.seekBarThumbColor,
+      positionColor: _theme(context)?.seekBarPositionColor,
       bufferFraction: controller.player.stream.buffer.map(
         (e) => actualFraction(e, totalDuration).clampNaN(0, 1),
       ),
@@ -425,6 +451,137 @@ class _ImpartusPositionIndicatorState extends State<_ImpartusPositionIndicator>
   Widget build(BuildContext context) {
     return Text(
       "${position().value!.format()} / ${duration().value!.format()}",
+    );
+  }
+}
+
+class _Title extends StatelessWidget {
+  const _Title({
+    super.key,
+    required this.subjectCode,
+    required this.departmentUrl,
+    required this.ttid,
+  });
+
+  final String subjectCode, departmentUrl, ttid;
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: GetIt.instance<MultipartusService>().fetchLectureVideo(
+        departmentUrl: departmentUrl,
+        code: subjectCode,
+        ttid: int.parse(ttid),
+      ),
+      builder: (context, snapshot) {
+        final data = snapshot.data;
+        final createdAt = snapshot.hasData ? formatDate(data!.createdAt) : null;
+        final prof = data?.professor;
+
+        return _CoolTitle(
+          leading: data?.lectureNo.toString(),
+          title: data?.title,
+          subtitle: prof,
+          trailing: createdAt,
+        )
+            .animate(
+              value: snapshot.hasData ? 1 : 0,
+              target: snapshot.hasData ? 1 : 0,
+            )
+            .fade(
+              delay: 200.ms,
+              duration: 400.ms,
+            );
+      },
+    );
+  }
+}
+
+class _CoolTitle extends StatelessWidget {
+  const _CoolTitle({
+    super.key,
+    required this.leading,
+    required this.title,
+    required this.subtitle,
+    required this.trailing,
+    this.fontSize = 32,
+  });
+
+  final String? leading, title, subtitle, trailing;
+  final double fontSize;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "CS F311 - OPERATING SYSTEMS",
+          style: TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onInverseSurface,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 4, bottom: 4),
+          child: Text.rich(
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            TextSpan(
+              children: [
+                WidgetSpan(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    margin: EdgeInsets.only(right: 10),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      leading ?? "",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.surface,
+                        fontSize: fontSize,
+                        height: 1,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  alignment: PlaceholderAlignment.baseline,
+                  baseline: TextBaseline.alphabetic,
+                ),
+                TextSpan(
+                  text: title,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontSize: fontSize,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              subtitle ?? "",
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+                fontSize: 16,
+              ),
+            ),
+            Text(
+              trailing ?? "",
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                fontSize: 15,
+              ),
+            )
+          ],
+        ),
+      ],
     );
   }
 }
