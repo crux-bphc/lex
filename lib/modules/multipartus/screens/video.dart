@@ -21,10 +21,10 @@ class MultipartusVideoPage extends StatelessWidget {
     super.key,
     required this.ttid,
     required this.subjectCode,
-    required this.departmentUrl,
+    required this.department,
   });
 
-  final String subjectCode, departmentUrl, ttid;
+  final String subjectCode, department, ttid;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,24 +42,24 @@ class MultipartusVideoPage extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.only(top: 16),
                         child: _Title(
-                          departmentUrl: departmentUrl,
+                          department: department,
                           subjectCode: subjectCode,
                           ttid: ttid,
                         ),
                       ),
-                      Divider(
-                        color: Theme.of(context).colorScheme.onInverseSurface,
-                        thickness: 2,
-                        height: 20,
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        "UP NEXT IN COURSE",
-                        style: TextStyle(
-                          letterSpacing: 1.5,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                      // Divider(
+                      //   color: Theme.of(context).colorScheme.onInverseSurface,
+                      //   thickness: 2,
+                      //   height: 20,
+                      // ),
+                      // const SizedBox(height: 10),
+                      // Text(
+                      //   "UP NEXT IN COURSE",
+                      //   style: TextStyle(
+                      //     letterSpacing: 1.5,
+                      //     fontWeight: FontWeight.w600,
+                      //   ),
+                      // ),
                     ],
                   ),
                 ],
@@ -455,44 +455,95 @@ class _ImpartusPositionIndicatorState extends State<_ImpartusPositionIndicator>
   }
 }
 
-class _Title extends StatelessWidget {
+class _Title extends StatefulWidget {
   const _Title({
     super.key,
     required this.subjectCode,
-    required this.departmentUrl,
+    required this.department,
     required this.ttid,
   });
 
-  final String subjectCode, departmentUrl, ttid;
+  final String subjectCode, department, ttid;
+
+  @override
+  State<_Title> createState() => _TitleState();
+}
+
+class _TitleState extends State<_Title> {
+  final subject =
+      GetIt.instance<MultipartusService>().subjects.select((s) => s().value);
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: GetIt.instance<MultipartusService>().fetchLectureVideo(
-        departmentUrl: departmentUrl,
-        code: subjectCode,
-        ttid: int.parse(ttid),
-      ),
-      builder: (context, snapshot) {
-        final data = snapshot.data;
-        final createdAt = snapshot.hasData ? formatDate(data!.createdAt) : null;
-        final prof = data?.professor;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Watch(
+          (context) {
+            final s = subject();
+            final name =
+                s?[(department: widget.department, code: widget.subjectCode)]
+                    ?.name;
+            final append = name != null ? " - $name" : "";
+            final text = "${widget.department} ${widget.subjectCode}$append";
 
-        return _CoolTitle(
-          leading: data?.lectureNo.toString(),
-          title: data?.title,
-          subtitle: prof,
-          trailing: createdAt,
-        )
-            .animate(
-              value: snapshot.hasData ? 1 : 0,
-              target: snapshot.hasData ? 1 : 0,
-            )
-            .fade(
-              delay: 200.ms,
-              duration: 400.ms,
-            );
-      },
+            return _CoolCoolTitle(text: text);
+          },
+        ),
+        const SizedBox(height: 5),
+        FutureBuilder(
+          future: GetIt.instance<MultipartusService>().fetchLectureVideo(
+            department: widget.department,
+            code: widget.subjectCode,
+            ttid: int.parse(widget.ttid),
+          ),
+          builder: (context, snapshot) {
+            final data = snapshot.data;
+            debugPrint(data == null ? "null" : "not null");
+            return data != null
+                ? _CoolTitle(
+                    leading: data.lectureNo.toString(),
+                    title: data.title,
+                    subtitle: data.professor,
+                    trailing: formatDate(data.createdAt),
+                  )
+                : Container();
+            // .animate(
+            //   value: snapshot.hasData ? 1 : 0,
+            //   target: snapshot.hasData ? 1 : 0,
+            // )
+            // .fade(
+            //   delay: 200.ms,
+            //   duration: 400.ms,
+            // );
+          },
+        ),
+      ],
+    );
+  }
+
+  @override
+  void dispose() {
+    subject.dispose();
+
+    super.dispose();
+  }
+}
+
+class _CoolCoolTitle extends StatelessWidget {
+  const _CoolCoolTitle({super.key, required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: TextStyle(
+        color: Theme.of(context).colorScheme.onInverseSurface,
+        fontWeight: FontWeight.bold,
+        fontSize: 18,
+      ),
     );
   }
 }
@@ -507,7 +558,7 @@ class _CoolTitle extends StatelessWidget {
     this.fontSize = 32,
   });
 
-  final String? leading, title, subtitle, trailing;
+  final String leading, title, subtitle, trailing;
   final double fontSize;
 
   @override
@@ -515,65 +566,63 @@ class _CoolTitle extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          "CS F311 - OPERATING SYSTEMS",
-          style: TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.onInverseSurface,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 4, bottom: 4),
-          child: Text.rich(
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            TextSpan(
-              children: [
-                WidgetSpan(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    margin: EdgeInsets.only(right: 10),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      leading ?? "",
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.surface,
-                        fontSize: fontSize,
-                        height: 1,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  alignment: PlaceholderAlignment.baseline,
-                  baseline: TextBaseline.alphabetic,
-                ),
-                TextSpan(
-                  text: title,
-                  style: TextStyle(
+        Text.rich(
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          TextSpan(
+            children: [
+              WidgetSpan(
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  margin: EdgeInsets.only(right: 10),
+                  decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.primary,
-                    fontSize: fontSize,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    leading,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.surface,
+                      fontSize: fontSize,
+                      height: 1,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              ],
-            ),
+                alignment: PlaceholderAlignment.baseline,
+                baseline: TextBaseline.alphabetic,
+              ),
+              TextSpan(
+                text: title,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontSize: fontSize,
+                ),
+              ),
+            ],
           ),
         ),
+        SizedBox(height: 7),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              subtitle ?? "",
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
-                fontSize: 16,
+            TextButton.icon(
+              onPressed: () {},
+              icon: Icon(
+                LucideIcons.user_round,
+                size: 20,
+              ),
+              label: Text(
+                subtitle,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontSize: 16,
+                ),
               ),
             ),
+            Spacer(),
             Text(
-              trailing ?? "",
+              trailing,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                 fontSize: 15,

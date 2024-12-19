@@ -117,7 +117,8 @@ final router = GoRouter(
                     GoRoute(
                       path: 'courses/:department/:code',
                       builder: (context, state) {
-                        final department = state.pathParameters['department']!;
+                        final department = state.pathParameters['department']!
+                            .replaceAll(',', '/');
                         final code = state.pathParameters['code']!;
                         return MultipartusCoursePage(
                           department: department,
@@ -134,7 +135,7 @@ final router = GoRouter(
                             final code = state.pathParameters['code']!;
                             // return CustomTransitionPage(
                             return MultipartusVideoPage(
-                              departmentUrl: department,
+                              department: department,
                               subjectCode: code,
                               ttid: state.pathParameters['ttid']!,
                             );

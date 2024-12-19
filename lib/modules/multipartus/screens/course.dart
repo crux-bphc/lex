@@ -68,7 +68,7 @@ class _ContentState extends State<_Content> {
   FutureSignal<LecturesResult> _getLectures() =>
       GetIt.instance<MultipartusService>().lectures(
         (
-          departmentUrl: widget.subject.departmentUrl,
+          department: widget.subject.department,
           code: widget.subject.code,
         ),
       );

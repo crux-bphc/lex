@@ -107,6 +107,8 @@ ThemeData buildTheme(ThemeMode mode) {
     ),
   );
 
+  final textButtonTheme = TextButtonThemeData(style: buttonStyle);
+
   final dialogTheme = DialogTheme(
     backgroundColor: scheme.surfaceContainerHigh,
     shape: RoundedRectangleBorder(
@@ -137,6 +139,7 @@ ThemeData buildTheme(ThemeMode mode) {
     inputDecorationTheme: inputDecoration,
     searchBarTheme: searchBarTheme,
     outlinedButtonTheme: outlineButtonTheme,
+    textButtonTheme: textButtonTheme,
     dialogTheme: dialogTheme,
     tooltipTheme: tooltipTheme,
     textTheme: textTheme,

@@ -4,6 +4,7 @@ import 'package:lex/modules/multipartus/models/lecture_section.dart';
 import 'package:lex/modules/multipartus/models/impartus_video.dart';
 import 'package:lex/modules/multipartus/models/subject.dart';
 import 'package:lex/providers/backend.dart';
+import 'package:lex/utils/misc.dart';
 import 'package:lex/utils/signals.dart';
 import 'package:signals/signals.dart';
 
@@ -15,8 +16,7 @@ class MultipartusService {
   late final FutureSignal<Map<SubjectId, Subject>> pinnedSubjects;
   late final FutureSignal<Map<int, ImpartusSessionData>> _impartusSessionMap;
 
-  final Map<int, (LectureVideo?, Completer<LectureVideo>)>
-      _lectureVideoCompleters = {};
+  late final _lectureMap = DeferredValueMap<int, LectureVideo>();
 
   MultipartusService(this._backend) {
     pinnedSubjects = computedAsync(
@@ -29,7 +29,8 @@ class MultipartusService {
             .map((e) => Subject.fromJson({...e, 'isPinned': false}));
 
         final subs = <SubjectId, Subject>{
-          for (final s in iter) (department: s.departmentUrl, code: s.code): s,
+          for (final s in iter)
+            (department: s.departmentUrl.replaceAll(',', '/'), code: s.code): s,
         };
         return subs;
       },
@@ -89,10 +90,10 @@ class MultipartusService {
     return (r!.data as List).map((e) => ImpartusVideoData.fromJson(e)).toList();
   }
 
-  late final lectures = asyncSignalContainer<LecturesResult,
-      ({String departmentUrl, String code})>(
+  late final lectures =
+      asyncSignalContainer<LecturesResult, ({String department, String code})>(
     (e) {
-      final departmentUrl = e.departmentUrl;
+      final departmentUrl = e.department.replaceAll('/', ',');
       final code = e.code;
       final s = lectureSections("$departmentUrl/$code");
 
@@ -127,10 +128,11 @@ class MultipartusService {
             final prof = v.professor;
             profMap.putIfAbsent(prof, () => {}).add(v.session);
 
-            final c = _lectureVideoCompleters
-                .putIfAbsent(v.ttid, () => (v, Completer()))
-                .$2;
-            if (!c.isCompleted) c.complete(v);
+            // final c = _lectureVideoCompleters
+            //     .putIfAbsent(v.ttid, () => (v, Completer()))
+            //     .$2;
+            // if (!c.isCompleted) c.complete(v);
+            _lectureMap.set(v.ttid, v);
           }
 
           return (
@@ -173,17 +175,21 @@ class MultipartusService {
   }
 
   Future<LectureVideo> fetchLectureVideo({
-    required String departmentUrl,
+    required String department,
     required String code,
     required int ttid,
-  }) async {
-    final c = _lectureVideoCompleters[ttid]?.$1;
-    if (c != null) return c;
+  }) {
+    return _lectureMap.get(
+      ttid,
+      () => lectures((department: department, code: code)).future,
+    );
+    // final c = _lectureVideoCompleters[ttid]?.$1;
+    // if (c != null) return c;
 
-    _lectureVideoCompleters[ttid] = (null, Completer());
-    lectures((departmentUrl: departmentUrl, code: code)).future;
+    // _lectureVideoCompleters[ttid] = (null, Completer());
+    // lectures((departmentUrl: departmentUrl, code: code)).future;
 
-    return _lectureVideoCompleters[ttid]!.$2.future;
+    // return _lectureVideoCompleters[ttid]!.$2.future;
   }
 }
 
