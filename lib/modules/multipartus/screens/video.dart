@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:get_it/get_it.dart';
@@ -25,8 +26,12 @@ class MultipartusVideoPage extends StatelessWidget {
   });
 
   final String subjectCode, department, ttid;
+
   @override
   Widget build(BuildContext context) {
+    final startTimestamp =
+        int.tryParse(Uri.base.queryParameters['t'] ?? '0') ?? 0;
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(30),
@@ -38,7 +43,10 @@ class MultipartusVideoPage extends StatelessWidget {
                 slivers: [
                   SliverList.list(
                     children: [
-                      _Player(ttid: ttid),
+                      _Player(
+                        ttid: ttid,
+                        startTimestamp: startTimestamp,
+                      ),
                       Padding(
                         padding: const EdgeInsets.only(top: 16),
                         child: _Title(
@@ -95,29 +103,33 @@ class MultipartusVideoPage extends StatelessWidget {
 }
 
 class _Player extends StatefulWidget {
-  const _Player({required this.ttid});
+  const _Player({required this.ttid, required this.startTimestamp});
 
   final String ttid;
+  final int startTimestamp;
 
   @override
   State<_Player> createState() => __PlayerState();
 }
 
 class __PlayerState extends State<_Player> {
-  late final player = Player(
-    configuration: PlayerConfiguration(
-      ready: () {
-        debugPrint('Player ready');
-      },
-    ),
-  );
-
-  late final controller = VideoController(player);
+  late final Player player;
+  late final VideoController controller;
 
   @override
   void initState() {
     super.initState();
 
+    player = Player(
+      configuration: PlayerConfiguration(
+        ready: () {
+          debugPrint('Player ready');
+          player.seek(Duration(seconds: widget.startTimestamp));
+        },
+      ),
+    );
+
+    controller = VideoController(player);
     _setup();
   }
 
@@ -223,6 +235,7 @@ MaterialDesktopVideoControlsThemeData buildDesktopControls(
                 _SwitchViewButton(),
                 _SpeedButton(),
                 // _PitchButton(),
+                _ShareButton(),
                 _FullscreenButton(),
               ],
             ),
@@ -334,6 +347,36 @@ class _PlayPauseButton extends StatelessWidget {
         },
       ),
       onPressed: controller.player.playOrPause,
+    );
+  }
+}
+
+class _ShareButton extends StatelessWidget {
+  const _ShareButton();
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = getController(context);
+
+    return MaterialCustomButton(
+      onPressed: () async {
+        final currentPosition = controller.player.state.position;
+        print(currentPosition);
+        final videoUrl = Uri.base.replace(queryParameters: {
+          ...Uri.base.queryParameters,
+          't': currentPosition.inSeconds.toString(),
+        }).toString();
+
+        await Clipboard.setData(ClipboardData(text: videoUrl));
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Link copied to clipboard!')),
+        );
+      },
+      icon: Tooltip(
+        message: 'Share',
+        child: Icon(Icons.share),
+      ),
     );
   }
 }
