@@ -19,34 +19,46 @@ class MultipartusCoursePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ScrollController scrollController = ScrollController();
+
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 30),
-        child: Watch(
-          (context) => GetIt.instance<MultipartusService>().subjects().map(
-                data: (subjects) {
-                  final subject = subjects[subjectId];
-                  if (subject == null) {
-                    return const Center(child: Text("Subject not found"));
-                  }
-                  return CustomScrollView(
-                    physics: const BouncingScrollPhysics(
-                      decelerationRate: ScrollDecelerationRate.fast,
-                    ),
-                    slivers: [
-                      SliverPadding(
-                        padding: const EdgeInsets.only(top: 30, bottom: 12),
-                        sliver: SliverToBoxAdapter(
-                          child: CourseTitleBox(subject: subject),
+      body: Scrollbar(
+        thumbVisibility: true,
+        controller: scrollController,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 30),
+          child: Watch(
+            (context) => GetIt.instance<MultipartusService>().subjects().map(
+                  data: (subjects) {
+                    final subject = subjects[subjectId];
+                    if (subject == null) {
+                      return const Center(child: Text("Subject not found"));
+                    }
+                    return ScrollConfiguration(
+                      behavior: ScrollConfiguration.of(context)
+                          .copyWith(scrollbars: false),
+                      child: CustomScrollView(
+                        controller: scrollController,
+                        physics: const BouncingScrollPhysics(
+                          decelerationRate: ScrollDecelerationRate.fast,
                         ),
+                        slivers: [
+                          SliverPadding(
+                            padding: const EdgeInsets.only(top: 30, bottom: 12),
+                            sliver: SliverToBoxAdapter(
+                              child: CourseTitleBox(subject: subject),
+                            ),
+                          ),
+                          _Content(subject: subject),
+                        ],
                       ),
-                      _Content(subject: subject),
-                    ],
-                  );
-                },
-                error: (_) => const Text("You shouldn't be here"),
-                loading: () => const Center(child: DelayedProgressIndicator()),
-              ),
+                    );
+                  },
+                  error: (_) => const Text("You shouldn't be here"),
+                  loading: () =>
+                      const Center(child: DelayedProgressIndicator()),
+                ),
+          ),
         ),
       ),
     );

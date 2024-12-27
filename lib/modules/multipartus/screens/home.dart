@@ -16,7 +16,7 @@ class MultipartusHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Scaffold(
       body: Padding(
-        padding: EdgeInsets.all(30),
+        padding: EdgeInsets.only(left: 30, top: 30, bottom: 30),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -27,7 +27,6 @@ class MultipartusHomePage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Expanded(flex: 5, child: _Subjects()),
-                  SizedBox(width: 40),
                 ],
               ),
             ),
@@ -38,45 +37,72 @@ class MultipartusHomePage extends StatelessWidget {
   }
 }
 
-class _Subjects extends StatelessWidget {
+class _Subjects extends StatefulWidget {
   const _Subjects();
+
+  @override
+  State<_Subjects> createState() => _SubjectsState();
+}
+
+class _SubjectsState extends State<_Subjects> {
+  final ScrollController scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          children: [
-            const Expanded(
-              flex: 5,
-              child: SearchBar(
-                leading: Icon(
-                  LucideIcons.search,
-                  size: 20,
+        Padding(
+          padding: const EdgeInsets.only(right: 30),
+          child: Row(
+            children: [
+              const Expanded(
+                flex: 5,
+                child: SearchBar(
+                  leading: Icon(
+                    LucideIcons.search,
+                    size: 20,
+                  ),
+                  hintText: "Search for any course",
                 ),
-                hintText: "Search for any course",
               ),
-            ),
-            const Spacer(),
-            TextButton(
-              onPressed: () {},
-              child: const Text("View All Courses"),
-            ),
-          ],
+              const Spacer(),
+              TextButton(
+                onPressed: () {},
+                child: const Text("View All Courses"),
+              ),
+            ],
+          ),
         ),
         const SizedBox(height: 20),
         Expanded(
           child: Watch((context) {
             final subjects = GetIt.instance<MultipartusService>().subjects();
             return subjects.map(
-              data: (data) => _SubjectGrid(
-                subjects: data.values.toList(),
-                onPressed: (subject) {
-                  context.go(
-                    '/multipartus/courses/${subject.departmentUrl}/${subject.code}',
-                  );
-                },
+              data: (data) => ScrollbarTheme(
+                data: ScrollbarThemeData(),
+                child: Scrollbar(
+                  interactive: true,
+                  controller: scrollController,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 40),
+                    child: _SubjectGrid(
+                      scrollController: scrollController,
+                      subjects: data.values.toList(),
+                      onPressed: (subject) {
+                        context.go(
+                          '/multipartus/courses/${subject.departmentUrl}/${subject.code}',
+                        );
+                      },
+                    ),
+                  ),
+                ),
               ),
               error: (e, _) => Text("Error: $e"),
               loading: () => const Center(child: DelayedProgressIndicator()),
@@ -89,27 +115,35 @@ class _Subjects extends StatelessWidget {
 }
 
 class _SubjectGrid extends StatelessWidget {
-  const _SubjectGrid({required this.subjects, required this.onPressed});
+  const _SubjectGrid(
+      {required this.subjects,
+      required this.onPressed,
+      required this.scrollController});
 
   final List<Subject> subjects;
   final void Function(Subject subject) onPressed;
+  final ScrollController scrollController;
 
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
-      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-        crossAxisSpacing: 20,
-        mainAxisSpacing: 20,
-        mainAxisExtent: 208,
-        maxCrossAxisExtent: 340,
+    return ScrollConfiguration(
+      behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+      child: GridView.builder(
+        controller: scrollController,
+        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+          crossAxisSpacing: 20,
+          mainAxisSpacing: 20,
+          mainAxisExtent: 208,
+          maxCrossAxisExtent: 340,
+        ),
+        physics: BouncingScrollPhysics(
+            decelerationRate: ScrollDecelerationRate.fast),
+        itemBuilder: (context, i) => SubjectTile(
+          onPressed: () => onPressed(subjects[i]),
+          subject: subjects[i],
+        ),
+        itemCount: subjects.length,
       ),
-      physics:
-          BouncingScrollPhysics(decelerationRate: ScrollDecelerationRate.fast),
-      itemBuilder: (context, i) => SubjectTile(
-        onPressed: () => onPressed(subjects[i]),
-        subject: subjects[i],
-      ),
-      itemCount: subjects.length,
     );
   }
 }
