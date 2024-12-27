@@ -34,24 +34,22 @@ class MultipartusCoursePage extends StatelessWidget {
                     if (subject == null) {
                       return const Center(child: Text("Subject not found"));
                     }
-                    return ScrollConfiguration(
-                      behavior: ScrollConfiguration.of(context)
+                    return CustomScrollView(
+                      scrollBehavior: ScrollConfiguration.of(context)
                           .copyWith(scrollbars: false),
-                      child: CustomScrollView(
-                        controller: scrollController,
-                        physics: const BouncingScrollPhysics(
-                          decelerationRate: ScrollDecelerationRate.fast,
-                        ),
-                        slivers: [
-                          SliverPadding(
-                            padding: const EdgeInsets.only(top: 30, bottom: 12),
-                            sliver: SliverToBoxAdapter(
-                              child: CourseTitleBox(subject: subject),
-                            ),
-                          ),
-                          _Content(subject: subject),
-                        ],
+                      controller: scrollController,
+                      physics: const BouncingScrollPhysics(
+                        decelerationRate: ScrollDecelerationRate.fast,
                       ),
+                      slivers: [
+                        SliverPadding(
+                          padding: const EdgeInsets.only(top: 30, bottom: 12),
+                          sliver: SliverToBoxAdapter(
+                            child: CourseTitleBox(subject: subject),
+                          ),
+                        ),
+                        _Content(subject: subject),
+                      ],
                     );
                   },
                   error: (_) => const Text("You shouldn't be here"),

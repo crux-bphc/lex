@@ -85,22 +85,19 @@ class _SubjectsState extends State<_Subjects> {
           child: Watch((context) {
             final subjects = GetIt.instance<MultipartusService>().subjects();
             return subjects.map(
-              data: (data) => ScrollbarTheme(
-                data: ScrollbarThemeData(),
-                child: Scrollbar(
-                  interactive: true,
-                  controller: scrollController,
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 40),
-                    child: _SubjectGrid(
-                      scrollController: scrollController,
-                      subjects: data.values.toList(),
-                      onPressed: (subject) {
-                        context.go(
-                          '/multipartus/courses/${subject.departmentUrl}/${subject.code}',
-                        );
-                      },
-                    ),
+              data: (data) => Scrollbar(
+                interactive: true,
+                controller: scrollController,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 40),
+                  child: _SubjectGrid(
+                    scrollController: scrollController,
+                    subjects: data.values.toList(),
+                    onPressed: (subject) {
+                      context.go(
+                        '/multipartus/courses/${subject.departmentUrl}/${subject.code}',
+                      );
+                    },
                   ),
                 ),
               ),
