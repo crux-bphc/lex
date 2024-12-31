@@ -48,7 +48,7 @@ class _Subjects extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Expanded(
+            Expanded(
               flex: 5,
               child: SearchBar(
                 leading: Icon(

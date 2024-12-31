@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lex/modules/multipartus/service.dart';
@@ -457,7 +456,6 @@ class _ImpartusPositionIndicatorState extends State<_ImpartusPositionIndicator>
 
 class _Title extends StatefulWidget {
   const _Title({
-    super.key,
     required this.subjectCode,
     required this.department,
     required this.ttid,
@@ -531,7 +529,7 @@ class _TitleState extends State<_Title> {
 }
 
 class _CoolCoolTitle extends StatelessWidget {
-  const _CoolCoolTitle({super.key, required this.text});
+  const _CoolCoolTitle({required this.text});
 
   final String text;
 
@@ -550,7 +548,6 @@ class _CoolCoolTitle extends StatelessWidget {
 
 class _CoolTitle extends StatelessWidget {
   const _CoolTitle({
-    super.key,
     required this.leading,
     required this.title,
     required this.subtitle,
@@ -627,7 +624,7 @@ class _CoolTitle extends StatelessWidget {
                 color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                 fontSize: 15,
               ),
-            )
+            ),
           ],
         ),
       ],
