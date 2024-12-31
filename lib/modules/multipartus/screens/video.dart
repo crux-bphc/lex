@@ -468,8 +468,17 @@ class _Title extends StatefulWidget {
 }
 
 class _TitleState extends State<_Title> {
-  final subject =
-      GetIt.instance<MultipartusService>().subjects.select((s) => s().value);
+  late final subject = GetIt.instance<MultipartusService>().subjects.select(
+        (s) => s()[(department: widget.department, code: widget.subjectCode)],
+      );
+
+  @override
+  void initState() {
+    super.initState();
+
+    // TODO: temp, replace with subject endpoint
+    GetIt.instance<MultipartusService>().pinnedSubjects();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -478,10 +487,7 @@ class _TitleState extends State<_Title> {
       children: [
         Watch(
           (context) {
-            final s = subject();
-            final name =
-                s?[(department: widget.department, code: widget.subjectCode)]
-                    ?.name;
+            final name = subject()?.name;
             final append = name != null ? " - $name" : "";
             final text = "${widget.department} ${widget.subjectCode}$append";
 
@@ -506,14 +512,6 @@ class _TitleState extends State<_Title> {
                     trailing: formatDate(data.createdAt),
                   )
                 : Container();
-            // .animate(
-            //   value: snapshot.hasData ? 1 : 0,
-            //   target: snapshot.hasData ? 1 : 0,
-            // )
-            // .fade(
-            //   delay: 200.ms,
-            //   duration: 400.ms,
-            // );
           },
         ),
       ],
@@ -528,6 +526,7 @@ class _TitleState extends State<_Title> {
   }
 }
 
+// TODO: give the next two widgets better names
 class _CoolCoolTitle extends StatelessWidget {
   const _CoolCoolTitle({required this.text});
 

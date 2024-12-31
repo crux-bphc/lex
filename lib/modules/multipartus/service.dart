@@ -12,7 +12,7 @@ class MultipartusService {
   final LexBackend _backend;
 
   late final FutureSignal<bool> isRegistered;
-  late final FutureSignal<Map<SubjectId, Subject>> subjects;
+  late final MapSignal<SubjectId, Subject> subjects;
   late final FutureSignal<Map<SubjectId, Subject>> pinnedSubjects;
   late final FutureSignal<Map<int, ImpartusSessionData>> _impartusSessionMap;
 
@@ -28,19 +28,15 @@ class MultipartusService {
             .cast<Map>()
             .map((e) => Subject.fromJson({...e, 'isPinned': true}));
 
-        final subs = <SubjectId, Subject>{
-          for (final s in iter)
-            (department: s.departmentUrl.replaceAll(',', '/'), code: s.code): s,
-        };
+        final subs = _subjectsToIdMap(iter);
+
+        subjects.addAll(subs);
         return subs;
       },
       debugLabel: 'service | pinnedSubjects',
     );
 
-    subjects = computedAsync(
-      () async {
-        return await pinnedSubjects.future;
-      },
+    subjects = <SubjectId, Subject>{}.toSignal(
       debugLabel: 'service | subjects',
     );
 
@@ -188,7 +184,11 @@ class MultipartusService {
     );
     if (r?.data is! List) return [];
 
-    return (r!.data as List).map((e) => Subject.fromJson(e)).toList();
+    final subs = (r!.data as List).map((e) => Subject.fromJson(e)).toList();
+
+    subjects.addAll(_subjectsToIdMap(subs));
+
+    return subs;
   }
 }
 
@@ -217,3 +217,9 @@ typedef LecturesResult = ({
   List<LectureVideo> videos,
   Map<String, Set<ImpartusSessionData>> professorSessionMap,
 });
+
+Map<SubjectId, Subject> _subjectsToIdMap(Iterable<Subject> subjects) =>
+    <SubjectId, Subject>{
+      for (final s in subjects)
+        (department: s.departmentUrl.replaceAll(',', '/'), code: s.code): s,
+    };

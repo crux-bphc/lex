@@ -93,7 +93,7 @@ class _SubjectsState extends State<_Subjects> with SignalsMixin {
               if (isSearchMode()) {
                 return Watch((context) {
                   final subjects =
-                      GetIt.instance<MultipartusService>().subjects();
+                      GetIt.instance<MultipartusService>().pinnedSubjects();
                   return subjects.map(
                     data: (data) => _SubjectGrid(
                       subjects: data.values.toList(),

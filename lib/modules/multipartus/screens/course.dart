@@ -8,7 +8,7 @@ import 'package:lex/modules/multipartus/widgets/filterable_video_grid.dart';
 import 'package:lex/widgets/delayed_progress_indicator.dart';
 import 'package:signals/signals_flutter.dart';
 
-class MultipartusCoursePage extends StatelessWidget {
+class MultipartusCoursePage extends StatefulWidget {
   const MultipartusCoursePage({
     super.key,
     required String department,
@@ -18,35 +18,46 @@ class MultipartusCoursePage extends StatelessWidget {
   final SubjectId subjectId;
 
   @override
+  State<MultipartusCoursePage> createState() => _MultipartusCoursePageState();
+}
+
+class _MultipartusCoursePageState extends State<MultipartusCoursePage> {
+  @override
+  void initState() {
+    super.initState();
+
+    // TODO: temp, replace with subject endpoint
+    GetIt.instance<MultipartusService>().pinnedSubjects();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 30),
         child: Watch(
-          (context) => GetIt.instance<MultipartusService>().subjects().map(
-                data: (subjects) {
-                  final subject = subjects[subjectId];
-                  if (subject == null) {
-                    return const Center(child: Text("Subject not found"));
-                  }
-                  return CustomScrollView(
-                    physics: const BouncingScrollPhysics(
-                      decelerationRate: ScrollDecelerationRate.fast,
-                    ),
-                    slivers: [
-                      SliverPadding(
-                        padding: const EdgeInsets.only(top: 30, bottom: 12),
-                        sliver: SliverToBoxAdapter(
-                          child: CourseTitleBox(subject: subject),
-                        ),
-                      ),
-                      _Content(subject: subject),
-                    ],
-                  );
-                },
-                error: (_) => const Text("You shouldn't be here"),
-                loading: () => const Center(child: DelayedProgressIndicator()),
+          (context) {
+            final subject = GetIt.instance<MultipartusService>()
+                .subjects()[widget.subjectId];
+
+            if (subject == null) {
+              return const Center(child: Text("Subject not found"));
+            }
+            return CustomScrollView(
+              physics: const BouncingScrollPhysics(
+                decelerationRate: ScrollDecelerationRate.fast,
               ),
+              slivers: [
+                SliverPadding(
+                  padding: const EdgeInsets.only(top: 30, bottom: 12),
+                  sliver: SliverToBoxAdapter(
+                    child: CourseTitleBox(subject: subject),
+                  ),
+                ),
+                _Content(subject: subject),
+              ],
+            );
+          },
         ),
       ),
     );
