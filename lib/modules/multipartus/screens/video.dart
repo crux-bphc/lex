@@ -552,11 +552,10 @@ class _CoolTitle extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.trailing,
-    this.fontSize = 32,
   });
 
   final String leading, title, subtitle, trailing;
-  final double fontSize;
+  final double fontSize = 32;
 
   @override
   Widget build(BuildContext context) {

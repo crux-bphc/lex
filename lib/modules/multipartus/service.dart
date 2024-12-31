@@ -21,12 +21,12 @@ class MultipartusService {
   MultipartusService(this._backend) {
     pinnedSubjects = computedAsync(
       () async {
-        final r = await _backend.get('/impartus/subject');
+        final r = await _backend.get('/impartus/user/subjects');
 
         if (r?.data! is! List) return {};
         final iter = (r!.data! as List)
             .cast<Map>()
-            .map((e) => Subject.fromJson({...e, 'isPinned': false}));
+            .map((e) => Subject.fromJson({...e, 'isPinned': true}));
 
         final subs = <SubjectId, Subject>{
           for (final s in iter)
@@ -128,10 +128,6 @@ class MultipartusService {
             final prof = v.professor;
             profMap.putIfAbsent(prof, () => {}).add(v.session);
 
-            // final c = _lectureVideoCompleters
-            //     .putIfAbsent(v.ttid, () => (v, Completer()))
-            //     .$2;
-            // if (!c.isCompleted) c.complete(v);
             _lectureMap.set(v.ttid, v);
           }
 
@@ -183,13 +179,16 @@ class MultipartusService {
       ttid,
       () => lectures((department: department, code: code)).future,
     );
-    // final c = _lectureVideoCompleters[ttid]?.$1;
-    // if (c != null) return c;
+  }
 
-    // _lectureVideoCompleters[ttid] = (null, Completer());
-    // lectures((departmentUrl: departmentUrl, code: code)).future;
+  Future<List<Subject>> searchSubjects(String search) async {
+    final r = await _backend.get(
+      "/impartus/subject/search",
+      queryParameters: {"q": search},
+    );
+    if (r?.data is! List) return [];
 
-    // return _lectureVideoCompleters[ttid]!.$2.future;
+    return (r!.data as List).map((e) => Subject.fromJson(e)).toList();
   }
 }
 
