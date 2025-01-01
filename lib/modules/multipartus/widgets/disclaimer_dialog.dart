@@ -4,8 +4,39 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:lex/modules/multipartus/widgets/delayed_button.dart';
 
-class DisclaimerDialog extends StatelessWidget {
+class DisclaimerDialog extends StatefulWidget {
   const DisclaimerDialog({super.key});
+
+  @override
+  State<DisclaimerDialog> createState() => _DisclaimerDialogState();
+}
+
+class _DisclaimerDialogState extends State<DisclaimerDialog> with SingleTickerProviderStateMixin {
+  late AnimationController controller;
+  late Animation<Color?> colorAnimation; 
+
+  @override
+  void initState() {
+    super.initState();
+    controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: kDebugMode ? 0 : 3),
+    )..addListener(() {
+        setState(() {});
+      });
+    colorAnimation = controller.drive(ColorTween(
+      begin: Colors.grey,
+      end: Colors.transparent,
+    ));
+    // colorAnimation = AlwaysStoppedAnimation<Color>(Colors.grey);
+    controller.forward();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +60,19 @@ class DisclaimerDialog extends StatelessWidget {
                 duration: const Duration(seconds: kDebugMode ? 0 : 3),
                 buttonBuilder: (context, onPressed) => OutlinedButton(
                   onPressed: onPressed,
-                  child: const Text("PROCEED"),
+                  child: Stack(
+                    children: <Widget>[
+                      SizedBox(
+                        height: 20,
+                        child: LinearProgressIndicator(
+                          value: controller.value,
+                          backgroundColor: Colors.transparent,
+                          valueColor: colorAnimation,
+                        ),
+                      ),
+                      Align(child: Text("PROCEED"), alignment: Alignment.topCenter),
+                    ],
+                  ),
                 ),
                 onPressed: () => Navigator.of(context).pop(true),
               ),
