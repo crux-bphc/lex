@@ -32,33 +32,40 @@ class _MultipartusCoursePageState extends State<MultipartusCoursePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 30),
-        child: Watch(
-          (context) {
-            final subject = GetIt.instance<MultipartusService>()
-                .subjects()[widget.subjectId];
+    final ScrollController scrollController = ScrollController();
 
-            if (subject == null) {
-              return const Center(child: Text("Subject not found"));
-            }
-            return CustomScrollView(
-              physics: const BouncingScrollPhysics(
-                decelerationRate: ScrollDecelerationRate.fast,
-              ),
-              slivers: [
-                SliverPadding(
-                  padding: const EdgeInsets.only(top: 30, bottom: 12),
-                  sliver: SliverToBoxAdapter(
-                    child: CourseTitleBox(subject: subject),
+    return Scaffold(
+      body: Scrollbar(
+        controller: scrollController,
+        child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 30),
+            child: Watch(
+              (context) {
+                final subject = GetIt.instance<MultipartusService>()
+                    .subjects()[widget.subjectId];
+
+                if (subject == null) {
+                  return const Center(child: Text("Subject not found"));
+                }
+                return CustomScrollView(
+                  scrollBehavior: ScrollConfiguration.of(context)
+                      .copyWith(scrollbars: false),
+                  controller: scrollController,
+                  physics: const BouncingScrollPhysics(
+                    decelerationRate: ScrollDecelerationRate.fast,
                   ),
-                ),
-                _Content(subject: subject),
-              ],
-            );
-          },
-        ),
+                  slivers: [
+                    SliverPadding(
+                      padding: const EdgeInsets.only(top: 30, bottom: 12),
+                      sliver: SliverToBoxAdapter(
+                        child: CourseTitleBox(subject: subject),
+                      ),
+                    ),
+                    _Content(subject: subject),
+                  ],
+                );
+              },
+            )),
       ),
     );
   }

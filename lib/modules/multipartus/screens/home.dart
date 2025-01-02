@@ -20,7 +20,7 @@ class MultipartusHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Scaffold(
       body: Padding(
-        padding: EdgeInsets.all(30),
+        padding: EdgeInsets.only(left: 30, top: 30, bottom: 30),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -31,7 +31,6 @@ class MultipartusHomePage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Expanded(flex: 5, child: _Subjects()),
-                  SizedBox(width: 40),
                 ],
               ),
             ),
@@ -50,6 +49,8 @@ class _Subjects extends StatefulWidget {
 }
 
 class _SubjectsState extends State<_Subjects> with SignalsMixin {
+  final ScrollController scrollController = ScrollController();
+
   final _searchText = signal('');
 
   late final isSearchMode = createComputed(() => _searchText().isEmpty);
@@ -70,22 +71,47 @@ class _SubjectsState extends State<_Subjects> with SignalsMixin {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          children: [
-            Expanded(
-              flex: 5,
-              child: _SearchBar(
-                onUpdate: (t) => _debouncedTextUpdater(t, now: t.isEmpty),
-                onSubmit: (t) => _debouncedTextUpdater(t, now: true),
+        Padding(
+          padding: const EdgeInsets.only(right: 30),
+          child: Row(
+            children: [
+              Expanded(
+                flex: 5,
+                child: _SearchBar(
+                  onUpdate: (t) => _debouncedTextUpdater(t, now: t.isEmpty),
+                  onSubmit: (t) => _debouncedTextUpdater(t, now: true),
+                ),
               ),
-            ),
-            const Spacer(),
-            TextButton(
-              onPressed: () {},
-              child: const Text("View All Courses"),
-            ),
-          ],
+              const Spacer(),
+              TextButton(
+                onPressed: () {},
+                child: const Text("View All Courses"),
+              ),
+            ],
+          ),
         ),
+        // Padding(
+        //   padding: const EdgeInsets.only(right: 30),
+        //   child: Row(
+        //     children: [
+        //       const Expanded(
+        //         flex: 5,
+        //         child: SearchBar(
+        //           leading: Icon(
+        //             LucideIcons.search,
+        //             size: 20,
+        //           ),
+        //           hintText: "Search for any course",
+        //         ),
+        //       ),
+        //       const Spacer(),
+        //       TextButton(
+        //         onPressed: () {},
+        //         child: const Text("View All Courses"),
+        //       ),
+        //     ],
+        //   ),
+        // ),
         const SizedBox(height: 20),
         Expanded(
           child: Watch(
@@ -147,6 +173,7 @@ class _SubjectsState extends State<_Subjects> with SignalsMixin {
 
   @override
   void dispose() {
+    scrollController.dispose();
     _searchText.dispose();
     super.dispose();
   }
@@ -193,7 +220,7 @@ class _SearchBarState extends State<_SearchBar> {
   }
 }
 
-class _SubjectGrid extends StatelessWidget {
+class _SubjectGrid extends StatefulWidget {
   const _SubjectGrid({
     required this.subjects,
     required this.onPressed,
@@ -205,25 +232,42 @@ class _SubjectGrid extends StatelessWidget {
   final String emptyText;
 
   @override
+  State<_SubjectGrid> createState() => _SubjectGridState();
+}
+
+class _SubjectGridState extends State<_SubjectGrid> {
+  final scrollController = ScrollController();
+
+  @override
   Widget build(BuildContext context) {
-    if (subjects.isEmpty) {
+    if (widget.subjects.isEmpty) {
       return const Center(child: Text("No subjects to show"));
     }
 
-    return GridView.builder(
-      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-        crossAxisSpacing: 20,
-        mainAxisSpacing: 20,
-        mainAxisExtent: 208,
-        maxCrossAxisExtent: 340,
+    return Scrollbar(
+      controller: scrollController,
+      child: Padding(
+        padding: const EdgeInsets.only(right: 30),
+        child: ScrollConfiguration(
+          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+          child: GridView.builder(
+            controller: scrollController,
+            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+              crossAxisSpacing: 20,
+              mainAxisSpacing: 20,
+              mainAxisExtent: 208,
+              maxCrossAxisExtent: 340,
+            ),
+            physics: BouncingScrollPhysics(
+                decelerationRate: ScrollDecelerationRate.fast),
+            itemBuilder: (context, i) => SubjectTile(
+              onPressed: () => widget.onPressed(widget.subjects[i]),
+              subject: widget.subjects[i],
+            ),
+            itemCount: widget.subjects.length,
+          ),
+        ),
       ),
-      physics:
-          BouncingScrollPhysics(decelerationRate: ScrollDecelerationRate.fast),
-      itemBuilder: (context, i) => SubjectTile(
-        onPressed: () => onPressed(subjects[i]),
-        subject: subjects[i],
-      ),
-      itemCount: subjects.length,
     );
   }
 }
