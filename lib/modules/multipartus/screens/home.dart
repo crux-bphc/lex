@@ -259,7 +259,8 @@ class _SubjectGridState extends State<_SubjectGrid> {
               maxCrossAxisExtent: 340,
             ),
             physics: BouncingScrollPhysics(
-                decelerationRate: ScrollDecelerationRate.fast),
+              decelerationRate: ScrollDecelerationRate.fast,
+            ),
             itemBuilder: (context, i) => SubjectTile(
               onPressed: () => widget.onPressed(widget.subjects[i]),
               subject: widget.subjects[i],

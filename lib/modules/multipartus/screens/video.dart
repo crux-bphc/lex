@@ -368,7 +368,7 @@ class _ShareButton extends StatelessWidget {
           },
         ).toString();
 
-        await Clipboard.setData(ClipboardData(text: videoUrl));
+        Clipboard.setData(ClipboardData(text: videoUrl));
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Link copied to clipboard!')),
