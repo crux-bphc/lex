@@ -30,3 +30,18 @@ class DeferredValueMap<T, V> {
     return _completers[key]!.$2.future;
   }
 }
+
+void Function(T arg, {bool now}) debouncer<T>(
+  void Function(T args) fn, {
+  required Duration duration,
+}) {
+  Timer? timer;
+  return (T arg, {bool now = false}) {
+    timer?.cancel();
+    if (now) {
+      fn(arg);
+    } else {
+      timer = Timer(duration, () => fn(arg));
+    }
+  };
+}

@@ -114,8 +114,6 @@ class _Title extends StatelessWidget {
   }
 }
 
-const _heroFadeCurve = Curves.easeOutQuint;
-
 class _Thumbnail extends StatelessWidget {
   const _Thumbnail({
     required this.ttid,

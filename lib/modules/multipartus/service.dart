@@ -12,7 +12,7 @@ class MultipartusService {
   final LexBackend _backend;
 
   late final FutureSignal<bool> isRegistered;
-  late final FutureSignal<Map<SubjectId, Subject>> subjects;
+  late final MapSignal<SubjectId, Subject> subjects;
   late final FutureSignal<Map<SubjectId, Subject>> pinnedSubjects;
   late final FutureSignal<Map<int, ImpartusSessionData>> _impartusSessionMap;
 
@@ -21,26 +21,22 @@ class MultipartusService {
   MultipartusService(this._backend) {
     pinnedSubjects = computedAsync(
       () async {
-        final r = await _backend.get('/impartus/subject');
+        final r = await _backend.get('/impartus/user/subjects');
 
         if (r?.data! is! List) return {};
         final iter = (r!.data! as List)
             .cast<Map>()
-            .map((e) => Subject.fromJson({...e, 'isPinned': false}));
+            .map((e) => Subject.fromJson({...e, 'isPinned': true}));
 
-        final subs = <SubjectId, Subject>{
-          for (final s in iter)
-            (department: s.departmentUrl.replaceAll(',', '/'), code: s.code): s,
-        };
+        final subs = _subjectsToIdMap(iter);
+
+        subjects.addAll(subs);
         return subs;
       },
       debugLabel: 'service | pinnedSubjects',
     );
 
-    subjects = computedAsync(
-      () async {
-        return await pinnedSubjects.future;
-      },
+    subjects = <SubjectId, Subject>{}.toSignal(
       debugLabel: 'service | subjects',
     );
 
@@ -128,10 +124,6 @@ class MultipartusService {
             final prof = v.professor;
             profMap.putIfAbsent(prof, () => {}).add(v.session);
 
-            // final c = _lectureVideoCompleters
-            //     .putIfAbsent(v.ttid, () => (v, Completer()))
-            //     .$2;
-            // if (!c.isCompleted) c.complete(v);
             _lectureMap.set(v.ttid, v);
           }
 
@@ -183,13 +175,20 @@ class MultipartusService {
       ttid,
       () => lectures((department: department, code: code)).future,
     );
-    // final c = _lectureVideoCompleters[ttid]?.$1;
-    // if (c != null) return c;
+  }
 
-    // _lectureVideoCompleters[ttid] = (null, Completer());
-    // lectures((departmentUrl: departmentUrl, code: code)).future;
+  Future<List<Subject>> searchSubjects(String search) async {
+    final r = await _backend.get(
+      "/impartus/subject/search",
+      queryParameters: {"q": search},
+    );
+    if (r?.data is! List) return [];
 
-    // return _lectureVideoCompleters[ttid]!.$2.future;
+    final subs = (r!.data as List).map((e) => Subject.fromJson(e)).toList();
+
+    subjects.addAll(_subjectsToIdMap(subs));
+
+    return subs;
   }
 }
 
@@ -218,3 +217,9 @@ typedef LecturesResult = ({
   List<LectureVideo> videos,
   Map<String, Set<ImpartusSessionData>> professorSessionMap,
 });
+
+Map<SubjectId, Subject> _subjectsToIdMap(Iterable<Subject> subjects) =>
+    <SubjectId, Subject>{
+      for (final s in subjects)
+        (department: s.departmentUrl.replaceAll(',', '/'), code: s.code): s,
+    };

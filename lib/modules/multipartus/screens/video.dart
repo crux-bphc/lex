@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lex/modules/multipartus/service.dart';
@@ -236,7 +235,7 @@ MaterialDesktopVideoControlsThemeData buildDesktopControls(
                 _SwitchViewButton(),
                 _SpeedButton(),
                 // _PitchButton(),
-                if(kIsWeb) _ShareButton(),
+                if (kIsWeb) _ShareButton(),
                 _FullscreenButton(),
               ],
             ),
@@ -362,11 +361,12 @@ class _ShareButton extends StatelessWidget {
     return MaterialCustomButton(
       onPressed: () async {
         final currentPosition = controller.player.state.position;
-        print(currentPosition);
-        final videoUrl = Uri.base.replace(queryParameters: {
-          ...Uri.base.queryParameters,
-          't': currentPosition.inSeconds.toString(),
-        }).toString();
+        final videoUrl = Uri.base.replace(
+          queryParameters: {
+            ...Uri.base.queryParameters,
+            't': currentPosition.inSeconds.toString(),
+          },
+        ).toString();
 
         await Clipboard.setData(ClipboardData(text: videoUrl));
 
@@ -501,7 +501,6 @@ class _ImpartusPositionIndicatorState extends State<_ImpartusPositionIndicator>
 
 class _Title extends StatefulWidget {
   const _Title({
-    super.key,
     required this.subjectCode,
     required this.department,
     required this.ttid,
@@ -514,8 +513,17 @@ class _Title extends StatefulWidget {
 }
 
 class _TitleState extends State<_Title> {
-  final subject =
-      GetIt.instance<MultipartusService>().subjects.select((s) => s().value);
+  late final subject = GetIt.instance<MultipartusService>().subjects.select(
+        (s) => s()[(department: widget.department, code: widget.subjectCode)],
+      );
+
+  @override
+  void initState() {
+    super.initState();
+
+    // TODO: temp, replace with subject endpoint
+    GetIt.instance<MultipartusService>().pinnedSubjects();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -524,10 +532,7 @@ class _TitleState extends State<_Title> {
       children: [
         Watch(
           (context) {
-            final s = subject();
-            final name =
-                s?[(department: widget.department, code: widget.subjectCode)]
-                    ?.name;
+            final name = subject()?.name;
             final append = name != null ? " - $name" : "";
             final text = "${widget.department} ${widget.subjectCode}$append";
 
@@ -552,14 +557,6 @@ class _TitleState extends State<_Title> {
                     trailing: formatDate(data.createdAt),
                   )
                 : Container();
-            // .animate(
-            //   value: snapshot.hasData ? 1 : 0,
-            //   target: snapshot.hasData ? 1 : 0,
-            // )
-            // .fade(
-            //   delay: 200.ms,
-            //   duration: 400.ms,
-            // );
           },
         ),
       ],
@@ -574,8 +571,9 @@ class _TitleState extends State<_Title> {
   }
 }
 
+// TODO: give the next two widgets better names
 class _CoolCoolTitle extends StatelessWidget {
-  const _CoolCoolTitle({super.key, required this.text});
+  const _CoolCoolTitle({required this.text});
 
   final String text;
 
@@ -594,16 +592,14 @@ class _CoolCoolTitle extends StatelessWidget {
 
 class _CoolTitle extends StatelessWidget {
   const _CoolTitle({
-    super.key,
     required this.leading,
     required this.title,
     required this.subtitle,
     required this.trailing,
-    this.fontSize = 32,
   });
 
   final String leading, title, subtitle, trailing;
-  final double fontSize;
+  final double fontSize = 32;
 
   @override
   Widget build(BuildContext context) {
@@ -671,7 +667,7 @@ class _CoolTitle extends StatelessWidget {
                 color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                 fontSize: 15,
               ),
-            )
+            ),
           ],
         ),
       ],
