@@ -14,12 +14,12 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
-LectureSection _$LectureSectionFromJson(Map<String, dynamic> json) {
-  return _LectureSection.fromJson(json);
+ImpartusSectionData _$ImpartusSectionDataFromJson(Map<String, dynamic> json) {
+  return _ImpartusSectionData.fromJson(json);
 }
 
 /// @nodoc
-mixin _$LectureSection {
+mixin _$ImpartusSectionData {
   @JsonKey(name: 'impartus_session')
   int get impartusSession => throw _privateConstructorUsedError;
   @JsonKey(name: 'impartus_subject')
@@ -30,15 +30,15 @@ mixin _$LectureSection {
 
 /// @nodoc
 @JsonSerializable(createToJson: false)
-class _$LectureSectionImpl implements _LectureSection {
-  const _$LectureSectionImpl(
+class _$ImpartusSectionDataImpl implements _ImpartusSectionData {
+  const _$ImpartusSectionDataImpl(
       {@JsonKey(name: 'impartus_session') required this.impartusSession,
       @JsonKey(name: 'impartus_subject') required this.impartusSubject,
       required this.section,
       required this.professor});
 
-  factory _$LectureSectionImpl.fromJson(Map<String, dynamic> json) =>
-      _$$LectureSectionImplFromJson(json);
+  factory _$ImpartusSectionDataImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ImpartusSectionDataImplFromJson(json);
 
   @override
   @JsonKey(name: 'impartus_session')
@@ -53,19 +53,19 @@ class _$LectureSectionImpl implements _LectureSection {
 
   @override
   String toString() {
-    return 'LectureSection(impartusSession: $impartusSession, impartusSubject: $impartusSubject, section: $section, professor: $professor)';
+    return 'ImpartusSectionData(impartusSession: $impartusSession, impartusSubject: $impartusSubject, section: $section, professor: $professor)';
   }
 }
 
-abstract class _LectureSection implements LectureSection {
-  const factory _LectureSection(
+abstract class _ImpartusSectionData implements ImpartusSectionData {
+  const factory _ImpartusSectionData(
       {@JsonKey(name: 'impartus_session') required final int impartusSession,
       @JsonKey(name: 'impartus_subject') required final int impartusSubject,
       required final int section,
-      required final String professor}) = _$LectureSectionImpl;
+      required final String professor}) = _$ImpartusSectionDataImpl;
 
-  factory _LectureSection.fromJson(Map<String, dynamic> json) =
-      _$LectureSectionImpl.fromJson;
+  factory _ImpartusSectionData.fromJson(Map<String, dynamic> json) =
+      _$ImpartusSectionDataImpl.fromJson;
 
   @override
   @JsonKey(name: 'impartus_session')

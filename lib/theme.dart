@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 final _darkScheme = ColorScheme.fromSeed(
   brightness: Brightness.dark,
@@ -39,8 +40,18 @@ final _lightScheme = ColorScheme.fromSeed(
   surfaceContainerHigh: const Color(0xFFe5e9f0),
 );
 
+final defaultFont = GoogleFonts.lexendDecaTextTheme;
+
+final fontLoadFuture = GoogleFonts.pendingFonts([
+  defaultFont(),
+]);
+
 ThemeData buildTheme(ThemeMode mode) {
   final scheme = mode == ThemeMode.dark ? _darkScheme : _lightScheme;
+
+  final textTheme = defaultFont(
+    ThemeData.from(colorScheme: scheme).textTheme,
+  );
 
   final inputDecoration = InputDecorationTheme(
     border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
@@ -50,7 +61,8 @@ ThemeData buildTheme(ThemeMode mode) {
   final searchBarTheme = SearchBarThemeData(
     constraints: const BoxConstraints(),
     elevation: const WidgetStatePropertyAll(0),
-    textStyle: const WidgetStatePropertyAll(TextStyle(height: 1)),
+    textStyle:
+        WidgetStatePropertyAll(textTheme.bodyMedium?.copyWith(height: 1)),
     backgroundColor: const WidgetStatePropertyAll(Colors.transparent),
     padding: const WidgetStatePropertyAll(EdgeInsets.fromLTRB(14, 7, 14, 8)),
     side: WidgetStatePropertyAll(BorderSide(width: 1, color: scheme.onSurface)),
@@ -72,8 +84,9 @@ ThemeData buildTheme(ThemeMode mode) {
 
   final outlineButtonTheme = OutlinedButtonThemeData(
     style: buttonStyle.copyWith(
-      textStyle: const WidgetStatePropertyAll(
-        TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.3),
+      textStyle: WidgetStatePropertyAll(
+        textTheme.bodyMedium
+            ?.copyWith(fontWeight: FontWeight.bold, letterSpacing: 1.3),
       ),
       foregroundColor: WidgetStateProperty.resolveWith(
         (states) =>
@@ -94,18 +107,23 @@ ThemeData buildTheme(ThemeMode mode) {
     ),
   );
 
+  final textButtonTheme = TextButtonThemeData(style: buttonStyle);
+
   final dialogTheme = DialogTheme(
     backgroundColor: scheme.surfaceContainerHigh,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(6),
       side: BorderSide(color: scheme.outline, width: 1),
     ),
-    titleTextStyle: TextStyle(
+    titleTextStyle: textTheme.bodyLarge?.copyWith(
       fontSize: 30,
       fontWeight: FontWeight.w600,
       color: scheme.primary,
     ),
-    contentTextStyle: TextStyle(fontSize: 21, color: scheme.onSurface),
+    contentTextStyle: textTheme.bodyLarge?.copyWith(
+      fontSize: 21,
+      color: scheme.onSurface,
+    ),
     barrierColor: Colors.black.withOpacity(0.3),
   );
 
@@ -121,7 +139,9 @@ ThemeData buildTheme(ThemeMode mode) {
     inputDecorationTheme: inputDecoration,
     searchBarTheme: searchBarTheme,
     outlinedButtonTheme: outlineButtonTheme,
+    textButtonTheme: textButtonTheme,
     dialogTheme: dialogTheme,
     tooltipTheme: tooltipTheme,
+    textTheme: textTheme,
   );
 }

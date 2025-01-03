@@ -191,8 +191,9 @@ class CruxBackButton extends StatelessWidget {
                             _BackButton(onPressed: backProvider.pop)
                                 .animate()
                                 .fadeIn(
-                                    duration: 100.ms,
-                                    curve: Curves.easeOutCubic)
+                                  duration: 100.ms,
+                                  curve: Curves.easeOutCubic,
+                                )
                                 .slideX(
                                   begin: 0.1,
                                   end: 0,

@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
-import 'package:intl/intl.dart';
-import 'package:lex/modules/multipartus/models/impartus_video.dart';
 import 'package:lex/modules/multipartus/screens/video.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/grid_button.dart';
+import 'package:lex/utils/image.dart';
+import 'package:lex/utils/misc.dart';
 import 'package:lex/widgets/auto_tooltip_text.dart';
-
-final _dateFormat = DateFormat.yMMMd().add_jm();
 
 class VideoTile extends StatefulWidget {
   const VideoTile({
@@ -41,10 +38,10 @@ class _VideoTileState extends State<VideoTile> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _Thumbnail(
-              ttid: widget.video.video.ttid.toString(),
+              ttid: widget.video.ttid.toString(),
               showPlayButton: _isHovered,
             ),
-            _Title(video: widget.video.video),
+            _Title(video: widget.video),
           ],
         ),
       ),
@@ -57,7 +54,7 @@ class _Title extends StatelessWidget {
     required this.video,
   });
 
-  final ImpartusVideo video;
+  final LectureVideo video;
 
   @override
   Widget build(BuildContext context) {
@@ -85,8 +82,8 @@ class _Title extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     AutoTooltipText(
-                      text: video.topic,
-                      tooltipText: video.topic,
+                      text: video.title,
+                      tooltipText: video.title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -96,7 +93,7 @@ class _Title extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      _dateFormat.format(video.createdAt),
+                      formatDate(video.createdAt),
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
@@ -117,8 +114,6 @@ class _Title extends StatelessWidget {
   }
 }
 
-const _heroFadeCurve = Curves.easeOutQuint;
-
 class _Thumbnail extends StatelessWidget {
   const _Thumbnail({
     required this.ttid,
@@ -133,13 +128,7 @@ class _Thumbnail extends StatelessWidget {
     final child = Image.network(
       "https://a.impartus.com/download1/embedded/thumbnails/$ttid.jpg",
       fit: BoxFit.cover,
-      frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-        // fade in image
-        if (wasSynchronouslyLoaded) return child;
-        return child
-            .animate(target: frame != null ? 1 : 0)
-            .fadeIn(duration: 400.ms);
-      },
+      frameBuilder: fadeInImageFrameBuilder(),
       errorBuilder: (context, error, stackTrace) => Center(
         child: Icon(
           LucideIcons.image,
@@ -162,28 +151,12 @@ class _Thumbnail extends StatelessWidget {
                 flightDirection,
                 fromHeroContext,
                 toHeroContext,
-              ) {
-                return flightDirection == HeroFlightDirection.push
-                    ? Container(
-                        color: Colors.black,
-                        child: AnimatedBuilder(
-                          animation: CurvedAnimation(
-                            parent: animation,
-                            curve: Curves.fastLinearToSlowEaseIn,
-                          ),
-                          builder: (context, child) => Opacity(
-                            opacity:
-                                _heroFadeCurve.transform(1 - animation.value),
-                            child: child,
-                          ),
-                          child: child,
-                        ),
-                      )
-                    : FadeTransition(
-                        opacity: animation.drive(Tween(begin: 1, end: 0)),
-                        child: child,
-                      );
-              },
+              ) =>
+                  // animate only in the push direction
+                  flightDirection == HeroFlightDirection.push
+                      ? toHeroContext.widget
+                      : SizedBox(),
+              placeholderBuilder: (context, heroSize, child) => child,
               child: child,
             ),
           ),

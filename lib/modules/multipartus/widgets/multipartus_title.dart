@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:lex/widgets/powered_by_crux.dart';
 
 class MultipartusTitle extends StatelessWidget {
-  const MultipartusTitle({super.key, this.poweredByCrux = false});
-
-  final bool poweredByCrux;
+  const MultipartusTitle({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -29,8 +26,6 @@ class MultipartusTitle extends StatelessWidget {
       ),
     );
 
-    return poweredByCrux
-        ? const PoweredByCrux(alignment: Alignment.centerRight, child: child)
-        : child;
+    return child;
   }
 }

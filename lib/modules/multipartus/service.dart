@@ -1,39 +1,42 @@
+import 'dart:async';
+
 import 'package:lex/modules/multipartus/models/lecture_section.dart';
 import 'package:lex/modules/multipartus/models/impartus_video.dart';
 import 'package:lex/modules/multipartus/models/subject.dart';
 import 'package:lex/providers/backend.dart';
+import 'package:lex/utils/misc.dart';
+import 'package:lex/utils/signals.dart';
 import 'package:signals/signals.dart';
 
 class MultipartusService {
   final LexBackend _backend;
 
   late final FutureSignal<bool> isRegistered;
-  late final FutureSignal<Map<SubjectId, Subject>> subjects;
+  late final MapSignal<SubjectId, Subject> subjects;
   late final FutureSignal<Map<SubjectId, Subject>> pinnedSubjects;
-  late final FutureSignal<Map<int, ImpartusSession>> _impartusSessionMap;
+  late final FutureSignal<Map<int, ImpartusSessionData>> _impartusSessionMap;
+
+  late final _lectureMap = DeferredValueMap<int, LectureVideo>();
 
   MultipartusService(this._backend) {
     pinnedSubjects = computedAsync(
       () async {
-        final r = await _backend.get('/impartus/subject');
+        final r = await _backend.get('/impartus/user/subjects');
 
         if (r?.data! is! List) return {};
         final iter = (r!.data! as List)
             .cast<Map>()
-            .map((e) => Subject.fromJson({...e, 'isPinned': false}));
+            .map((e) => Subject.fromJson({...e, 'isPinned': true}));
 
-        final subs = <SubjectId, Subject>{
-          for (final s in iter) (department: s.departmentUrl, code: s.code): s,
-        };
+        final subs = _subjectsToIdMap(iter);
+
+        subjects.addAll(subs);
         return subs;
       },
       debugLabel: 'service | pinnedSubjects',
     );
 
-    subjects = computedAsync(
-      () async {
-        return await pinnedSubjects.future;
-      },
+    subjects = <SubjectId, Subject>{}.toSignal(
       debugLabel: 'service | subjects',
     );
 
@@ -59,13 +62,14 @@ class MultipartusService {
     );
   }
 
-  FutureSignal<List<LectureSection>> lectureSections(String id) {
+  FutureSignal<List<ImpartusSectionData>> lectureSections(String id) {
     return computedAsync(
       () async {
         final r = await _backend.get('/impartus/subject/$id');
         if (r?.data is! List) return [];
-        final f =
-            (r?.data! as List).map((e) => LectureSection.fromJson(e)).toList();
+        final f = (r?.data! as List)
+            .map((e) => ImpartusSectionData.fromJson(e))
+            .toList();
         return f;
       },
       debugLabel: 'service | sections',
@@ -73,61 +77,67 @@ class MultipartusService {
     );
   }
 
-  Future<List<ImpartusVideo>> _fetchImpartusVideos({
+  Future<List<ImpartusVideoData>> _fetchImpartusVideos({
     required int sessionId,
     required int subjectId,
   }) async {
     final r = await _backend.get('/impartus/lecture/$sessionId/$subjectId');
     if (r?.data is! List) return [];
-    return (r!.data as List).map((e) => ImpartusVideo.fromJson(e)).toList();
+    return (r!.data as List).map((e) => ImpartusVideoData.fromJson(e)).toList();
   }
 
-  FutureSignal<LecturesResult> lectures({
-    required String departmentUrl,
-    required String code,
-  }) {
-    final s = lectureSections("$departmentUrl/$code");
-    return computedAsync(
-      () async {
-        final sections = await s.future;
-        final sessions = await _impartusSessionMap.future;
+  late final lectures =
+      asyncSignalContainer<LecturesResult, ({String department, String code})>(
+    (e) {
+      final departmentUrl = e.department.replaceAll('/', ',');
+      final code = e.code;
+      final s = lectureSections("$departmentUrl/$code");
 
-        final List<LectureVideo> vidsList = (await Future.wait(
-          sections.map((lec) async {
-            final impartusVideos = await _fetchImpartusVideos(
-              sessionId: lec.impartusSession,
-              subjectId: lec.impartusSubject,
-            );
+      return computedAsync(
+        () async {
+          final sections = await s.future;
+          final sessions = await _impartusSessionMap.future;
 
-            return impartusVideos
-                .map(
-                  (v) => (
-                    section: lec,
-                    video: v,
-                    session: sessions[lec.impartusSession]!,
-                  ),
-                )
-                .toList();
-          }),
-        ))
-            .reduce((a, b) => a + b);
+          final List<LectureVideo> vidsList = (await Future.wait(
+            sections.map((lec) async {
+              final impartusVideos = await _fetchImpartusVideos(
+                sessionId: lec.impartusSession,
+                subjectId: lec.impartusSubject,
+              );
 
-        final profMap = <String, Set<ImpartusSession>>{};
+              return impartusVideos
+                  .map(
+                    (v) => LectureVideo.fromData(
+                      section: lec,
+                      video: v,
+                      session: sessions[lec.impartusSession]!,
+                    ),
+                  )
+                  .toList();
+            }),
+          ))
+              .reduce((a, b) => a + b);
 
-        for (final v in vidsList) {
-          final prof = v.section.professor;
-          profMap.putIfAbsent(prof, () => {}).add(v.session);
-        }
+          final profMap = <String, Set<ImpartusSessionData>>{};
 
-        return (
-          videos: vidsList,
-          professorSessionMap: profMap,
-        );
-      },
-      autoDispose: true,
-      debugLabel: 'service | lectures',
-    );
-  }
+          for (final v in vidsList) {
+            final prof = v.professor;
+            profMap.putIfAbsent(prof, () => {}).add(v.session);
+
+            _lectureMap.set(v.ttid, v);
+          }
+
+          return (
+            videos: vidsList,
+            professorSessionMap: profMap,
+          );
+        },
+        autoDispose: true,
+        debugLabel: 'service | lectures',
+      );
+    },
+    cache: true,
+  );
 
   Future<void> pinSubject(String id) async {
     await _backend.post(
@@ -155,17 +165,61 @@ class MultipartusService {
     );
     await isRegistered.refresh();
   }
+
+  Future<LectureVideo> fetchLectureVideo({
+    required String department,
+    required String code,
+    required int ttid,
+  }) {
+    return _lectureMap.get(
+      ttid,
+      () => lectures((department: department, code: code)).future,
+    );
+  }
+
+  Future<List<Subject>> searchSubjects(String search) async {
+    final r = await _backend.get(
+      "/impartus/subject/search",
+      queryParameters: {"q": search},
+    );
+    if (r?.data is! List) return [];
+
+    final subs = (r!.data as List).map((e) => Subject.fromJson(e)).toList();
+
+    subjects.addAll(_subjectsToIdMap(subs));
+
+    return subs;
+  }
 }
 
-typedef LectureVideo = ({
-  LectureSection section,
-  ImpartusVideo video,
-  ImpartusSession session,
-});
+class LectureVideo {
+  final String professor;
+  final String title;
+  final int lectureNo;
+  final DateTime createdAt;
+  final int ttid;
+  final ImpartusSessionData session;
 
-typedef ImpartusSession = ({int year, int sem});
+  LectureVideo.fromData({
+    required ImpartusSectionData section,
+    required ImpartusVideoData video,
+    required this.session,
+  })  : professor = section.professor,
+        title = video.topic,
+        lectureNo = video.lectureNo,
+        createdAt = video.createdAt,
+        ttid = video.ttid;
+}
+
+typedef ImpartusSessionData = ({int year, int sem});
 
 typedef LecturesResult = ({
   List<LectureVideo> videos,
-  Map<String, Set<ImpartusSession>> professorSessionMap,
+  Map<String, Set<ImpartusSessionData>> professorSessionMap,
 });
+
+Map<SubjectId, Subject> _subjectsToIdMap(Iterable<Subject> subjects) =>
+    <SubjectId, Subject>{
+      for (final s in subjects)
+        (department: s.departmentUrl.replaceAll(',', '/'), code: s.code): s,
+    };

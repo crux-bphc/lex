@@ -117,7 +117,8 @@ final router = GoRouter(
                     GoRoute(
                       path: 'courses/:department/:code',
                       builder: (context, state) {
-                        final department = state.pathParameters['department']!;
+                        final department = state.pathParameters['department']!
+                            .replaceAll(',', '/');
                         final code = state.pathParameters['code']!;
                         return MultipartusCoursePage(
                           department: department,
@@ -127,31 +128,31 @@ final router = GoRouter(
                       routes: [
                         GoRoute(
                           path: 'watch/:ttid',
-                          pageBuilder: (context, state) {
+                          builder: (context, state) {
                             final department = state
                                 .pathParameters['department']!
                                 .replaceAll(',', '/');
                             final code = state.pathParameters['code']!;
-                            return CustomTransitionPage(
-                              child: MultipartusVideoPage(
-                                departmentUrl: department,
-                                subjectCode: code,
-                                ttid: state.pathParameters['ttid']!,
-                              ),
-                              transitionDuration: Duration(milliseconds: 300),
-                              reverseTransitionDuration:
-                                  Duration(milliseconds: 300),
-                              transitionsBuilder: (
-                                context,
-                                animation,
-                                secondaryAnimation,
-                                child,
-                              ) =>
-                                  FadeTransition(
-                                opacity: animation,
-                                child: child,
-                              ),
+                            // return CustomTransitionPage(
+                            return MultipartusVideoPage(
+                              department: department,
+                              subjectCode: code,
+                              ttid: state.pathParameters['ttid']!,
                             );
+                            //   transitionDuration: Duration(milliseconds: 300),
+                            //   reverseTransitionDuration:
+                            //       Duration(milliseconds: 300),
+                            //   transitionsBuilder: (
+                            //     context,
+                            //     animation,
+                            //     secondaryAnimation,
+                            //     child,
+                            //   ) =>
+                            //       FadeTransition(
+                            //     opacity: animation,
+                            //     child: child,
+                            //   ),
+                            // );
                           },
                         ),
                       ],

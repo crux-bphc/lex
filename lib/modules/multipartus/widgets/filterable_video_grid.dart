@@ -12,7 +12,7 @@ class FilterableVideoGrid extends StatefulWidget {
     required this.onPressed,
   });
 
-  final Map<String, Set<ImpartusSession>> professorSessionMap;
+  final Map<String, Set<ImpartusSessionData>> professorSessionMap;
   final List<LectureVideo> videos;
   final void Function(LectureVideo video) onPressed;
 
@@ -34,7 +34,7 @@ class _FilterableVideoGridState extends State<FilterableVideoGrid> {
     debugLabel: 'ui | sessions',
   );
 
-  late final session = signal<ImpartusSession?>(
+  late final session = signal<ImpartusSessionData?>(
     sessions().first,
     autoDispose: true,
     debugLabel: 'ui | session',
@@ -45,7 +45,7 @@ class _FilterableVideoGridState extends State<FilterableVideoGrid> {
       final p = professor();
       final s = session();
       return widget.videos
-          .where((v) => v.session == s && v.section.professor == p)
+          .where((v) => v.session == s && v.professor == p)
           .toList();
     },
     autoDispose: true,
