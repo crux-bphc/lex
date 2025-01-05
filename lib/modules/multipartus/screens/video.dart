@@ -55,19 +55,6 @@ class MultipartusVideoPage extends StatelessWidget {
                           ttid: ttid,
                         ),
                       ),
-                      // Divider(
-                      //   color: Theme.of(context).colorScheme.onInverseSurface,
-                      //   thickness: 2,
-                      //   height: 20,
-                      // ),
-                      // const SizedBox(height: 10),
-                      // Text(
-                      //   "UP NEXT IN COURSE",
-                      //   style: TextStyle(
-                      //     letterSpacing: 1.5,
-                      //     fontWeight: FontWeight.w600,
-                      //   ),
-                      // ),
                     ],
                   ),
                 ],
@@ -186,12 +173,19 @@ class __PlayerState extends State<_Player> {
                       width: double.infinity,
                     ),
                   ),
-                  MaterialDesktopVideoControlsTheme(
-                    normal: controls,
-                    fullscreen: controls,
-                    child: Video(
-                      controller: controller,
-                      fill: Colors.transparent,
+                  Theme(
+                    data: Theme.of(context).copyWith(
+                      textTheme: Theme.of(context)
+                          .textTheme
+                          .apply(bodyColor: Colors.white),
+                    ),
+                    child: MaterialDesktopVideoControlsTheme(
+                      normal: controls,
+                      fullscreen: controls,
+                      child: Video(
+                        controller: controller,
+                        fill: Colors.transparent,
+                      ),
                     ),
                   ),
                 ],
