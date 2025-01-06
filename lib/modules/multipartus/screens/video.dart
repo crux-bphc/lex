@@ -284,22 +284,71 @@ class _FullscreenButton extends StatelessWidget {
   }
 }
 
-class _SpeedButton extends StatelessWidget {
+class _SpeedButton extends StatefulWidget {
   const _SpeedButton();
 
   @override
+  State<_SpeedButton> createState() => _SpeedButtonState();
+}
+
+class _SpeedButtonState extends State<_SpeedButton>
+    with SingleTickerProviderStateMixin {
+  late final _buttonController = AnimationController(
+    vsync: this,
+    duration: Duration(milliseconds: 200),
+  );
+
+  final _isHovering = signal(false);
+  late final controller = getController(context);
+  late final _playbackRate =
+      controller.player.stream.rate.toSyncSignal(controller.player.state.rate);
+
+  @override
   Widget build(BuildContext context) {
-    final controller = getController(context);
-    return MaterialDesktopCustomButton(
-      onPressed: () {
-        final rate = controller.player.state.rate == 1.0 ? 1.75 : 1.0;
-        controller.player.setRate(rate);
-      },
-      icon: Tooltip(
-        message: "1.75x",
-        child: Icon(LucideIcons.chevrons_right),
-      ),
+    return Row(
+      children: [
+        Watch(
+          (context) => Text(
+            "${_playbackRate()}x",
+            style: TextStyle(height: 0),
+          ).animate(target: _isHovering() ? 1 : 0).fadeIn(duration: 200.ms),
+        ),
+        const SizedBox(width: 8),
+        MouseRegion(
+          onEnter: (_) => _isHovering.value = true,
+          onExit: (_) => _isHovering.value = false,
+          child: MaterialDesktopCustomButton(
+            onPressed: () {
+              controller.player.setRate(
+                _playbackRate() > 2.75 ? 0.25 : _playbackRate() + 0.25,
+              );
+              _buttonController.forward(from: 0);
+            },
+            icon: Tooltip(
+              message: "Playback speed",
+              child: Icon(LucideIcons.chevrons_right),
+            ).animate(controller: _buttonController, autoPlay: false).custom(
+                  builder: (context, value, child) => Transform(
+                    transform: Matrix4.translationValues(
+                      12 * value * (1 - value),
+                      0,
+                      0,
+                    ),
+                    child: child,
+                  ),
+                  duration: 140.ms,
+                ),
+          ),
+        ),
+      ],
     );
+  }
+
+  @override
+  void dispose() {
+    _buttonController.dispose();
+    _isHovering.dispose();
+    super.dispose();
   }
 }
 
