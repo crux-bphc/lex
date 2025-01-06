@@ -302,6 +302,23 @@ class _SpeedButtonState extends State<_SpeedButton>
   late final controller = getController(context);
   late final _playbackRate =
       controller.player.stream.rate.toSyncSignal(controller.player.state.rate);
+  double _bounceDirection = 1;
+
+  void _handleIncreaseSpeed() {
+    controller.player.setRate(
+      _playbackRate() > 2.75 ? 0.25 : _playbackRate() + 0.25,
+    );
+    _bounceDirection = 1;
+    _buttonController.forward(from: 0);
+  }
+
+  void _handleDecreaseSpeed() {
+    controller.player.setRate(
+      _playbackRate() < 0.5 ? 3.0 : _playbackRate() - 0.25,
+    );
+    _bounceDirection = -1;
+    _buttonController.forward(from: 0);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -317,27 +334,25 @@ class _SpeedButtonState extends State<_SpeedButton>
         MouseRegion(
           onEnter: (_) => _isHovering.value = true,
           onExit: (_) => _isHovering.value = false,
-          child: MaterialDesktopCustomButton(
-            onPressed: () {
-              controller.player.setRate(
-                _playbackRate() > 2.75 ? 0.25 : _playbackRate() + 0.25,
-              );
-              _buttonController.forward(from: 0);
-            },
-            icon: Tooltip(
-              message: "Playback speed",
-              child: Icon(LucideIcons.chevrons_right),
-            ).animate(controller: _buttonController, autoPlay: false).custom(
-                  builder: (context, value, child) => Transform(
-                    transform: Matrix4.translationValues(
-                      12 * value * (1 - value),
-                      0,
-                      0,
+          child: GestureDetector(
+            onSecondaryTap: _handleDecreaseSpeed,
+            child: MaterialDesktopCustomButton(
+              onPressed: _handleIncreaseSpeed,
+              icon: Tooltip(
+                message: "Playback speed",
+                child: Icon(LucideIcons.chevrons_right),
+              ).animate(controller: _buttonController, autoPlay: false).custom(
+                    builder: (context, value, child) => Transform(
+                      transform: Matrix4.translationValues(
+                        _bounceDirection * 12 * value * (1 - value),
+                        0,
+                        0,
+                      ),
+                      child: child,
                     ),
-                    child: child,
+                    duration: 140.ms,
                   ),
-                  duration: 140.ms,
-                ),
+            ),
           ),
         ),
       ],
