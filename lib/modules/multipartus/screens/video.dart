@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lex/modules/multipartus/service.dart';
@@ -207,6 +208,7 @@ MaterialDesktopVideoControlsThemeData buildDesktopControls(
   return MaterialDesktopVideoControlsThemeData(
     seekBarPositionColor: Theme.of(context).colorScheme.primary,
     seekBarThumbColor: Theme.of(context).colorScheme.primary,
+    controlsHoverDuration: 5.seconds,
     hideMouseOnControlsRemoval: true,
     displaySeekBar: false,
     buttonBarHeight: 110,
@@ -226,10 +228,10 @@ MaterialDesktopVideoControlsThemeData buildDesktopControls(
                 _VolumeButton(),
                 _ImpartusPositionIndicator(),
                 Spacer(),
-                _SwitchViewButton(),
                 _SpeedButton(),
-                // _PitchButton(),
+                _SwitchViewButton(),
                 if (kIsWeb) _ShareButton(),
+                // _PitchButton(),
                 _FullscreenButton(),
               ],
             ),
@@ -542,7 +544,6 @@ class _TitleState extends State<_Title> {
           ),
           builder: (context, snapshot) {
             final data = snapshot.data;
-            debugPrint(data == null ? "null" : "not null");
             return data != null
                 ? _CoolTitle(
                     leading: data.lectureNo.toString(),
