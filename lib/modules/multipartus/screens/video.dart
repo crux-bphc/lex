@@ -277,8 +277,11 @@ class _FullscreenButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialFullscreenButton(
-      icon: Icon(
-        isFullscreen(context) ? LucideIcons.minimize : LucideIcons.maximize,
+      icon: Tooltip(
+        message: isFullscreen(context) ? 'Exit full screen' : 'Full screen',
+        child: Icon(
+          isFullscreen(context) ? LucideIcons.minimize : LucideIcons.maximize,
+        ),
       ),
     );
   }
