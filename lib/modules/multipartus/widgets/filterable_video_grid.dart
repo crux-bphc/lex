@@ -12,7 +12,7 @@ class FilterableVideoGrid extends StatefulWidget {
     required this.onPressed,
   });
 
-  final Map<String, Set<ImpartusSessionData>> professorSessionMap;
+  final Map<String, Set<ImpartusSessionData?>> professorSessionMap;
   final List<LectureVideo> videos;
   final void Function(LectureVideo video) onPressed;
 
@@ -108,7 +108,7 @@ class _FilterableVideoGridState extends State<FilterableVideoGrid> {
                       for (final session in sessions())
                         DropdownMenuEntry(
                           label:
-                              "${session.year}-${session.year + 1}, Sem ${session.sem}",
+                             session != null ? "${session.year}-${session.year + 1}, Sem ${session.sem}" : "Unknown session",
                           value: session,
                         ),
                     ],
