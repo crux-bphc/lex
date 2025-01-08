@@ -16,7 +16,7 @@ WORKDIR /app
 
 COPY . /app
 RUN flutter pub get
-RUN flutter build web --no-tree-shake-icons
+RUN flutter build web --no-tree-shake-icons --dart-define-from-file=.env
 
 FROM nginx:1.25.3-alpine-slim
 WORKDIR /usr/share/nginx/html
