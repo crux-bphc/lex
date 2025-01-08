@@ -10,7 +10,7 @@ import 'package:signals/signals.dart';
 
 const _clientId = "lex";
 
-const _cruxIssuerUrl = "https://auth.crux-bphc.com/realms/CRUx";
+const _cruxIssuerUrl = String.fromEnvironment("AUTH_ISSUER_URL");
 
 const _platformSpecificOptions = OidcPlatformSpecificOptions(
   web: OidcPlatformSpecificOptions_Web(

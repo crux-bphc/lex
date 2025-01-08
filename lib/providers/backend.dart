@@ -5,7 +5,7 @@ import 'package:lex/providers/error.dart';
 import 'package:lex/utils/cached.dart';
 import 'package:signals/signals.dart';
 
-const _baseUrl = 'https://staging.lex.crux-bphc.com/api/';
+const _baseUrl = String.fromEnvironment("LEX_BACKEND_URL");
 
 class LexBackend {
   final AuthProvider _authProvider;

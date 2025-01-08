@@ -8,6 +8,7 @@ import 'package:lex/modules/multipartus/widgets/seekbar.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
 import 'package:lex/providers/backend.dart';
 import 'package:lex/utils/extensions.dart';
+import 'package:lex/utils/image.dart';
 import 'package:lex/utils/misc.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
@@ -181,7 +182,7 @@ class __PlayerState extends State<_Player> {
                     createRectTween: (begin, end) =>
                         CurvedRectTween(begin: begin!, end: end!),
                     child: Image.network(
-                      "https://a.impartus.com/download1/embedded/thumbnails/${widget.ttid}.jpg",
+                      getThumbnailUrl(widget.ttid),
                       fit: BoxFit.cover,
                       width: double.infinity,
                     ),

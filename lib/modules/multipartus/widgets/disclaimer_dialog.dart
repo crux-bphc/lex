@@ -51,7 +51,6 @@ If your Impartus password is common for other platforms, this is an advisory not
 
 class _DelayedProgressBarButton extends StatefulWidget {
   const _DelayedProgressBarButton({
-    super.key,
     required this.duration,
     required this.child,
     required this.onPressed,
