@@ -125,7 +125,7 @@ class _Thumbnail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final child = Image.network(
-      "https://a.impartus.com/download1/embedded/thumbnails/$ttid.jpg",
+      getThumbnailUrl(ttid),
       fit: BoxFit.cover,
       frameBuilder: fadeInImageFrameBuilder(),
       errorBuilder: (context, error, stackTrace) => Center(

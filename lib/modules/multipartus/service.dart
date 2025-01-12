@@ -70,6 +70,7 @@ class MultipartusService {
         final f = (r?.data! as List)
             .map((e) => ImpartusSectionData.fromJson(e))
             .toList();
+
         return f;
       },
       debugLabel: 'service | sections',
@@ -110,7 +111,7 @@ class MultipartusService {
                     (v) => LectureVideo.fromData(
                       section: lec,
                       video: v,
-                      session: sessions[lec.impartusSession]!,
+                      session: sessions[lec.impartusSession],
                     ),
                   )
                   .toList();
@@ -118,7 +119,7 @@ class MultipartusService {
           ))
               .reduce((a, b) => a + b);
 
-          final profMap = <String, Set<ImpartusSessionData>>{};
+          final profMap = <String, Set<ImpartusSessionData?>>{};
 
           for (final v in vidsList) {
             final prof = v.professor;
@@ -198,7 +199,7 @@ class LectureVideo {
   final int lectureNo;
   final DateTime createdAt;
   final int ttid;
-  final ImpartusSessionData session;
+  final ImpartusSessionData? session;
 
   LectureVideo.fromData({
     required ImpartusSectionData section,
@@ -215,7 +216,7 @@ typedef ImpartusSessionData = ({int year, int sem});
 
 typedef LecturesResult = ({
   List<LectureVideo> videos,
-  Map<String, Set<ImpartusSessionData>> professorSessionMap,
+  Map<String, Set<ImpartusSessionData?>> professorSessionMap,
 });
 
 Map<SubjectId, Subject> _subjectsToIdMap(Iterable<Subject> subjects) =>
