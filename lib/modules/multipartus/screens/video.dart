@@ -8,15 +8,14 @@ class MultipartusVideoPage extends StatelessWidget {
     required this.ttid,
     required this.subjectCode,
     required this.department,
-  });
+    int? startTimestamp,
+  }) : startTimestamp = startTimestamp ?? 0;
 
   final String subjectCode, department, ttid;
+  final int startTimestamp;
 
   @override
   Widget build(BuildContext context) {
-    final startTimestamp =
-        int.tryParse(Uri.base.queryParameters['t'] ?? '0') ?? 0;
-
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(30),

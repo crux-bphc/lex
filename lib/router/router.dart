@@ -133,26 +133,14 @@ final router = GoRouter(
                                 .pathParameters['department']!
                                 .replaceAll(',', '/');
                             final code = state.pathParameters['code']!;
-                            // return CustomTransitionPage(
+                            final timestamp = state.uri.queryParameters['t'];
+
                             return MultipartusVideoPage(
                               department: department,
                               subjectCode: code,
                               ttid: state.pathParameters['ttid']!,
+                              startTimestamp: int.tryParse(timestamp ?? '0'),
                             );
-                            //   transitionDuration: Duration(milliseconds: 300),
-                            //   reverseTransitionDuration:
-                            //       Duration(milliseconds: 300),
-                            //   transitionsBuilder: (
-                            //     context,
-                            //     animation,
-                            //     secondaryAnimation,
-                            //     child,
-                            //   ) =>
-                            //       FadeTransition(
-                            //     opacity: animation,
-                            //     child: child,
-                            //   ),
-                            // );
                           },
                         ),
                       ],

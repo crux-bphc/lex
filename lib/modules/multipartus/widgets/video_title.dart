@@ -6,6 +6,7 @@ import 'package:signals/signals_flutter.dart';
 
 class VideoTitle extends StatefulWidget {
   const VideoTitle({
+    super.key,
     required this.subjectCode,
     required this.department,
     required this.ttid,
