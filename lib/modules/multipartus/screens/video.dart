@@ -590,38 +590,69 @@ class _TitleState extends State<_Title> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Watch(
-          (context) {
-            final name = subject()?.name;
-            final append = name != null ? " - $name" : "";
-            final text = "${widget.department} ${widget.subjectCode}$append";
+    return FutureBuilder(
+      future: GetIt.instance<MultipartusService>().fetchLectureVideo(
+        department: widget.department,
+        code: widget.subjectCode,
+        ttid: int.parse(widget.ttid),
+      ),
+      builder: (context, snapshot) {
+        final data = snapshot.data;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Watch(
+                    (context) {
+                      final name = subject()?.name;
+                      final append = name != null ? " - $name" : "";
+                      final text =
+                          "${widget.department} ${widget.subjectCode}$append";
 
-            return _CoolCoolTitle(text: text);
-          },
-        ),
-        const SizedBox(height: 5),
-        FutureBuilder(
-          future: GetIt.instance<MultipartusService>().fetchLectureVideo(
-            department: widget.department,
-            code: widget.subjectCode,
-            ttid: int.parse(widget.ttid),
-          ),
-          builder: (context, snapshot) {
-            final data = snapshot.data;
-            return data != null
-                ? _CoolTitle(
-                    leading: data.lectureNo.toString(),
-                    title: data.title,
-                    subtitle: data.professor,
-                    trailing: formatDate(data.createdAt),
-                  )
-                : Container();
-          },
-        ),
-      ],
+                      return Text(
+                        text,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onInverseSurface,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                if (snapshot.hasData) ...[
+                  SizedBox(width: 3),
+                  Text(
+                    data!.professor,
+                    style: TextStyle(
+                        fontSize: 18,
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.7)),
+                  ),
+                ],
+              ],
+            ),
+            const SizedBox(height: 3),
+            if (data != null) ...[
+              _LectureTitle(
+                lectureNo: data.lectureNo.toString(),
+                title: data.title,
+              ),
+              const SizedBox(height: 3),
+              _DateTitle(
+                text: formatDate(data.createdAt),
+              ),
+            ]
+          ],
+        );
+      },
     );
   }
 
@@ -634,8 +665,8 @@ class _TitleState extends State<_Title> {
 }
 
 // TODO: give the next two widgets better names
-class _CoolCoolTitle extends StatelessWidget {
-  const _CoolCoolTitle({required this.text});
+class _DateTitle extends StatelessWidget {
+  const _DateTitle({required this.text});
 
   final String text;
 
@@ -644,93 +675,56 @@ class _CoolCoolTitle extends StatelessWidget {
     return Text(
       text,
       style: TextStyle(
-        color: Theme.of(context).colorScheme.onInverseSurface,
-        fontWeight: FontWeight.bold,
-        fontSize: 18,
+        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+        fontSize: 19,
       ),
     );
   }
 }
 
-class _CoolTitle extends StatelessWidget {
-  const _CoolTitle({
-    required this.leading,
+class _LectureTitle extends StatelessWidget {
+  const _LectureTitle({
+    required this.lectureNo,
     required this.title,
-    required this.subtitle,
-    required this.trailing,
   });
 
-  final String leading, title, subtitle, trailing;
+  final String lectureNo, title;
   final double fontSize = 32;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
       children: [
-        Text.rich(
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          TextSpan(
-            children: [
-              WidgetSpan(
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  margin: EdgeInsets.only(right: 10),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    leading,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.surface,
-                      fontSize: fontSize,
-                      height: 1,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                alignment: PlaceholderAlignment.baseline,
-                baseline: TextBaseline.alphabetic,
-              ),
-              TextSpan(
-                text: title,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontSize: fontSize,
-                ),
-              ),
-            ],
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          margin: EdgeInsets.only(right: 10),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Text(
+            lectureNo,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.surface,
+              fontSize: fontSize,
+              height: 1,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
-        SizedBox(height: 7),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            TextButton.icon(
-              onPressed: () {},
-              icon: Icon(
-                LucideIcons.user_round,
-                size: 20,
-              ),
-              label: Text(
-                subtitle,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontSize: 16,
-                ),
-              ),
+        Expanded(
+          child: Text(
+            title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.primary,
+              fontSize: fontSize,
             ),
-            Spacer(),
-            Text(
-              trailing,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                fontSize: 15,
-              ),
-            ),
-          ],
+          ),
         ),
       ],
     );

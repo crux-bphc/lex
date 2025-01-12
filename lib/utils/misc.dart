@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 final _dateFormat = DateFormat.yMMMd().add_jm();
@@ -44,4 +45,22 @@ void Function(T arg, {bool now}) debouncer<T>(
       timer = Timer(duration, () => fn(arg));
     }
   };
+}
+
+class CurvedRectTween extends Tween<Rect> {
+  CurvedRectTween({
+    required Rect begin,
+    required Rect end,
+  }) : super(begin: begin, end: end);
+
+  static const Curve _curve = Curves.easeOutQuad;
+
+  @override
+  Rect lerp(double t) {
+    return Rect.lerp(
+      begin,
+      end,
+      _curve.transform(t),
+    )!;
+  }
 }

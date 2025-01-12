@@ -38,34 +38,35 @@ class _MultipartusCoursePageState extends State<MultipartusCoursePage> {
       body: Scrollbar(
         controller: scrollController,
         child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30),
-            child: Watch(
-              (context) {
-                final subject = GetIt.instance<MultipartusService>()
-                    .subjects()[widget.subjectId];
+          padding: const EdgeInsets.symmetric(horizontal: 30),
+          child: Watch(
+            (context) {
+              final subject = GetIt.instance<MultipartusService>()
+                  .subjects()[widget.subjectId];
 
-                if (subject == null) {
-                  return const Center(child: Text("Subject not found"));
-                }
-                return CustomScrollView(
-                  scrollBehavior: ScrollConfiguration.of(context)
-                      .copyWith(scrollbars: false),
-                  controller: scrollController,
-                  physics: const BouncingScrollPhysics(
-                    decelerationRate: ScrollDecelerationRate.fast,
-                  ),
-                  slivers: [
-                    SliverPadding(
-                      padding: const EdgeInsets.only(top: 30, bottom: 12),
-                      sliver: SliverToBoxAdapter(
-                        child: CourseTitleBox(subject: subject),
-                      ),
+              if (subject == null) {
+                return const Center(child: Text("Subject not found"));
+              }
+              return CustomScrollView(
+                scrollBehavior:
+                    ScrollConfiguration.of(context).copyWith(scrollbars: false),
+                controller: scrollController,
+                physics: const BouncingScrollPhysics(
+                  decelerationRate: ScrollDecelerationRate.fast,
+                ),
+                slivers: [
+                  SliverPadding(
+                    padding: const EdgeInsets.only(top: 30, bottom: 12),
+                    sliver: SliverToBoxAdapter(
+                      child: CourseTitleBox(subject: subject),
                     ),
-                    _Content(subject: subject),
-                  ],
-                );
-              },
-            )),
+                  ),
+                  _Content(subject: subject),
+                ],
+              );
+            },
+          ),
+        ),
       ),
     );
   }
