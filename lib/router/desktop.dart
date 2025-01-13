@@ -105,16 +105,18 @@ class _Body extends StatefulWidget {
 }
 
 class _BodyState extends State<_Body> {
+  final stopwatch = Stopwatch();
+
   StreamSubscription? _errorSub;
-  String _previousError = '';
 
   @override
   void initState() {
     super.initState();
 
     _errorSub = GetIt.instance<ErrorService>().errorStream.listen((message) {
-      if (!mounted || message == _previousError) return;
+      if (!mounted) return;
 
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -133,8 +135,6 @@ class _BodyState extends State<_Body> {
           dismissDirection: DismissDirection.horizontal,
         ),
       );
-
-      _previousError = message;
     });
   }
 
