@@ -26,14 +26,7 @@ class MultipartusHomePage extends StatelessWidget {
           children: [
             MultipartusTitle(),
             SizedBox(height: 20),
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Expanded(flex: 5, child: _Subjects()),
-                ],
-              ),
-            ),
+            Expanded(flex: 5, child: _Subjects()),
           ],
         ),
       ),

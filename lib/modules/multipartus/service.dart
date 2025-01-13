@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:lex/modules/multipartus/models/lecture_section.dart';
 import 'package:lex/modules/multipartus/models/impartus_video.dart';
 import 'package:lex/modules/multipartus/models/subject.dart';
@@ -62,20 +63,13 @@ class MultipartusService {
     );
   }
 
-  FutureSignal<List<ImpartusSectionData>> lectureSections(String id) {
-    return computedAsync(
-      () async {
-        final r = await _backend.get('/impartus/subject/$id');
-        if (r?.data is! List) return [];
-        final f = (r?.data! as List)
-            .map((e) => ImpartusSectionData.fromJson(e))
-            .toList();
+  Future<List<ImpartusSectionData>> lectureSections(String id) async {
+    final r = await _backend.get('/impartus/subject/$id');
+    if (r?.data is! List) return [];
+    final f =
+        (r?.data! as List).map((e) => ImpartusSectionData.fromJson(e)).toList();
 
-        return f;
-      },
-      debugLabel: 'service | sections',
-      autoDispose: true,
-    );
+    return f;
   }
 
   Future<List<ImpartusVideoData>> _fetchImpartusVideos({
@@ -92,11 +86,11 @@ class MultipartusService {
     (e) {
       final departmentUrl = e.department.replaceAll('/', ',');
       final code = e.code;
-      final s = lectureSections("$departmentUrl/$code");
 
       return computedAsync(
         () async {
-          final sections = await s.future;
+          final sections = await lectureSections("$departmentUrl/$code");
+
           final sessions = await _impartusSessionMap.future;
 
           final List<LectureVideo> vidsList = (await Future.wait(

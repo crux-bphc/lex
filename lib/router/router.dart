@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:lex/modules/cms/screens/course.dart';
-import 'package:lex/modules/cms/screens/forum.dart';
-import 'package:lex/modules/cms/screens/home.dart';
-import 'package:lex/modules/cms/screens/search.dart';
-import 'package:lex/modules/cms/widgets/ensure_login.dart';
 import 'package:lex/modules/multipartus/screens/course.dart';
 import 'package:lex/modules/multipartus/screens/home.dart';
 import 'package:lex/modules/multipartus/screens/video.dart';
