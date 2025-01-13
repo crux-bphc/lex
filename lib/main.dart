@@ -38,7 +38,7 @@ void _prelaunchTasks() async {
 
   getIt.registerSingleton<BackButtonObserver>(backButtonObserver);
 
-  getIt.registerSingleton<ErrorService>(DioErrorService());
+  getIt.registerSingleton<ErrorService>(ErrorService());
 
   getIt.registerSingletonAsync<AuthProvider>(
     () async {

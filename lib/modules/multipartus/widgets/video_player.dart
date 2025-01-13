@@ -42,7 +42,6 @@ class _VideoPlayerState extends State<VideoPlayer> {
     player = Player(
       configuration: PlayerConfiguration(
         ready: () {
-          debugPrint('Player ready');
           player.seek(Duration(seconds: widget.startTimestamp));
         },
       ),

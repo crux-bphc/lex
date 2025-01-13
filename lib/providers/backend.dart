@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
 import 'package:lex/providers/error.dart';
@@ -115,6 +116,14 @@ class LexBackend {
   }) {
     if (customHandler?.call(exception) ?? false) return;
     final service = GetIt.instance<ErrorService>();
+
+    debugPrint(
+      "DioException: ${exception.type}\n"
+      "${exception.requestOptions.method} ${exception.requestOptions.uri}\n"
+      "$exception\n"
+      "------",
+    );
+
     switch (exception.type) {
       case DioExceptionType.connectionError:
       case DioExceptionType.connectionTimeout:

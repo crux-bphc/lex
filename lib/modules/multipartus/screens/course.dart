@@ -98,7 +98,6 @@ class _ContentState extends State<_Content> {
     if (oldWidget.subject != widget.subject) {
       lectures.dispose();
       lectures = _getLectures();
-      debugPrint("update!");
     }
   }
 
