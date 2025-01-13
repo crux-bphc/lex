@@ -129,7 +129,7 @@ ThemeData buildTheme(ThemeMode mode) {
 
   final tooltipTheme = TooltipThemeData(
     preferBelow: false,
-    waitDuration: Duration(milliseconds: 800),
+    waitDuration: Durations.extralong2,
   );
 
   return ThemeData(

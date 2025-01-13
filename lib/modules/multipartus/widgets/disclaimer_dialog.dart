@@ -95,7 +95,7 @@ class _DelayedProgressBarButtonState extends State<_DelayedProgressBarButton>
                   AnimatedOpacity(
                     opacity:
                         _controller.status == AnimationStatus.completed ? 0 : 1,
-                    duration: Duration(milliseconds: 100),
+                    duration: Durations.short2,
                     child: SizedBox(
                       height: double.infinity,
                       child: LinearProgressIndicator(

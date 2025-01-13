@@ -4,7 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 class DelayedProgressIndicator extends StatelessWidget {
   const DelayedProgressIndicator({
     super.key,
-    this.duration = const Duration(seconds: 1),
+    this.duration = Durations.extralong4,
     this.size = 30,
   });
 
@@ -19,7 +19,7 @@ class DelayedProgressIndicator extends StatelessWidget {
         child: const CircularProgressIndicator.adaptive(
           strokeWidth: 3,
           strokeCap: StrokeCap.round,
-        ).animate(delay: duration).fade(duration: 400.ms),
+        ).animate(delay: duration).fade(duration: Durations.medium4),
       ),
     );
   }

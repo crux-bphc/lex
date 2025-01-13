@@ -228,7 +228,7 @@ class _SpeedButtonState extends State<_SpeedButton>
     with SingleTickerProviderStateMixin {
   late final _buttonController = AnimationController(
     vsync: this,
-    duration: Duration(milliseconds: 200),
+    duration: Durations.short4,
   );
 
   final _isHovering = signal(false);

@@ -28,9 +28,7 @@ class AuthPage extends StatelessWidget {
             height: scale * 0.4,
             child: Image.asset(
               "assets/landing.png",
-              frameBuilder: fadeInImageFrameBuilder(
-                duration: Duration(milliseconds: 200),
-              ),
+              frameBuilder: fadeInImageFrameBuilder(duration: Durations.short4),
             ),
           ),
           Center(
@@ -91,7 +89,7 @@ class _AllReadyWidget extends StatelessWidget {
             GetIt.instance<AuthProvider>().isLoggedIn.watch(context);
 
         return AnimatedSwitcher(
-          duration: Duration(milliseconds: 400),
+          duration: Durations.medium4,
           child: isLoading
               ? const SizedBox.square(
                   dimension: 26,

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 Widget Function(BuildContext, Widget, int?, bool) fadeInImageFrameBuilder({
-  Duration duration = const Duration(milliseconds: 400),
+  Duration duration = Durations.medium4,
 }) {
   return (
     BuildContext context,

@@ -50,7 +50,7 @@ class _SubjectsState extends State<_Subjects> with SignalsMixin {
 
   late final _debouncedTextUpdater = debouncer<String>(
     (t) => _searchText.value = t,
-    duration: const Duration(milliseconds: 300),
+    duration: Durations.medium2,
   );
 
   void _handleSubjectPressed(Subject subject) {
