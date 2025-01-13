@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:lex/modules/multipartus/service.dart';
@@ -24,6 +26,9 @@ void _prelaunchTasks() async {
   MediaKit.ensureInitialized();
 
   usePathUrlStrategy();
+
+  // does nothing on non web platforms
+  if (kIsWeb) BrowserContextMenu.disableContextMenu();
 
   await initializeDateFormatting();
 
