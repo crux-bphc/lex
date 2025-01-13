@@ -56,7 +56,7 @@ class MultipartusService {
       () async {
         final r = await _backend.get('/impartus/user');
         if (r?.data is! Map) return false;
-        return r?.data['registered'] ?? false;
+        return (r?.data['registered'] ?? false) && (r?.data['valid'] ?? false);
       },
       debugLabel: 'service | isRegistered',
     );
