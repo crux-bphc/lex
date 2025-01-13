@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/grid_button.dart';
@@ -159,20 +160,18 @@ class _Thumbnail extends StatelessWidget {
               child: child,
             ),
           ),
-          AnimatedOpacity(
-            opacity: showPlayButton ? 1 : 0,
-            duration: Duration(milliseconds: 100),
-            child: Container(
-              color: Colors.black38,
-              child: Center(
-                child: Icon(
-                  LucideIcons.circle_play,
-                  size: 50,
-                  weight: 0.1,
-                ),
+          Container(
+            color: Colors.black38,
+            child: Center(
+              child: Icon(
+                LucideIcons.circle_play,
+                size: 50,
+                weight: 0.1,
               ),
             ),
-          ),
+          )
+              .animate(target: showPlayButton ? 1 : 0)
+              .fade(duration: Durations.short2),
         ],
       ),
     );
