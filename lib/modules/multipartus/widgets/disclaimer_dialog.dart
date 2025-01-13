@@ -32,7 +32,7 @@ class _DisclaimerDialogState extends State<DisclaimerDialog>
             ),
             actions: [
               _DelayedProgressBarButton(
-                duration: const Duration(seconds: !kDebugMode ? 0 : 3),
+                duration: const Duration(seconds: kDebugMode ? 0 : 3),
                 onPressed: () => Navigator.of(context).pop(true),
                 child: Text("PROCEED"),
               ),

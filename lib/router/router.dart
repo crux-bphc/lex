@@ -29,33 +29,41 @@ const _defaultInitialLocation = '/multipartus';
 String? _initialLocation;
 
 final _cmsRoutes = [
-  ShellRoute(
-    builder: (builder, state, child) => CMSAuthenticate(
-      child: child,
+  GoRoute(
+    path: '/cms',
+    builder: (context, state) => const Scaffold(
+      body: Center(
+        child: Text("There's nothing to see here"),
+      ),
     ),
-    routes: [
-      GoRoute(
-        path: '/cms',
-        builder: (context, state) => const CMSHomePage(),
-      ),
-      GoRoute(
-        path: '/cms/course/:id',
-        builder: (context, state) {
-          return CMSCoursePage(id: state.pathParameters['id']!);
-        },
-      ),
-      GoRoute(
-        path: '/cms/search',
-        builder: (context, state) => const CMSSearchPage(),
-      ),
-      GoRoute(
-        path: '/cms/forum/:id',
-        builder: (context, state) {
-          return CMSForumPage(id: state.pathParameters['id']!);
-        },
-      ),
-    ],
   ),
+  // ShellRoute(
+  //   builder: (builder, state, child) => CMSAuthenticate(
+  //     child: child,
+  //   ),
+  //   routes: [
+  //     GoRoute(
+  //       path: '/cms',
+  //       builder: (context, state) => const CMSHomePage(),
+  //     ),
+  //     GoRoute(
+  //       path: '/cms/course/:id',
+  //       builder: (context, state) {
+  //         return CMSCoursePage(id: state.pathParameters['id']!);
+  //       },
+  //     ),
+  //     GoRoute(
+  //       path: '/cms/search',
+  //       builder: (context, state) => const CMSSearchPage(),
+  //     ),
+  //     GoRoute(
+  //       path: '/cms/forum/:id',
+  //       builder: (context, state) {
+  //         return CMSForumPage(id: state.pathParameters['id']!);
+  //       },
+  //     ),
+  //   ],
+  // ),
 ];
 
 final router = GoRouter(
