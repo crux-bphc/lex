@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:signals/signals.dart';
+import 'package:signals/signals_flutter.dart';
 
 class Preferences {
   SharedPreferences? _prefs;

@@ -8,7 +8,7 @@ import 'package:lex/providers/auth/auth_provider.dart';
 import 'package:lex/providers/auth/keycloak_auth.dart';
 import 'package:lex/providers/backend.dart';
 import 'package:lex/providers/error.dart';
-import 'package:lex/providers/preferences.dart';
+import 'package:lex/providers/local_storage/local_storage.dart';
 import 'package:lex/router/router.dart';
 import 'package:lex/theme.dart';
 import 'package:media_kit/media_kit.dart';
@@ -36,12 +36,13 @@ void _prelaunchTasks() async {
 
   final getIt = GetIt.instance;
 
-  getIt.registerSingleton<Preferences>(
-    Preferences()..initialize(),
-    dispose: (prefs) => prefs.dispose(),
-  );
-
   getIt.registerSingleton<BackButtonObserver>(backButtonObserver);
+
+  getIt.registerSingletonAsync<LocalStorage>(() async {
+    final storage = LocalStorage();
+    await storage.initialize();
+    return storage;
+  });
 
   getIt.registerSingleton<ErrorService>(ErrorService());
 
@@ -102,7 +103,7 @@ class _AppState extends State<MyApp> {
     return MaterialApp.router(
       routerConfig: router,
       title: "Lex",
-      themeMode: getIt<Preferences>().themeMode.watch(context),
+      themeMode: getIt<LocalStorage>().preferences.themeMode.watch(context),
       theme: buildTheme(ThemeMode.light),
       darkTheme: buildTheme(ThemeMode.dark),
     );
