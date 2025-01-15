@@ -133,19 +133,17 @@ class MultipartusService {
     cache: true,
   );
 
-  Future<void> pinSubject(String id) async {
+  Future<void> pinSubject(String department, String code) async {
     await _backend.post(
       '/impartus/user/subjects',
-      queryParameters: {'id': id},
+      data: {'department': department, 'code': code},
     );
     pinnedSubjects.refresh();
   }
 
-  Future<void> unpinSubject(String id) async {
-    await _backend.delete(
-      '/impartus/user/subjects',
-      queryParameters: {'id': id},
-    );
+  Future<void> unpinSubject(String department, String code) async {
+    await _backend.delete('/impartus/user/subjects',
+        data: {'department': department, 'code': code});
     pinnedSubjects.refresh();
   }
 
