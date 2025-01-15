@@ -15,13 +15,13 @@ import 'package:media_kit/media_kit.dart';
 import 'package:signals/signals_flutter.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 
-void main() {
-  _prelaunchTasks();
+void main() async {
+  await _prelaunchTasks();
 
   runApp(const MyApp());
 }
 
-void _prelaunchTasks() async {
+Future<void> _prelaunchTasks() async {
   WidgetsFlutterBinding.ensureInitialized();
   MediaKit.ensureInitialized();
 
@@ -38,11 +38,15 @@ void _prelaunchTasks() async {
 
   getIt.registerSingleton<BackButtonObserver>(backButtonObserver);
 
-  getIt.registerSingletonAsync<LocalStorage>(() async {
-    final storage = LocalStorage();
-    await storage.initialize();
-    return storage;
-  });
+  getIt.registerSingletonAsync<LocalStorage>(
+    () async {
+      final storage = LocalStorage();
+      await storage.initialize();
+      return storage;
+    },
+    dispose: (storage) => storage.dispose(),
+  );
+  await getIt.isReady<LocalStorage>();
 
   getIt.registerSingleton<ErrorService>(ErrorService());
 
