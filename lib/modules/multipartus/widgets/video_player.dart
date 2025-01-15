@@ -14,7 +14,7 @@ import 'package:media_kit_video/media_kit_video.dart';
 import 'package:signals/signals_flutter.dart';
 
 String _getVideoUrl(String baseUrl, String ttid) {
-  return '$baseUrl/impartus/video/$ttid/m3u8';
+  return '$baseUrl/impartus/ttid/$ttid/m3u8';
 }
 
 class VideoPlayer extends StatefulWidget {
