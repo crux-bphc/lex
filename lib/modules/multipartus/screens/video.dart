@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:lex/modules/multipartus/widgets/video_player.dart';
 import 'package:lex/modules/multipartus/widgets/video_title.dart';
+import 'package:lex/providers/local_storage/local_storage.dart';
 
 class MultipartusVideoPage extends StatelessWidget {
   const MultipartusVideoPage({
@@ -8,11 +10,30 @@ class MultipartusVideoPage extends StatelessWidget {
     required this.ttid,
     required this.subjectCode,
     required this.department,
-    int? startTimestamp,
-  }) : startTimestamp = startTimestamp ?? 0;
+    this.startTimestamp,
+  });
 
   final String subjectCode, department, ttid;
-  final int startTimestamp;
+  final int? startTimestamp;
+
+  Duration? _getLastWatchedTimestamp() {
+    final d = GetIt.instance<LocalStorage>()
+        .watchHistory
+        .read(int.parse(ttid))
+        ?.duration;
+
+    if (d == null) return null;
+
+    return Duration(seconds: d);
+  }
+
+  void _updateWatchHistory(Duration position, double fraction) {
+    GetIt.instance<LocalStorage>().watchHistory.update(
+          int.parse(ttid),
+          position.inSeconds,
+          fraction,
+        );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +50,15 @@ class MultipartusVideoPage extends StatelessWidget {
                     children: [
                       VideoPlayer(
                         ttid: ttid,
-                        startTimestamp: startTimestamp,
+                        // start with timestamp from link if available or else
+                        // get from watch history or else start from beginning
+                        startTimestamp: (startTimestamp != null
+                                ? Duration(seconds: startTimestamp!)
+                                : _getLastWatchedTimestamp()) ??
+                            Duration.zero,
+                        // update every two seconds
+                        onPositionChanged: _updateWatchHistory,
+                        positionUpdateInterval: Duration(seconds: 2),
                       ),
                       Padding(
                         padding: const EdgeInsets.only(top: 16),

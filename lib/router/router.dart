@@ -142,7 +142,7 @@ final router = GoRouter(
                               department: department,
                               subjectCode: code,
                               ttid: state.pathParameters['ttid']!,
-                              startTimestamp: int.tryParse(timestamp ?? '0'),
+                              startTimestamp: int.tryParse(timestamp ?? ''),
                             );
                           },
                         ),
