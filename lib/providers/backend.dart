@@ -67,7 +67,7 @@ class LexBackend {
       );
     } on DioException catch (e) {
       _handleDioException(e);
-      return null;
+      return e.response;
     }
   }
 
