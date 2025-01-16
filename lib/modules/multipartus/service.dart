@@ -138,13 +138,43 @@ class MultipartusService {
       '/impartus/user/subjects',
       data: {'department': department, 'code': code},
     );
-    pinnedSubjects.refresh();
+
+    final subjectId = (department: department, code: code);
+    if (subjects.value.containsKey(subjectId)) {
+      final currentSubjects = Map<SubjectId, Subject>.from(subjects.value);
+      final subject = currentSubjects[subjectId]!;
+      currentSubjects[subjectId] = Subject(
+        name: subject.name,
+        department: subject.department,
+        code: subject.code,
+        isPinned: true,
+      );
+      subjects.value = currentSubjects;
+    }
+
+    await pinnedSubjects.refresh();
   }
 
   Future<void> unpinSubject(String department, String code) async {
-    await _backend.delete('/impartus/user/subjects',
-        data: {'department': department, 'code': code});
-    pinnedSubjects.refresh();
+    await _backend.delete(
+      '/impartus/user/subjects',
+      data: {'department': department, 'code': code},
+    );
+
+    final subjectId = (department: department, code: code);
+    if (subjects.value.containsKey(subjectId)) {
+      final currentSubjects = Map<SubjectId, Subject>.from(subjects.value);
+      final subject = currentSubjects[subjectId]!;
+      currentSubjects[subjectId] = Subject(
+        name: subject.name,
+        department: subject.department,
+        code: subject.code,
+        isPinned: false,
+      );
+      subjects.value = currentSubjects;
+    }
+
+    await pinnedSubjects.refresh();
   }
 
   Future<void> registerUser(String impartusPassword) async {
@@ -176,9 +206,26 @@ class MultipartusService {
     );
     if (r?.data is! List) return [];
 
-    final subs = (r!.data as List).map((e) => Subject.fromJson(e)).toList();
+    final pinnedSubjectsData = await pinnedSubjects.future;
+    final subs = (r!.data as List).map((e) {
+      final subject = Subject.fromJson(e);
+      final subjectId = (
+        department: subject.departmentUrl,
+        code: subject.code,
+      );
 
-    subjects.addAll(_subjectsToIdMap(subs));
+      final isPinned = pinnedSubjectsData.containsKey(subjectId);
+      return Subject(
+        name: subject.name,
+        department: subject.department,
+        code: subject.code,
+        isPinned: isPinned,
+      );
+    }).toList();
+
+    final newSubjects = Map<SubjectId, Subject>.from(subjects.value);
+    newSubjects.addAll(_subjectsToIdMap(subs));
+    subjects.value = newSubjects;
 
     return subs;
   }

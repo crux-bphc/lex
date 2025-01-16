@@ -23,6 +23,8 @@ class Subject with _$Subject {
 
   String get departmentUrl => department.replaceAll('/', ',');
 
+  SubjectId get subjectId => (department: department, code: code);
+
   factory Subject.fromJson(Map<String, Object?> json) =>
       _$SubjectFromJson(json);
 }

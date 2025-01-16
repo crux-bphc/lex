@@ -190,16 +190,24 @@ class _SearchBarState extends State<_SearchBar> {
     return SearchBar(
       autoFocus: true,
       hintText: "Search for any course",
+      controller: _controller,
       onChanged: (t) => widget.onUpdate(t.trim()),
       onSubmitted: (t) => widget.onSubmit(t.trim()),
       focusNode: _focusNode,
       trailing: [
         IconButton(
           icon: Icon(
-            LucideIcons.search,
+            _controller.text.isNotEmpty ? LucideIcons.x : LucideIcons.search,
             size: 20,
           ),
-          onPressed: () => widget.onSubmit(_controller.text),
+          onPressed: () {
+            if (_controller.text.isNotEmpty) {
+              _controller.clear();
+              widget.onUpdate('');
+            } else {
+              widget.onSubmit(_controller.text);
+            }
+          },
           visualDensity: VisualDensity.compact,
         ),
       ],
