@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:lex/modules/multipartus/models/subject.dart';
+import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/grid_button.dart';
+import 'package:signals/signals_flutter.dart';
 
 class SubjectTile extends StatelessWidget {
   const SubjectTile({
@@ -30,23 +33,35 @@ class SubjectTile extends StatelessWidget {
                   color: Theme.of(context).colorScheme.primary,
                 ),
               ),
-              // const Spacer(),
               const Spacer(),
-              // IconButton(
-              //   onPressed: () {
-              //     if (subject.isPinned) {
-              //       // GetIt.instance<MultipartusService>()
-              //       // .unpinSubject(subject.);
-              //     } else {
-              //       // GetIt.instance<MultipartusService>().pinSubject(subject.id);
-              //     }
-              //   },
-              //   icon: Icon(
-              //     subject.isPinned ? Icons.favorite : Icons.favorite_border,
-              //     size: 22,
-              //     color: Theme.of(context).colorScheme.primary,
-              //   ),
-              // ),
+              Watch(
+                (context) {
+                  final service = GetIt.instance<MultipartusService>();
+                  final isPinned =
+                      service.subjects.value[subject.subjectId]?.isPinned ??
+                          false;
+                  return IconButton(
+                    onPressed: () async {
+                      if (isPinned) {
+                        await service.unpinSubject(
+                          subject.department,
+                          subject.code,
+                        );
+                      } else {
+                        await service.pinSubject(
+                          subject.department,
+                          subject.code,
+                        );
+                      }
+                    },
+                    icon: Icon(
+                      isPinned ? Icons.favorite : Icons.favorite_border,
+                      size: 22,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  );
+                },
+              ),
             ],
           ),
           Expanded(
