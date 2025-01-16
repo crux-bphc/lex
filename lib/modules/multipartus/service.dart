@@ -16,9 +16,11 @@ class MultipartusService {
   late final FutureSignal<Map<SubjectId, Subject>> pinnedSubjects;
   late final FutureSignal<Map<int, ImpartusSessionData>> _impartusSessionMap;
 
-  late final _lectureMap = DeferredValueMap<int, LectureVideo>();
+  /// ttid: LectureVideo
+  late final _lectureMap = DeferredValueMap<String, LectureVideo>();
 
-  final _videoTtidMap = <int, int>{};
+  // videoId: ttid
+  final _videoTtidMap = <String, String>{};
 
   MultipartusService(this._backend) {
     pinnedSubjects = computedAsync(
@@ -167,7 +169,7 @@ class MultipartusService {
   Future<LectureVideo> fetchLectureVideo({
     required String department,
     required String code,
-    required int ttid,
+    required String ttid,
   }) {
     return _lectureMap.get(
       ttid,
@@ -189,12 +191,11 @@ class MultipartusService {
     return subs;
   }
 
-  Future<int> ttidFromVideoId(int videoId) async {
-    if (_videoTtidMap.containsKey(videoId)) return _videoTtidMap[videoId]!;
-
-    final r = await _backend.get('/impartus/video/$videoId/info');
-    r?.data;
-    return 1;
+  String? ttidFromVideoId(String videoId) {
+    return _videoTtidMap[videoId];
+    // final r = await _backend.get('/impartus/video/$videoId/info');
+    // r?.data;
+    // return 1;
   }
 }
 
@@ -203,8 +204,8 @@ class LectureVideo {
   final String title;
   final int lectureNo;
   final DateTime createdAt;
-  final int ttid;
-  final int videoId;
+  final String ttid;
+  final String videoId;
   final ImpartusSessionData? session;
 
   LectureVideo.fromData({
@@ -215,8 +216,8 @@ class LectureVideo {
         title = video.topic,
         lectureNo = video.lectureNo,
         createdAt = video.createdAt,
-        ttid = video.ttid,
-        videoId = video.videoId;
+        ttid = video.ttid.toString(),
+        videoId = video.videoId.toString();
 }
 
 typedef ImpartusSessionData = ({int year, int sem});

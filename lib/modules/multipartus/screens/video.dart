@@ -27,18 +27,21 @@ class MultipartusVideoPage extends StatelessWidget {
           children: [
             Expanded(
               flex: 5,
-              child: FutureBuilder(
-                future: GetIt.instance<MultipartusService>()
-                    .ttidFromVideoId(int.parse(videoId)),
-                builder: (context, snapshot) => snapshot.hasData
-                    ? _LeftSide(
-                        ttid: snapshot.data!.toString(),
-                        subjectCode: subjectCode,
-                        department: department,
-                        videoId: videoId,
-                        startTimestamp: startTimestamp,
-                      )
-                    : Container(),
+              child: Builder(
+                builder: (context) {
+                  final ttid = GetIt.instance<MultipartusService>()
+                      .ttidFromVideoId(videoId);
+                  return ttid != null
+                      ? _LeftSide(
+                          ttid: ttid,
+                          videoId: videoId,
+                          subjectCode: subjectCode,
+                          department: department,
+                          startTimestamp: startTimestamp,
+                        )
+                      : Text("I'm sorry man it just doesn't work."
+                          " It will soon though.");
+                },
               ),
             ),
             const SizedBox(width: 20),
