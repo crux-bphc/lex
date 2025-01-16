@@ -7,6 +7,7 @@ part 'impartus_video.g.dart';
 class ImpartusVideoData with _$ImpartusVideoData {
   const factory ImpartusVideoData({
     required int ttid,
+    required int videoId,
     required String topic,
     @JsonKey(name: "seqNo") required int lectureNo,
     @JsonKey(fromJson: _dateTimeFromJson, name: "startTime")

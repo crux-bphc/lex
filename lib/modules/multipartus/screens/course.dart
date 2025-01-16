@@ -114,7 +114,7 @@ class _ContentState extends State<_Content> {
               videos: data.videos,
               onPressed: (video) => context.go(
                 '/multipartus/courses/${widget.subject.departmentUrl}'
-                '/${widget.subject.code}/watch/${video.ttid}',
+                '/${widget.subject.code}/watch/${video.videoId}',
               ),
             );
           },

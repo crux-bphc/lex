@@ -7,33 +7,14 @@ import 'package:lex/providers/local_storage/local_storage.dart';
 class MultipartusVideoPage extends StatelessWidget {
   const MultipartusVideoPage({
     super.key,
-    required this.ttid,
+    required this.videoId,
     required this.subjectCode,
     required this.department,
     this.startTimestamp,
   });
 
-  final String subjectCode, department, ttid;
+  final String subjectCode, department, videoId;
   final int? startTimestamp;
-
-  Duration? _getLastWatchedTimestamp() {
-    final d = GetIt.instance<LocalStorage>()
-        .watchHistory
-        .read(int.parse(ttid))
-        ?.duration;
-
-    if (d == null) return null;
-
-    return Duration(seconds: d);
-  }
-
-  void _updateWatchHistory(Duration position, double fraction) {
-    GetIt.instance<LocalStorage>().watchHistory.update(
-          int.parse(ttid),
-          position.inSeconds,
-          fraction,
-        );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,33 +25,18 @@ class MultipartusVideoPage extends StatelessWidget {
           children: [
             Expanded(
               flex: 5,
-              child: CustomScrollView(
-                slivers: [
-                  SliverList.list(
-                    children: [
-                      VideoPlayer(
-                        ttid: ttid,
-                        // start with timestamp from link if available or else
-                        // get from watch history or else start from beginning
-                        startTimestamp: (startTimestamp != null
-                                ? Duration(seconds: startTimestamp!)
-                                : _getLastWatchedTimestamp()) ??
-                            Duration.zero,
-                        // update every two seconds
-                        onPositionChanged: _updateWatchHistory,
-                        positionUpdateInterval: Duration(seconds: 2),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 16),
-                        child: VideoTitle(
-                          department: department,
-                          subjectCode: subjectCode,
-                          ttid: ttid,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+              child: FutureBuilder(
+                future: GetIt.instance<MultipartusService>()
+                    .ttidFromVideoId(int.parse(videoId)),
+                builder: (context, snapshot) => snapshot.hasData
+                    ? _LeftSide(
+                        ttid: snapshot.data!.toString(),
+                        subjectCode: subjectCode,
+                        department: department,
+                        videoId: videoId,
+                        startTimestamp: startTimestamp,
+                      )
+                    : Container(),
               ),
             ),
             const SizedBox(width: 20),
@@ -98,6 +64,71 @@ class MultipartusVideoPage extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _LeftSide extends StatelessWidget {
+  const _LeftSide({
+    required this.ttid,
+    required this.subjectCode,
+    required this.department,
+    required this.videoId,
+    required this.startTimestamp,
+  });
+
+  final String ttid;
+  final String subjectCode, department, videoId;
+  final int? startTimestamp;
+
+  Duration? _getLastWatchedTimestamp() {
+    final d = GetIt.instance<LocalStorage>()
+        .watchHistory
+        .read(int.parse(videoId))
+        ?.duration;
+
+    if (d == null) return null;
+
+    return Duration(seconds: d);
+  }
+
+  void _updateWatchHistory(Duration position, double fraction) {
+    GetIt.instance<LocalStorage>().watchHistory.update(
+          int.parse(videoId),
+          position.inSeconds,
+          fraction,
+        );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomScrollView(
+      slivers: [
+        SliverList.list(
+          children: [
+            VideoPlayer(
+              ttid: ttid,
+              // start with timestamp from link if available or else
+              // get from watch history or else start from beginning
+              startTimestamp: (startTimestamp != null
+                      ? Duration(seconds: startTimestamp!)
+                      : _getLastWatchedTimestamp()) ??
+                  Duration.zero,
+              // update every two seconds
+              onPositionChanged: _updateWatchHistory,
+              positionUpdateInterval: Duration(seconds: 2),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: VideoTitle(
+                department: department,
+                subjectCode: subjectCode,
+                ttid: ttid,
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

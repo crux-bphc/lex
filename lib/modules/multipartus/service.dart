@@ -18,6 +18,8 @@ class MultipartusService {
 
   late final _lectureMap = DeferredValueMap<int, LectureVideo>();
 
+  final _videoTtidMap = <int, int>{};
+
   MultipartusService(this._backend) {
     pinnedSubjects = computedAsync(
       () async {
@@ -119,6 +121,8 @@ class MultipartusService {
             profMap.putIfAbsent(prof, () => {}).add(v.session);
 
             _lectureMap.set(v.ttid, v);
+
+            _videoTtidMap[v.videoId] = v.ttid;
           }
 
           return (
@@ -184,6 +188,14 @@ class MultipartusService {
 
     return subs;
   }
+
+  Future<int> ttidFromVideoId(int videoId) async {
+    if (_videoTtidMap.containsKey(videoId)) return _videoTtidMap[videoId]!;
+
+    final r = await _backend.get('/impartus/video/$videoId/info');
+    r?.data;
+    return 1;
+  }
 }
 
 class LectureVideo {
@@ -192,6 +204,7 @@ class LectureVideo {
   final int lectureNo;
   final DateTime createdAt;
   final int ttid;
+  final int videoId;
   final ImpartusSessionData? session;
 
   LectureVideo.fromData({
@@ -202,7 +215,8 @@ class LectureVideo {
         title = video.topic,
         lectureNo = video.lectureNo,
         createdAt = video.createdAt,
-        ttid = video.ttid;
+        ttid = video.ttid,
+        videoId = video.videoId;
 }
 
 typedef ImpartusSessionData = ({int year, int sem});
