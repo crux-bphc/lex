@@ -121,9 +121,10 @@ class _ContentState extends State<_Content> {
         );
   }
 
-  @override
-  void dispose() {
-    lectures.dispose();
-    super.dispose();
-  }
+  // commenting this out allows lectures to be cached
+  // @override
+  // void dispose() {
+  //   lectures.dispose();
+  //   super.dispose();
+  // }
 }
