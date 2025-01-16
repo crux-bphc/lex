@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/video_player.dart';
 import 'package:lex/modules/multipartus/widgets/video_title.dart';
 import 'package:lex/providers/local_storage/local_storage.dart';
+import 'package:lex/widgets/floating_sidebar.dart';
 
 class MultipartusVideoPage extends StatelessWidget {
   const MultipartusVideoPage({
@@ -42,13 +44,7 @@ class MultipartusVideoPage extends StatelessWidget {
             const SizedBox(width: 20),
             Expanded(
               flex: 2,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                  borderRadius: BorderRadius.circular(10),
-                ),
+              child: FloatingSidebar(
                 child: Align(
                   alignment: AlignmentDirectional.topStart,
                   child: Text(
