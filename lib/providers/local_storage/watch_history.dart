@@ -1,10 +1,12 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:signals/signals.dart';
+
+const _key = 'watch_history';
 
 class WatchHistory {
-  final _history = <int, WatchHistoryItem>{};
+  final _history = <int, WatchHistoryItem>{}.toSignal();
 
   final SharedPreferences _prefs;
 
@@ -15,7 +17,7 @@ class WatchHistory {
   }
 
   void _load() {
-    final content = _prefs.getString('watch_history');
+    final content = _prefs.getString(_key);
     if (content == null) return;
 
     final map = jsonDecode(content);
@@ -26,7 +28,13 @@ class WatchHistory {
       map.map(
         (key, value) => MapEntry(
           int.parse(key),
-          WatchHistoryItem(value['t'] ?? 0, value['d'] ?? 0, value['f'] ?? 0),
+          WatchHistoryItem(
+            value['t'] ?? 0,
+            value['p'] ?? 0,
+            value['f'] ?? 0,
+            value['d'] ?? '',
+            value['c'] ?? '',
+          ),
         ),
       ),
     );
@@ -38,37 +46,68 @@ class WatchHistory {
         key.toString(),
         {
           't': value.timestamp,
-          'd': value.duration,
-          'f': value.fraction,
+          'p': value.position,
+          // reduce precision to 2 decimal digits (eg 0.25)
+          'f': double.parse(value.fraction.toStringAsFixed(2)),
+          'd': value.departmentUrl,
+          'c': value.code,
         },
       ),
     );
 
-    _prefs.setString('watch_history', jsonEncode(map));
+    _prefs.setString(_key, jsonEncode(map));
   }
 
-  void update(int videoId, int duration, double fraction,
-      {DateTime? timestamp}) {
+  void update({
+    required int videoId,
+    required int position,
+    required double fraction,
+    required String departmentUrl,
+    required String code,
+    DateTime? timestamp,
+  }) {
     timestamp ??= DateTime.now();
-    _history[videoId] =
-        WatchHistoryItem.fromDateTime(timestamp, duration, fraction);
+    _history[videoId] = WatchHistoryItem.fromDateTime(
+        timestamp, position, fraction, departmentUrl, code);
     _save();
   }
 
+  // subscribes to
   WatchHistoryItem? read(int videoId) {
     return _history[videoId];
+  }
+
+  List<(int, WatchHistoryItem)> readAll() {
+    return _history.entries
+        .map((e) => (e.key, e.value))
+        // remove videos that are barely watched or fully watched
+        .where((e) => 0.029 < e.$2.fraction && e.$2.fraction < 0.84)
+        .toList()
+      ..sort(
+        // sort by most recent
+        (a, b) => -a.$2.timestamp.compareTo(b.$2.timestamp),
+      );
   }
 }
 
 class WatchHistoryItem {
   final int timestamp;
-  final int duration;
+  final int position;
   final double fraction;
+  final String departmentUrl, code;
 
-  WatchHistoryItem(this.timestamp, this.duration, this.fraction);
+  WatchHistoryItem(
+    this.timestamp,
+    this.position,
+    this.fraction,
+    this.departmentUrl,
+    this.code,
+  );
   WatchHistoryItem.fromDateTime(
     DateTime timestamp,
-    this.duration,
+    this.position,
     this.fraction,
+    this.departmentUrl,
+    this.code,
   ) : timestamp = timestamp.millisecondsSinceEpoch ~/ 1000;
 }

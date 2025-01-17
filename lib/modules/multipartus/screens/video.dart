@@ -39,8 +39,10 @@ class MultipartusVideoPage extends StatelessWidget {
                           department: department,
                           startTimestamp: startTimestamp,
                         )
-                      : Text("I'm sorry man it just doesn't work."
-                          " It will soon though.");
+                      : Text(
+                          "I'm sorry man it just doesn't work."
+                          " It will soon though.",
+                        );
                 },
               ),
             ),
@@ -84,7 +86,7 @@ class _LeftSide extends StatelessWidget {
     final d = GetIt.instance<LocalStorage>()
         .watchHistory
         .read(int.parse(videoId))
-        ?.duration;
+        ?.position;
 
     if (d == null) return null;
 
@@ -93,9 +95,11 @@ class _LeftSide extends StatelessWidget {
 
   void _updateWatchHistory(Duration position, double fraction) {
     GetIt.instance<LocalStorage>().watchHistory.update(
-          int.parse(videoId),
-          position.inSeconds,
-          fraction,
+          videoId: int.parse(videoId),
+          position: position.inSeconds,
+          fraction: fraction,
+          code: subjectCode,
+          departmentUrl: department.replaceAll('/', ','),
         );
   }
 
@@ -122,7 +126,7 @@ class _LeftSide extends StatelessWidget {
               child: VideoTitle(
                 department: department,
                 subjectCode: subjectCode,
-                ttid: ttid,
+                videoId: videoId,
               ),
             ),
           ],
