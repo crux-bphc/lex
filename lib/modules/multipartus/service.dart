@@ -16,11 +16,8 @@ class MultipartusService {
   late final FutureSignal<Map<SubjectId, Subject>> pinnedSubjects;
   late final FutureSignal<Map<int, ImpartusSessionData>> _impartusSessionMap;
 
-  /// ttid: LectureVideo
+  /// videoId: LectureVideo
   late final _lectureMap = DeferredValueMap<String, LectureVideo>();
-
-  // videoId: ttid
-  final _videoTtidMap = <String, String>{};
 
   MultipartusService(this._backend) {
     pinnedSubjects = computedAsync(
@@ -122,9 +119,7 @@ class MultipartusService {
             final prof = v.professor;
             profMap.putIfAbsent(prof, () => {}).add(v.session);
 
-            _lectureMap.set(v.ttid, v);
-
-            _videoTtidMap[v.videoId] = v.ttid;
+            _lectureMap.set(v.videoId, v);
           }
 
           return (
@@ -166,13 +161,17 @@ class MultipartusService {
     await isRegistered.refresh();
   }
 
+  // LectureVideo? maybeFetchLectureVideo({required String }) {
+  //   return _lectureMap.maybeGet(ttid);
+  // }
+
   Future<LectureVideo> fetchLectureVideo({
     required String department,
     required String code,
-    required String ttid,
+    required String videoId,
   }) {
     return _lectureMap.get(
-      ttid,
+      videoId,
       () => lectures((department: department, code: code)).future,
     );
   }
@@ -192,7 +191,7 @@ class MultipartusService {
   }
 
   String? ttidFromVideoId(String videoId) {
-    return _videoTtidMap[videoId];
+    return _lectureMap.maybeGet(videoId)?.ttid;
     // final r = await _backend.get('/impartus/video/$videoId/info');
     // r?.data;
     // return 1;
