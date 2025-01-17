@@ -1,10 +1,10 @@
 import 'package:get_it/get_it.dart';
 import 'package:lex/modules/cms/services/client.dart';
-import 'package:lex/providers/preferences.dart';
+import 'package:lex/providers/local_storage/local_storage.dart';
 import 'package:lex/utils/logger.dart';
 import 'package:signals/signals.dart';
 
-final _prefs = GetIt.instance<Preferences>();
+final _prefs = GetIt.instance<LocalStorage>().preferences;
 
 final cmsClient = computed(() => CMSClient(_prefs.cmsToken.value));
 

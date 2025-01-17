@@ -114,16 +114,17 @@ class _ContentState extends State<_Content> {
               videos: data.videos,
               onPressed: (video) => context.go(
                 '/multipartus/courses/${widget.subject.departmentUrl}'
-                '/${widget.subject.code}/watch/${video.ttid}',
+                '/${widget.subject.code}/watch/${video.videoId}',
               ),
             );
           },
         );
   }
 
-  @override
-  void dispose() {
-    lectures.dispose();
-    super.dispose();
-  }
+  // commenting this out allows lectures to be cached
+  // @override
+  // void dispose() {
+  //   lectures.dispose();
+  //   super.dispose();
+  // }
 }

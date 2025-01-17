@@ -37,7 +37,7 @@ class _TitleState extends State<VideoTitle> {
       future: GetIt.instance<MultipartusService>().fetchLectureVideo(
         department: widget.department,
         code: widget.subjectCode,
-        ttid: int.parse(widget.ttid),
+        ttid: widget.ttid,
       ),
       builder: (context, snapshot) {
         final data = snapshot.data;

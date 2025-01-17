@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
-import 'package:lex/providers/preferences.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
+import 'package:get_it/get_it.dart';
+import 'package:lex/providers/local_storage/local_storage.dart';
 import 'package:signals/signals_flutter.dart';
 
 class ThemeSwitcher extends StatelessWidget {
@@ -11,7 +11,7 @@ class ThemeSwitcher extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final prefs = GetIt.instance<Preferences>();
+    final prefs = GetIt.instance<LocalStorage>().preferences;
     return IconButton(
       onPressed: prefs.toggleTheme,
       icon: Watch(
