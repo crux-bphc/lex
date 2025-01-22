@@ -4,9 +4,8 @@ import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/video_player.dart';
 import 'package:lex/modules/multipartus/widgets/video_title.dart';
 import 'package:lex/providers/local_storage/local_storage.dart';
-import 'package:lex/widgets/delayed_progress_indicator.dart';
 
-class MultipartusVideoPage extends StatelessWidget {
+class MultipartusVideoPage extends StatefulWidget {
   const MultipartusVideoPage({
     super.key,
     required this.videoId,
@@ -19,6 +18,19 @@ class MultipartusVideoPage extends StatelessWidget {
   final int? startTimestamp;
 
   @override
+  State<MultipartusVideoPage> createState() => _MultipartusVideoPageState();
+}
+
+class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
+  @override
+  void initState() {
+    super.initState();
+
+    GetIt.instance<MultipartusService>()
+        .lectures((code: widget.subjectCode, department: widget.department));
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
@@ -29,20 +41,17 @@ class MultipartusVideoPage extends StatelessWidget {
               flex: 5,
               child: FutureBuilder(
                 future: GetIt.instance<MultipartusService>()
-                    .ttidFromVideoId(videoId),
+                    .ttidFromVideoId(widget.videoId),
                 builder: (context, snapshot) {
                   final ttid = snapshot.data;
 
-                  return snapshot.connectionState == ConnectionState.done &&
-                          ttid != null
-                      ? _LeftSide(
-                          ttid: ttid,
-                          videoId: videoId,
-                          subjectCode: subjectCode,
-                          department: department,
-                          startTimestamp: startTimestamp,
-                        )
-                      : Center(child: DelayedProgressIndicator());
+                  return _LeftSide(
+                    ttid: ttid,
+                    videoId: widget.videoId,
+                    subjectCode: widget.subjectCode,
+                    department: widget.department,
+                    startTimestamp: widget.startTimestamp,
+                  );
                 },
               ),
             ),
@@ -68,31 +77,34 @@ class MultipartusVideoPage extends StatelessWidget {
 }
 
 class _LeftSide extends StatelessWidget {
-  const _LeftSide({
-    required this.ttid,
+  _LeftSide({
     required this.subjectCode,
     required this.department,
     required this.videoId,
     required this.startTimestamp,
+    this.ttid,
   });
 
-  final String ttid;
   final String subjectCode, department, videoId;
   final int? startTimestamp;
+  final String? ttid;
+
+  late final _lastWatched =
+      GetIt.instance<LocalStorage>().watchHistory.read(int.parse(videoId));
 
   Duration? _getLastWatchedTimestamp() {
-    final d = GetIt.instance<LocalStorage>()
-        .watchHistory
-        .read(int.parse(videoId))
-        ?.position;
+    final d = _lastWatched?.position;
 
     if (d == null) return null;
 
     return Duration(seconds: d);
   }
 
+  late final fetchedTtid = ttid ?? _lastWatched?.ttid;
+
   void _updateWatchHistory(Duration position, double fraction) {
     GetIt.instance<LocalStorage>().watchHistory.update(
+          ttid: fetchedTtid!,
           videoId: int.parse(videoId),
           position: position.inSeconds,
           fraction: fraction,
@@ -107,18 +119,20 @@ class _LeftSide extends StatelessWidget {
       slivers: [
         SliverList.list(
           children: [
-            VideoPlayer(
-              ttid: ttid,
-              // start with timestamp from link if available or else
-              // get from watch history or else start from beginning
-              startTimestamp: (startTimestamp != null
-                      ? Duration(seconds: startTimestamp!)
-                      : _getLastWatchedTimestamp()) ??
-                  Duration.zero,
-              // update every two seconds
-              onPositionChanged: _updateWatchHistory,
-              positionUpdateInterval: Duration(seconds: 2),
-            ),
+            fetchedTtid != null
+                ? VideoPlayer(
+                    ttid: fetchedTtid!,
+                    // start with timestamp from link if available or else
+                    // get from watch history or else start from beginning
+                    startTimestamp: (startTimestamp != null
+                            ? Duration(seconds: startTimestamp!)
+                            : _getLastWatchedTimestamp()) ??
+                        Duration.zero,
+                    // update every two seconds
+                    onPositionChanged: _updateWatchHistory,
+                    positionUpdateInterval: Duration(seconds: 2),
+                  )
+                : const SizedBox(),
             Padding(
               padding: const EdgeInsets.only(top: 16),
               child: VideoTitle(

@@ -208,7 +208,7 @@ class MultipartusService {
     if (ttid != null) return ttid;
 
     final data = await getVideoInfo(videoId);
-    return data?['ttid'].toString();
+    return data?['ttid'];
   }
 
   Future<Map?> getVideoInfo(String videoId) async {

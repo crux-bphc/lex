@@ -85,7 +85,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
     final accessToken = Uri.encodeQueryComponent(
       GetIt.instance<AuthProvider>().currentUser.value!.accessToken!,
     );
-    late final baseUrl = client.options.baseUrl;
+    final baseUrl = client.options.baseUrl;
 
     await player.open(
       Media(

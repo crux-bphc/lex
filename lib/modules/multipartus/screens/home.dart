@@ -16,9 +16,14 @@ import 'package:signals/signals_flutter.dart';
 
 const _loadingWidget = Center(child: DelayedProgressIndicator());
 
-class MultipartusHomePage extends StatelessWidget {
+class MultipartusHomePage extends StatefulWidget {
   const MultipartusHomePage({super.key});
 
+  @override
+  State<MultipartusHomePage> createState() => _MultipartusHomePageState();
+}
+
+class _MultipartusHomePageState extends State<MultipartusHomePage> {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
@@ -34,6 +39,18 @@ class MultipartusHomePage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  @override
+  void deactivate() {
+    debugPrint("deactivated");
+    super.deactivate();
+  }
+
+  @override
+  void dispose() {
+    debugPrint("disposed");
+    super.dispose();
   }
 }
 
@@ -246,109 +263,118 @@ class _SubjectGridState extends State<_SubjectGrid> {
   }
 }
 
-class _ContinueWatching extends StatelessWidget {
-  Future<List<Map?>> _getVideoInfos(List<int> videoIds) async {
-    final service = GetIt.instance<MultipartusService>();
-    final futures = videoIds.map((id) => service.getVideoInfo(id.toString()));
-    return Future.wait(futures);
+class _ContinueWatching extends StatefulWidget {
+  @override
+  State<_ContinueWatching> createState() => _ContinueWatchingState();
+}
+
+class _ContinueWatchingState extends State<_ContinueWatching> {
+  _getItems() {
+    return GetIt.instance<LocalStorage>().watchHistory.readAll();
   }
+
+  late var items = _getItems();
 
   @override
   Widget build(BuildContext context) {
-    return Watch(
-      (context) {
-        final items = GetIt.instance<LocalStorage>().watchHistory.readAll();
+    if (items.isEmpty) return Container();
 
-        if (items.isEmpty) return Container();
-
-        return Container(
-          width: 340,
-          padding: EdgeInsets.only(right: 30),
-          child: FloatingSidebar(
-            padding: EdgeInsets.all(14),
-            child: Column(
+    return Container(
+      width: 340,
+      padding: EdgeInsets.only(right: 30),
+      child: FloatingSidebar(
+        padding: EdgeInsets.all(14),
+        child: Column(
+          children: [
+            Row(
               children: [
-                Text(
-                  "CONTINUE WATCHING",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 10),
                 Expanded(
-                  child: FutureBuilder(
-                    future: _getVideoInfos(items.map((e) => e.$1).toList()),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState != ConnectionState.done) {
-                        return _loadingWidget;
-                      }
-
-                      final videoItems = snapshot.data as List<Map?>;
-
-                      return ListView.builder(
-                        itemBuilder: (context, index) {
-                          final code = items[index].$2.code;
-                          final departmentUrl = items[index].$2.departmentUrl;
-                          final department = departmentUrl.replaceAll(',', '/');
-                          final videoId = items[index].$1;
-
-                          final ttid = videoItems[index]?["ttid"];
-
-                          return RawMaterialButton(
-                            onPressed: () {
-                              context.go(
-                                '/multipartus/courses/$departmentUrl/$code/watch/$videoId',
-                              );
-                            },
-                            elevation: 0,
-                            visualDensity: VisualDensity.compact,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 16,
-                            ),
-                            child: Row(
-                              children: [
-                                _MiniVideoThumbnail(
-                                  ttid: (ttid is int) ? ttid.toString() : null,
-                                  positionFraction: items[index].$2.fraction,
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        videoItems[index]?["lecturetopic"] ??
-                                            "Unknown title",
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
-                                        ),
-                                      ),
-                                      Text(
-                                        "$department $code",
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                        itemCount: items.length,
-                      ).animate().fadeIn();
-                    },
+                  child: Center(
+                    child: Text(
+                      "CONTINUE WATCHING",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
+                ),
+                // change this horrible shit
+                IconButton(
+                  onPressed: () => setState(() => items = _getItems()),
+                  icon: Icon(LucideIcons.refresh_cw),
+                  iconSize: 20,
                 ),
               ],
             ),
-          ),
-        );
-      },
+            SizedBox(height: 10),
+            Expanded(
+              child: ListView.builder(
+                itemBuilder: (context, index) {
+                  final code = items[index].$2.code;
+                  final departmentUrl = items[index].$2.departmentUrl;
+                  final department = departmentUrl.replaceAll(',', '/');
+                  final videoId = items[index].$1;
+
+                  debugPrint("build");
+                  return RawMaterialButton(
+                    onPressed: () {
+                      context.go(
+                        '/multipartus/courses/$departmentUrl/$code/watch/$videoId',
+                      );
+                    },
+                    elevation: 0,
+                    visualDensity: VisualDensity.compact,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
+                    child: FutureBuilder(
+                      future: GetIt.instance<MultipartusService>()
+                          .getVideoInfo(videoId.toString()),
+                      builder: (context, snapshot) {
+                        final ttid = snapshot.data?["ttid"];
+                        final title = snapshot.data?["lecturetopic"];
+                        final isLoading =
+                            snapshot.connectionState != ConnectionState.done;
+
+                        return Row(
+                          children: [
+                            _MiniVideoThumbnail(
+                              ttid: (ttid is int) ? ttid.toString() : null,
+                              positionFraction: items[index].$2.fraction,
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    isLoading ? "" : (title ?? "Unknown title"),
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                    ),
+                                  ),
+                                  Text(
+                                    "$department $code",
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  );
+                },
+                itemCount: items.length,
+              ).animate().fadeIn(),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

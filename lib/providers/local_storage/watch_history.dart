@@ -34,6 +34,7 @@ class WatchHistory {
             value['f'] ?? 0,
             value['d'] ?? '',
             value['c'] ?? '',
+            value['v'] ?? '', // ttid
           ),
         ),
       ),
@@ -51,6 +52,7 @@ class WatchHistory {
           'f': double.parse(value.fraction.toStringAsFixed(2)),
           'd': value.departmentUrl,
           'c': value.code,
+          'v': value.ttid,
         },
       ),
     );
@@ -64,6 +66,7 @@ class WatchHistory {
     required double fraction,
     required String departmentUrl,
     required String code,
+    required String ttid,
     DateTime? timestamp,
   }) {
     timestamp ??= DateTime.now();
@@ -73,6 +76,7 @@ class WatchHistory {
       fraction,
       departmentUrl,
       code,
+      ttid,
     );
     _save();
   }
@@ -101,6 +105,7 @@ class WatchHistoryItem {
   final int position;
   final double fraction;
   final String departmentUrl, code;
+  final String ttid;
 
   WatchHistoryItem(
     this.timestamp,
@@ -108,6 +113,7 @@ class WatchHistoryItem {
     this.fraction,
     this.departmentUrl,
     this.code,
+    this.ttid,
   );
   WatchHistoryItem.fromDateTime(
     DateTime timestamp,
@@ -115,5 +121,6 @@ class WatchHistoryItem {
     this.fraction,
     this.departmentUrl,
     this.code,
+    this.ttid,
   ) : timestamp = timestamp.millisecondsSinceEpoch ~/ 1000;
 }

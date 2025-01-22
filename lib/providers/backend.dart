@@ -132,14 +132,16 @@ class LexBackend {
         service.reportError("There was a problem connecting to our servers");
         break;
 
-      case DioExceptionType.badResponse:
-        service.reportError("There was a problem with the request");
-        break;
+      // case DioExceptionType.badResponse:
+      //   service.reportError("There was a problem with the request");
+      //   break;
 
       default:
-        service.reportError(
-          "Something wrong occurred on our end. Please try again later",
-        );
+        break;
+      // default:
+      //   service.reportError(
+      //     "Something wrong occurred on our end. Please try again later",
+      //   );
     }
   }
 
