@@ -37,6 +37,8 @@ class MultipartusService {
       debugLabel: 'service | pinnedSubjects',
     );
 
+    // modified by: pinnedSubjects, searchSubjects, and
+    // lectureSections (indirectly by fetchLectureVideo),
     subjects = <SubjectId, Subject>{}.toSignal(
       debugLabel: 'service | subjects',
     );
@@ -65,9 +67,24 @@ class MultipartusService {
 
   Future<List<ImpartusSectionData>> lectureSections(String id) async {
     final r = await _backend.get('/impartus/subject/$id');
-    if (r?.data is! List) return [];
+    if (r?.data is! Map) return [];
+
+    final lectures = r!.data['lectures'] ?? [];
+
     final f =
-        (r?.data! as List).map((e) => ImpartusSectionData.fromJson(e)).toList();
+        (lectures as List).map((e) => ImpartusSectionData.fromJson(e)).toList();
+
+    final subject = r.data['subject'];
+    if (subject is Map) {
+      final s = Subject.fromJson(subject.cast());
+      final id = (code: s.code, department: s.department);
+      // add subject to cache if its not already there, we don't get pinned
+      // data from this endpoint so if this subject exists as pinned already
+      // don't touch it
+      if (untracked(() => subjects[id]?.isPinned) != true) {
+        subjects[id] = s;
+      }
+    }
 
     return f;
   }
@@ -161,10 +178,6 @@ class MultipartusService {
     await isRegistered.refresh();
   }
 
-  // LectureVideo? maybeFetchLectureVideo({required String }) {
-  //   return _lectureMap.maybeGet(ttid);
-  // }
-
   Future<LectureVideo> fetchLectureVideo({
     required String department,
     required String code,
@@ -190,11 +203,17 @@ class MultipartusService {
     return subs;
   }
 
-  String? ttidFromVideoId(String videoId) {
-    return _lectureMap.maybeGet(videoId)?.ttid;
-    // final r = await _backend.get('/impartus/video/$videoId/info');
-    // r?.data;
-    // return 1;
+  Future<String?> ttidFromVideoId(String videoId) async {
+    final ttid = _lectureMap.maybeGet(videoId)?.ttid;
+    if (ttid != null) return ttid;
+
+    final data = await getVideoInfo(videoId);
+    return data?['ttid'].toString();
+  }
+
+  Future<Map?> getVideoInfo(String videoId) async {
+    final r = await _backend.get('/impartus/video/$videoId/info');
+    return r?.data;
   }
 }
 
