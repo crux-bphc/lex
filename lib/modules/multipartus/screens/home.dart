@@ -7,8 +7,11 @@ import 'package:lex/modules/multipartus/models/subject.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/multipartus_title.dart';
 import 'package:lex/modules/multipartus/widgets/subject_tile.dart';
+import 'package:lex/providers/local_storage/local_storage.dart';
+import 'package:lex/utils/image.dart';
 import 'package:lex/utils/misc.dart';
 import 'package:lex/widgets/delayed_progress_indicator.dart';
+import 'package:lex/widgets/floating_sidebar.dart';
 import 'package:signals/signals_flutter.dart';
 
 const _loadingWidget = Center(child: DelayedProgressIndicator());
@@ -26,10 +29,26 @@ class MultipartusHomePage extends StatelessWidget {
           children: [
             MultipartusTitle(),
             SizedBox(height: 20),
-            Expanded(flex: 5, child: _Subjects()),
+            Expanded(child: _Main()),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _Main extends StatelessWidget {
+  const _Main();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(child: _Subjects()),
+        const SizedBox(width: 5),
+        _ContinueWatching(),
+      ],
     );
   }
 }
@@ -65,46 +84,12 @@ class _SubjectsState extends State<_Subjects> with SignalsMixin {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.only(right: 30),
-          child: Row(
-            children: [
-              Expanded(
-                flex: 5,
-                child: _SearchBar(
-                  onUpdate: (t) => _debouncedTextUpdater(t, now: t.isEmpty),
-                  onSubmit: (t) => _debouncedTextUpdater(t, now: true),
-                ),
-              ),
-              const Spacer(),
-              TextButton(
-                onPressed: () {},
-                child: const Text("View All Courses"),
-              ),
-            ],
+          padding: const EdgeInsets.only(right: 25),
+          child: _SearchBar(
+            onUpdate: (t) => _debouncedTextUpdater(t, now: t.isEmpty),
+            onSubmit: (t) => _debouncedTextUpdater(t, now: true),
           ),
         ),
-        // Padding(
-        //   padding: const EdgeInsets.only(right: 30),
-        //   child: Row(
-        //     children: [
-        //       const Expanded(
-        //         flex: 5,
-        //         child: SearchBar(
-        //           leading: Icon(
-        //             LucideIcons.search,
-        //             size: 20,
-        //           ),
-        //           hintText: "Search for any course",
-        //         ),
-        //       ),
-        //       const Spacer(),
-        //       TextButton(
-        //         onPressed: () {},
-        //         child: const Text("View All Courses"),
-        //       ),
-        //     ],
-        //   ),
-        // ),
         const SizedBox(height: 20),
         Expanded(
           child: Watch(
@@ -123,37 +108,32 @@ class _SubjectsState extends State<_Subjects> with SignalsMixin {
                   );
                 });
               } else {
-                return Watch(
-                  (context) {
-                    return FutureBuilder(
-                      future: GetIt.instance<MultipartusService>()
-                          .searchSubjects(_searchText()),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return _loadingWidget;
-                        }
-                        if (snapshot.hasError) {
-                          return Text("Error: ${snapshot.error}");
-                        }
+                return FutureBuilder(
+                  future: GetIt.instance<MultipartusService>()
+                      .searchSubjects(_searchText()),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return _loadingWidget;
+                    }
+                    if (snapshot.hasError) {
+                      return Text("Error: ${snapshot.error}");
+                    }
 
-                        return _SubjectGrid(
-                          subjects: snapshot.data as List<Subject>,
-                          onPressed: _handleSubjectPressed,
-                          emptyText: "No subjects found",
+                    return _SubjectGrid(
+                      subjects: snapshot.data as List<Subject>,
+                      onPressed: _handleSubjectPressed,
+                      emptyText: "No subjects found",
+                    )
+                        .animate()
+                        .slideY(
+                          duration: 200.ms,
+                          curve: Curves.easeOutCubic,
+                          begin: 0.01,
+                          end: 0,
                         )
-                            .animate()
-                            .slideY(
-                              duration: 200.ms,
-                              curve: Curves.easeOutCubic,
-                              begin: 0.01,
-                              end: 0,
-                            )
-                            .fadeIn(
-                              duration: 180.ms,
-                            );
-                      },
-                    );
+                        .fadeIn(
+                          duration: 180.ms,
+                        );
                   },
                 );
               }
@@ -234,13 +214,13 @@ class _SubjectGridState extends State<_SubjectGrid> {
   @override
   Widget build(BuildContext context) {
     if (widget.subjects.isEmpty) {
-      return const Center(child: Text("No subjects to show"));
+      return Center(child: Text(widget.emptyText));
     }
 
     return Scrollbar(
       controller: scrollController,
       child: Padding(
-        padding: const EdgeInsets.only(right: 30),
+        padding: const EdgeInsets.only(right: 25),
         child: ScrollConfiguration(
           behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
           child: GridView.builder(
@@ -261,6 +241,157 @@ class _SubjectGridState extends State<_SubjectGrid> {
             itemCount: widget.subjects.length,
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _ContinueWatching extends StatelessWidget {
+  Future<List<Map?>> _getVideoInfos(List<int> videoIds) async {
+    final service = GetIt.instance<MultipartusService>();
+    final futures = videoIds.map((id) => service.getVideoInfo(id.toString()));
+    return Future.wait(futures);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Watch(
+      (context) {
+        final items = GetIt.instance<LocalStorage>().watchHistory.readAll();
+
+        if (items.isEmpty) return Container();
+
+        return Container(
+          width: 340,
+          padding: EdgeInsets.only(right: 30),
+          child: FloatingSidebar(
+            padding: EdgeInsets.all(14),
+            child: Column(
+              children: [
+                Text(
+                  "CONTINUE WATCHING",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 10),
+                Expanded(
+                  child: FutureBuilder(
+                    future: _getVideoInfos(items.map((e) => e.$1).toList()),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState != ConnectionState.done) {
+                        return _loadingWidget;
+                      }
+
+                      final videoItems = snapshot.data as List<Map?>;
+
+                      return ListView.builder(
+                        itemBuilder: (context, index) {
+                          final code = items[index].$2.code;
+                          final departmentUrl = items[index].$2.departmentUrl;
+                          final department = departmentUrl.replaceAll(',', '/');
+                          final videoId = items[index].$1;
+
+                          final ttid = videoItems[index]?["ttid"];
+
+                          return RawMaterialButton(
+                            onPressed: () {
+                              context.go(
+                                '/multipartus/courses/$departmentUrl/$code/watch/$videoId',
+                              );
+                            },
+                            elevation: 0,
+                            visualDensity: VisualDensity.compact,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 16,
+                            ),
+                            child: Row(
+                              children: [
+                                _MiniVideoThumbnail(
+                                  ttid: (ttid is int) ? ttid.toString() : null,
+                                  positionFraction: items[index].$2.fraction,
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        videoItems[index]?["lecturetopic"] ??
+                                            "Unknown title",
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                        ),
+                                      ),
+                                      Text(
+                                        "$department $code",
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                        itemCount: items.length,
+                      ).animate().fadeIn();
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _MiniVideoThumbnail extends StatelessWidget {
+  const _MiniVideoThumbnail({
+    required this.positionFraction,
+    this.ttid,
+  });
+
+  final String? ttid;
+  final double positionFraction;
+  final double height = 46;
+
+  @override
+  Widget build(BuildContext context) {
+    final width = height * 16 / 9;
+    return Container(
+      height: height,
+      width: width,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(6),
+        color: Colors.black45,
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          if (ttid != null)
+            Image.network(
+              getThumbnailUrl(ttid!),
+              filterQuality: FilterQuality.none,
+            ),
+          // Icon(LucideIcons.circle_play),
+          Align(
+            alignment: AlignmentDirectional.bottomStart,
+            child: Container(
+              height: 2,
+              width: width * positionFraction.clamp(0.16, 1),
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+        ],
       ),
     );
   }

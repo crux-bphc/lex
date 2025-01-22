@@ -68,20 +68,26 @@ class WatchHistory {
   }) {
     timestamp ??= DateTime.now();
     _history[videoId] = WatchHistoryItem.fromDateTime(
-        timestamp, position, fraction, departmentUrl, code);
+      timestamp,
+      position,
+      fraction,
+      departmentUrl,
+      code,
+    );
     _save();
   }
 
-  // subscribes to
   WatchHistoryItem? read(int videoId) {
     return _history[videoId];
   }
 
+  // subscribes to the history map signal
   List<(int, WatchHistoryItem)> readAll() {
-    return _history.entries
+    return _history()
+        .entries
         .map((e) => (e.key, e.value))
-        // remove videos that are barely watched or fully watched
-        .where((e) => 0.029 < e.$2.fraction && e.$2.fraction < 0.84)
+        // remove videos that are fully watched
+        .where((e) => e.$2.fraction < 0.94)
         .toList()
       ..sort(
         // sort by most recent
