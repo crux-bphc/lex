@@ -107,8 +107,9 @@ class _FilterableVideoGridState extends State<FilterableVideoGrid> {
                     dropdownMenuEntries: [
                       for (final session in sessions())
                         DropdownMenuEntry(
-                          label:
-                             session != null ? "${session.year}-${session.year + 1}, Sem ${session.sem}" : "Unknown session",
+                          label: session != null
+                              ? "${session.year}-${session.year + 1}, Sem ${session.sem}"
+                              : "Unknown session",
                           value: session,
                         ),
                     ],
@@ -121,7 +122,7 @@ class _FilterableVideoGridState extends State<FilterableVideoGrid> {
                 ),
               ],
             ),
-          ).animate().fadeIn(duration: 250.ms),
+          ).animate().fadeIn(duration: Durations.short4),
         ),
         SliverPadding(
           padding: const EdgeInsets.only(top: 12, bottom: 30),

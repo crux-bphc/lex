@@ -4,7 +4,7 @@ import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/video_player.dart';
 import 'package:lex/modules/multipartus/widgets/video_title.dart';
 import 'package:lex/providers/local_storage/local_storage.dart';
-import 'package:lex/widgets/floating_sidebar.dart';
+import 'package:lex/widgets/delayed_progress_indicator.dart';
 
 class MultipartusVideoPage extends StatelessWidget {
   const MultipartusVideoPage({
@@ -27,11 +27,14 @@ class MultipartusVideoPage extends StatelessWidget {
           children: [
             Expanded(
               flex: 5,
-              child: Builder(
-                builder: (context) {
-                  final ttid = GetIt.instance<MultipartusService>()
-                      .ttidFromVideoId(videoId);
-                  return ttid != null
+              child: FutureBuilder(
+                future: GetIt.instance<MultipartusService>()
+                    .ttidFromVideoId(videoId),
+                builder: (context, snapshot) {
+                  final ttid = snapshot.data;
+
+                  return snapshot.connectionState == ConnectionState.done &&
+                          ttid != null
                       ? _LeftSide(
                           ttid: ttid,
                           videoId: videoId,
@@ -39,29 +42,24 @@ class MultipartusVideoPage extends StatelessWidget {
                           department: department,
                           startTimestamp: startTimestamp,
                         )
-                      : Text(
-                          "I'm sorry man it just doesn't work."
-                          " It will soon though.",
-                        );
+                      : Center(child: DelayedProgressIndicator());
                 },
               ),
             ),
             const SizedBox(width: 20),
-            Expanded(
-              flex: 2,
-              child: FloatingSidebar(
-                child: Align(
-                  alignment: AlignmentDirectional.topStart,
-                  child: Text(
-                    "SLIDES",
-                    style: Theme.of(context)
-                        .dialogTheme
-                        .titleTextStyle!
-                        .copyWith(letterSpacing: 1.5),
-                  ),
-                ),
-              ),
-            ),
+            Expanded(flex: 2, child: Container()),
+            // FloatingSidebar(
+            //   child: Align(
+            //     alignment: AlignmentDirectional.topStart,
+            //     child: Text(
+            //       "SLIDES",
+            //       style: Theme.of(context)
+            //           .dialogTheme
+            //           .titleTextStyle!
+            //           .copyWith(letterSpacing: 1.5),
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),

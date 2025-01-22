@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:get_it/get_it.dart';
+import 'package:lex/modules/multipartus/util.dart';
 import 'package:lex/modules/multipartus/widgets/seekbar.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
 import 'package:lex/providers/backend.dart';
@@ -130,7 +131,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
                     createRectTween: (begin, end) =>
                         CurvedRectTween(begin: begin!, end: end!),
                     child: Image.network(
-                      "https://a.impartus.com/download1/embedded/thumbnails/${widget.ttid}.jpg",
+                      thumbnailUrl(widget.ttid),
                       fit: BoxFit.cover,
                       width: double.infinity,
                     ),
@@ -292,7 +293,9 @@ class _SpeedButtonState extends State<_SpeedButton>
           (context) => Text(
             "${_playbackRate()}x",
             style: TextStyle(height: 0),
-          ).animate(target: _isHovering() ? 1 : 0).fadeIn(duration: 200.ms),
+          )
+              .animate(target: _isHovering() ? 1 : 0)
+              .fadeIn(duration: Durations.short4),
         ),
         const SizedBox(width: 8),
         MouseRegion(
@@ -415,7 +418,7 @@ class _ImpartusSeekBar extends StatefulWidget {
 
 Duration actualDuration(Duration totalDuration) =>
     totalDuration == Duration.zero
-        ? const Duration(hours: 1)
+        ? const Duration(minutes: 59, seconds: 59)
         : totalDuration * 0.5;
 
 bool isView2(Duration position, Duration totalDuration) =>
