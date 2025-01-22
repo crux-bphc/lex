@@ -8,6 +8,7 @@ import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/multipartus_title.dart';
 import 'package:lex/modules/multipartus/widgets/subject_tile.dart';
 import 'package:lex/providers/local_storage/local_storage.dart';
+import 'package:lex/providers/local_storage/watch_history.dart';
 import 'package:lex/utils/image.dart';
 import 'package:lex/utils/misc.dart';
 import 'package:lex/widgets/delayed_progress_indicator.dart';
@@ -273,7 +274,7 @@ class _ContinueWatchingState extends State<_ContinueWatching> {
     return GetIt.instance<LocalStorage>().watchHistory.readAll();
   }
 
-  late var items = _getItems();
+  late List<(int, WatchHistoryItem)> items = _getItems();
 
   @override
   Widget build(BuildContext context) {
@@ -333,7 +334,7 @@ class _ContinueWatchingState extends State<_ContinueWatching> {
                       future: GetIt.instance<MultipartusService>()
                           .getVideoInfo(videoId.toString()),
                       builder: (context, snapshot) {
-                        final ttid = snapshot.data?["ttid"];
+                        final ttid = items[index].$2.ttid;
                         final title = snapshot.data?["lecturetopic"];
                         final isLoading =
                             snapshot.connectionState != ConnectionState.done;
@@ -341,7 +342,7 @@ class _ContinueWatchingState extends State<_ContinueWatching> {
                         return Row(
                           children: [
                             _MiniVideoThumbnail(
-                              ttid: (ttid is int) ? ttid.toString() : null,
+                              ttid: ttid,
                               positionFraction: items[index].$2.fraction,
                             ),
                             const SizedBox(width: 16),
