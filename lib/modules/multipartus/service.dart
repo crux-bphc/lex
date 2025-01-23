@@ -61,6 +61,10 @@ class MultipartusService {
 
         if (r?.data is! Map) return MultipartusRegistrationState.notRegistered;
 
+        if (r?.data["registered"] == false) {
+          return MultipartusRegistrationState.notRegistered;
+        }
+
         if (r?.data["valid"] == false) {
           return MultipartusRegistrationState.invalidToken;
         }
