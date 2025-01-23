@@ -16,9 +16,3 @@ Widget Function(BuildContext, Widget, int?, bool) fadeInImageFrameBuilder({
         .fadeIn(duration: duration);
   };
 }
-
-const _thumbnailBase = String.fromEnvironment("THUMBNAIL_URL");
-
-String getThumbnailUrl(String ttid) {
-  return "$_thumbnailBase/$ttid.jpg";
-}

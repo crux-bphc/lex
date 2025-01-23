@@ -7,9 +7,9 @@ import 'package:lex/modules/multipartus/models/subject.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/multipartus_title.dart';
 import 'package:lex/modules/multipartus/widgets/subject_tile.dart';
+import 'package:lex/modules/multipartus/widgets/thumbnail.dart';
 import 'package:lex/providers/local_storage/local_storage.dart';
 import 'package:lex/providers/local_storage/watch_history.dart';
-import 'package:lex/utils/image.dart';
 import 'package:lex/utils/misc.dart';
 import 'package:lex/widgets/delayed_progress_indicator.dart';
 import 'package:lex/widgets/floating_sidebar.dart';
@@ -339,9 +339,10 @@ class _ContinueWatchingState extends State<_ContinueWatching> {
                       builder: (context, snapshot) {
                         final title = snapshot.data?.title;
                         final isLoading =
-                            snapshot.connectionState != ConnectionState.done;
+                            snapshot.connectionState == ConnectionState.waiting;
 
                         return Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             _MiniVideoThumbnail(
                               ttid: ttid,
@@ -352,16 +353,36 @@ class _ContinueWatchingState extends State<_ContinueWatching> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    isLoading ? "" : (title ?? "Unknown title"),
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
+                                  AnimatedContainer(
+                                    duration: Durations.short4,
+                                    width: double.infinity,
+                                    margin: EdgeInsets.only(bottom: 4),
+                                    decoration: BoxDecoration(
+                                      color: isLoading
+                                          ? Theme.of(context)
+                                              .colorScheme
+                                              .onSurface
+                                              .withOpacity(0.2)
+                                          : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(4),
                                     ),
+                                    child: Text(
+                                      title ??
+                                          (isLoading ? "" : "Unknown title"),
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                        height: 0,
+                                      ),
+                                    )
+                                        .animate(target: title != null ? 1 : 0)
+                                        .fadeIn(duration: Durations.medium2),
                                   ),
                                   Text(
                                     "$department $code",
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ],
                               ),
@@ -385,10 +406,10 @@ class _ContinueWatchingState extends State<_ContinueWatching> {
 class _MiniVideoThumbnail extends StatelessWidget {
   const _MiniVideoThumbnail({
     required this.positionFraction,
-    this.ttid,
+    required this.ttid,
   });
 
-  final String? ttid;
+  final String ttid;
   final double positionFraction;
   final double height = 46;
 
@@ -399,28 +420,16 @@ class _MiniVideoThumbnail extends StatelessWidget {
       height: height,
       width: width,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(4),
         color: Colors.black45,
       ),
       clipBehavior: Clip.antiAlias,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          if (ttid != null)
-            Image.network(
-              getThumbnailUrl(ttid!),
-              filterQuality: FilterQuality.none,
-            ),
-          // Icon(LucideIcons.circle_play),
-          Align(
-            alignment: AlignmentDirectional.bottomStart,
-            child: Container(
-              height: 2,
-              width: width * positionFraction.clamp(0.16, 1),
-              color: Theme.of(context).colorScheme.primary,
-            ),
-          ),
-        ],
+      child: VideoThumbnail(
+        ttid: ttid,
+        showWatchProgress: true,
+        width: width,
+        height: height,
+        fit: BoxFit.cover,
       ),
     );
   }

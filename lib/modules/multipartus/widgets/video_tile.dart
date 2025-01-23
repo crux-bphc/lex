@@ -3,7 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/grid_button.dart';
-import 'package:lex/utils/image.dart';
+import 'package:lex/modules/multipartus/widgets/thumbnail.dart';
 import 'package:lex/utils/misc.dart';
 import 'package:lex/widgets/auto_tooltip_text.dart';
 
@@ -125,17 +125,12 @@ class _Thumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final child = Image.network(
-      getThumbnailUrl(ttid),
+    final child = VideoThumbnail(
+      ttid: ttid,
       fit: BoxFit.cover,
-      frameBuilder: fadeInImageFrameBuilder(),
-      errorBuilder: (context, error, stackTrace) => Center(
-        child: Icon(
-          LucideIcons.image,
-          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
-        ),
-      ),
+      shouldFadeIn: true,
     );
+
     return Expanded(
       flex: 7,
       child: Stack(

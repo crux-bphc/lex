@@ -6,8 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:get_it/get_it.dart';
-import 'package:lex/modules/multipartus/util.dart';
 import 'package:lex/modules/multipartus/widgets/seekbar.dart';
+import 'package:lex/modules/multipartus/widgets/thumbnail.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
 import 'package:lex/providers/backend.dart';
 import 'package:lex/utils/extensions.dart';
@@ -130,8 +130,8 @@ class _VideoPlayerState extends State<VideoPlayer> {
                     tag: widget.ttid,
                     createRectTween: (begin, end) =>
                         CurvedRectTween(begin: begin!, end: end!),
-                    child: Image.network(
-                      thumbnailUrl(widget.ttid),
+                    child: VideoThumbnail(
+                      ttid: widget.ttid,
                       fit: BoxFit.cover,
                       width: double.infinity,
                     ),
