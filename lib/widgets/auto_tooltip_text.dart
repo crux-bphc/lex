@@ -4,7 +4,7 @@ class AutoTooltipText extends StatelessWidget {
   const AutoTooltipText({
     super.key,
     required this.text,
-    this.maxLines,
+    this.maxLines = 1,
     this.overflow,
     String? tooltipText,
     this.style,
@@ -15,7 +15,7 @@ class AutoTooltipText extends StatelessWidget {
 
   final TextStyle? style;
 
-  final int? maxLines;
+  final int maxLines;
   final TextOverflow? overflow;
 
   @override

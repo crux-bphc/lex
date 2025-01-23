@@ -11,6 +11,7 @@ import 'package:lex/modules/multipartus/widgets/thumbnail.dart';
 import 'package:lex/providers/local_storage/local_storage.dart';
 import 'package:lex/providers/local_storage/watch_history.dart';
 import 'package:lex/utils/misc.dart';
+import 'package:lex/widgets/auto_tooltip_text.dart';
 import 'package:lex/widgets/delayed_progress_indicator.dart';
 import 'package:lex/widgets/floating_sidebar.dart';
 import 'package:signals/signals_flutter.dart';
@@ -274,131 +275,133 @@ class _ContinueWatchingState extends State<_ContinueWatching> {
     return GetIt.instance<LocalStorage>().watchHistory.readAll();
   }
 
-  late List<(String, WatchHistoryItem)> items = _getItems();
+  Widget _buildList(List<(String, WatchHistoryItem)> items) {
+    return Expanded(
+      child: ListView.builder(
+        itemBuilder: (context, index) {
+          final code = items[index].$2.code;
+          final departmentUrl = items[index].$2.departmentUrl;
+          final department = departmentUrl.replaceAll(',', '/');
+          final ttid = items[index].$1;
+
+          return RawMaterialButton(
+            onPressed: () {
+              context.go(
+                '/multipartus/courses/$departmentUrl/$code/watch/$ttid',
+              );
+            },
+            elevation: 0,
+            visualDensity: VisualDensity.compact,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            padding: EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 16,
+            ),
+            child: FutureBuilder(
+              future: GetIt.instance<MultipartusService>().fetchLectureVideo(
+                department: department,
+                code: code,
+                ttid: ttid.toString(),
+              ),
+              builder: (context, snapshot) {
+                final title = snapshot.data?.title;
+                final isLoading =
+                    snapshot.connectionState == ConnectionState.waiting;
+                final titleExists = title != null;
+
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _MiniVideoThumbnail(
+                      ttid: ttid,
+                      positionFraction: items[index].$2.fraction,
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          AnimatedContainer(
+                            duration: Durations.short4,
+                            width: double.infinity,
+                            margin: EdgeInsets.only(bottom: 4),
+                            decoration: BoxDecoration(
+                              color: titleExists || !isLoading
+                                  ? Colors.transparent
+                                  : Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: AutoTooltipText(
+                              text: title ?? (isLoading ? "" : "Unknown title"),
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                height: 0,
+                              ),
+                            )
+                                .animate(target: titleExists ? 1 : 0)
+                                .fadeIn(duration: Durations.medium2),
+                          ),
+                          Text(
+                            "$department $code",
+                            style: TextStyle(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          );
+        },
+        itemCount: items.length,
+      ).animate().fadeIn(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (items.isEmpty) return Container();
+    return Watch(
+      (context) {
+        final items = _getItems();
 
-    return Container(
-      width: 340,
-      padding: EdgeInsets.only(right: 30),
-      child: FloatingSidebar(
-        padding: EdgeInsets.all(14),
-        child: Column(
-          children: [
-            Row(
+        return Container(
+          width: 380,
+          padding: EdgeInsets.only(right: 30),
+          child: FloatingSidebar(
+            padding: EdgeInsets.all(14),
+            child: Column(
               children: [
-                Expanded(
-                  child: Center(
-                    child: Text(
-                      "CONTINUE WATCHING",
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          "CONTINUE WATCHING",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-                // change this horrible shit
-                IconButton(
-                  onPressed: () => setState(() => items = _getItems()),
-                  icon: Icon(LucideIcons.refresh_cw),
-                  iconSize: 20,
-                ),
+                SizedBox(height: 10),
+                _buildList(items),
               ],
             ),
-            SizedBox(height: 10),
-            Expanded(
-              child: ListView.builder(
-                itemBuilder: (context, index) {
-                  final code = items[index].$2.code;
-                  final departmentUrl = items[index].$2.departmentUrl;
-                  final department = departmentUrl.replaceAll(',', '/');
-                  final ttid = items[index].$1;
-
-                  return RawMaterialButton(
-                    onPressed: () {
-                      context.go(
-                        '/multipartus/courses/$departmentUrl/$code/watch/$ttid',
-                      );
-                    },
-                    elevation: 0,
-                    visualDensity: VisualDensity.compact,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 16,
-                    ),
-                    child: FutureBuilder(
-                      future: GetIt.instance<MultipartusService>()
-                          .fetchLectureVideo(
-                        department: department,
-                        code: code,
-                        ttid: ttid.toString(),
-                      ),
-                      builder: (context, snapshot) {
-                        final title = snapshot.data?.title;
-                        final isLoading =
-                            snapshot.connectionState == ConnectionState.waiting;
-
-                        return Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _MiniVideoThumbnail(
-                              ttid: ttid,
-                              positionFraction: items[index].$2.fraction,
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  AnimatedContainer(
-                                    duration: Durations.short4,
-                                    width: double.infinity,
-                                    margin: EdgeInsets.only(bottom: 4),
-                                    decoration: BoxDecoration(
-                                      color: isLoading
-                                          ? Theme.of(context)
-                                              .colorScheme
-                                              .onSurface
-                                              .withOpacity(0.2)
-                                          : Colors.transparent,
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Text(
-                                      title ??
-                                          (isLoading ? "" : "Unknown title"),
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                        height: 0,
-                                      ),
-                                    )
-                                        .animate(target: title != null ? 1 : 0)
-                                        .fadeIn(duration: Durations.medium2),
-                                  ),
-                                  Text(
-                                    "$department $code",
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  );
-                },
-                itemCount: items.length,
-              ).animate().fadeIn(),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
