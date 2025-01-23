@@ -67,7 +67,7 @@ class LexBackend {
       );
     } on DioException catch (e) {
       _handleDioException(e);
-      return null;
+      return e.response;
     }
   }
 
@@ -120,7 +120,7 @@ class LexBackend {
     debugPrint(
       "DioException: ${exception.type}\n"
       "${exception.requestOptions.method} ${exception.requestOptions.uri}\n"
-      "$exception\n"
+      "${exception.response?.data}\n"
       "------",
     );
 
@@ -132,14 +132,16 @@ class LexBackend {
         service.reportError("There was a problem connecting to our servers");
         break;
 
-      case DioExceptionType.badResponse:
-        service.reportError("There was a problem with the request");
-        break;
+      // case DioExceptionType.badResponse:
+      //   service.reportError("There was a problem with the request");
+      //   break;
 
       default:
-        service.reportError(
-          "Something wrong occurred on our end. Please try again later",
-        );
+        break;
+      // default:
+      //   service.reportError(
+      //     "Something wrong occurred on our end. Please try again later",
+      //   );
     }
   }
 

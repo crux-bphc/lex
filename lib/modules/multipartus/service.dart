@@ -16,7 +16,8 @@ class MultipartusService {
   late final FutureSignal<Map<SubjectId, Subject>> pinnedSubjects;
   late final FutureSignal<Map<int, ImpartusSessionData>> _impartusSessionMap;
 
-  late final _lectureMap = DeferredValueMap<int, LectureVideo>();
+  /// ttid: ImpartusVideoData
+  late final _videoMap = DeferredValueMap<String, ImpartusVideoData>();
 
   MultipartusService(this._backend) {
     pinnedSubjects = computedAsync(
@@ -36,6 +37,8 @@ class MultipartusService {
       debugLabel: 'service | pinnedSubjects',
     );
 
+    // modified by: pinnedSubjects, searchSubjects, and
+    // lectureSections (indirectly by fetchLectureVideo),
     subjects = <SubjectId, Subject>{}.toSignal(
       debugLabel: 'service | subjects',
     );
@@ -64,9 +67,24 @@ class MultipartusService {
 
   Future<List<ImpartusSectionData>> lectureSections(String id) async {
     final r = await _backend.get('/impartus/subject/$id');
-    if (r?.data is! List) return [];
+    if (r?.data is! Map) return [];
+
+    final lectures = r!.data['lectures'] ?? [];
+
     final f =
-        (r?.data! as List).map((e) => ImpartusSectionData.fromJson(e)).toList();
+        (lectures as List).map((e) => ImpartusSectionData.fromJson(e)).toList();
+
+    final subject = r.data['subject'];
+    if (subject is Map) {
+      final s = Subject.fromJson(subject.cast());
+      final id = (code: s.code, department: s.department);
+      // add subject to cache if its not already there, we don't get pinned
+      // data from this endpoint so if this subject exists as pinned already
+      // don't touch it
+      if (untracked(() => subjects[id]?.isPinned) != true) {
+        subjects[id] = s;
+      }
+    }
 
     return f;
   }
@@ -118,7 +136,7 @@ class MultipartusService {
             final prof = v.professor;
             profMap.putIfAbsent(prof, () => {}).add(v.session);
 
-            _lectureMap.set(v.ttid, v);
+            _videoMap.set(v.ttid, v.video);
           }
 
           return (
@@ -160,15 +178,28 @@ class MultipartusService {
     await isRegistered.refresh();
   }
 
-  Future<LectureVideo> fetchLectureVideo({
+  Future<ImpartusVideoData> fetchLectureVideo({
     required String department,
     required String code,
-    required int ttid,
-  }) {
-    return _lectureMap.get(
+    required String ttid,
+  }) async {
+    // first check if we have the video in cache
+    final maybe = _videoMap.maybeGet(ttid);
+    if (maybe != null) return maybe;
+
+    // if not, fetch from video info
+    final videoData = await _getVideoInfo(ttid);
+    if (videoData != null) {
+      _videoMap.set(ttid, videoData);
+      return videoData;
+    }
+
+    // this should ideally never run but im leaving this here in case
+    // the video info endpoint fails (above)
+    return (await _videoMap.get(
       ttid,
       () => lectures((department: department, code: code)).future,
-    );
+    ));
   }
 
   Future<List<Subject>> searchSubjects(String search) async {
@@ -184,6 +215,14 @@ class MultipartusService {
 
     return subs;
   }
+
+  Future<ImpartusVideoData?> _getVideoInfo(String ttid) async {
+    final r = await _backend.get('/impartus/ttid/$ttid/info');
+
+    if (r?.data is! Map) return null;
+
+    return ImpartusVideoData.fromJson(r?.data);
+  }
 }
 
 class LectureVideo {
@@ -191,18 +230,22 @@ class LectureVideo {
   final String title;
   final int lectureNo;
   final DateTime createdAt;
-  final int ttid;
+  final String ttid;
+  final String videoId;
+
   final ImpartusSessionData? session;
+  final ImpartusVideoData video;
 
   LectureVideo.fromData({
     required ImpartusSectionData section,
-    required ImpartusVideoData video,
+    required this.video,
     required this.session,
   })  : professor = section.professor,
-        title = video.topic,
+        title = video.title,
         lectureNo = video.lectureNo,
         createdAt = video.createdAt,
-        ttid = video.ttid;
+        ttid = video.ttid.toString(),
+        videoId = video.videoId.toString();
 }
 
 typedef ImpartusSessionData = ({int year, int sem});

@@ -24,20 +24,12 @@ class _TitleState extends State<VideoTitle> {
       );
 
   @override
-  void initState() {
-    super.initState();
-
-    // TODO: temp, replace with subject endpoint
-    GetIt.instance<MultipartusService>().pinnedSubjects();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: GetIt.instance<MultipartusService>().fetchLectureVideo(
         department: widget.department,
         code: widget.subjectCode,
-        ttid: int.parse(widget.ttid),
+        ttid: widget.ttid,
       ),
       builder: (context, snapshot) {
         final data = snapshot.data;

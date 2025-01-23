@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/disclaimer_dialog.dart';
@@ -20,7 +19,7 @@ class MultipartusLoginGate extends StatelessWidget {
         GetIt.instance<MultipartusService>().isRegistered.watch(context);
 
     return AnimatedSwitcher(
-      duration: 300.ms,
+      duration: Durations.medium2,
       child: isRegistered.map(
         data: (registered) => registered
             ? child

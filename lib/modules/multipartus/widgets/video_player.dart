@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -5,6 +7,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lex/modules/multipartus/widgets/seekbar.dart';
+import 'package:lex/modules/multipartus/widgets/thumbnail.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
 import 'package:lex/providers/backend.dart';
 import 'package:lex/utils/extensions.dart';
@@ -14,7 +17,7 @@ import 'package:media_kit_video/media_kit_video.dart';
 import 'package:signals/signals_flutter.dart';
 
 String _getVideoUrl(String baseUrl, String ttid) {
-  return '$baseUrl/impartus/video/$ttid/m3u8';
+  return '$baseUrl/impartus/ttid/$ttid/m3u8';
 }
 
 class VideoPlayer extends StatefulWidget {
@@ -22,10 +25,15 @@ class VideoPlayer extends StatefulWidget {
     super.key,
     required this.ttid,
     required this.startTimestamp,
+    this.onPositionChanged,
+    this.positionUpdateInterval = const Duration(seconds: 3),
   });
 
   final String ttid;
-  final int startTimestamp;
+  final Duration startTimestamp;
+  final void Function(Duration position, double fractionComplete)?
+      onPositionChanged;
+  final Duration positionUpdateInterval;
 
   @override
   State<VideoPlayer> createState() => _VideoPlayerState();
@@ -35,6 +43,9 @@ class _VideoPlayerState extends State<VideoPlayer> {
   late final Player player;
   late final VideoController controller;
 
+  StreamSubscription<Duration>? _positionStream;
+  final _positionUpdateStopwatch = Stopwatch()..start();
+
   @override
   void initState() {
     super.initState();
@@ -42,20 +53,24 @@ class _VideoPlayerState extends State<VideoPlayer> {
     player = Player(
       configuration: PlayerConfiguration(
         ready: () {
-          player.seek(Duration(seconds: widget.startTimestamp));
+          player.seek(widget.startTimestamp);
         },
       ),
     );
 
     controller = VideoController(player);
+
     _setup();
   }
 
   @override
   void dispose() {
-    super.dispose();
+    _positionStream?.cancel();
+    _positionUpdateStopwatch.stop();
 
     player.dispose();
+
+    super.dispose();
   }
 
   @override
@@ -70,7 +85,8 @@ class _VideoPlayerState extends State<VideoPlayer> {
     final accessToken = Uri.encodeQueryComponent(
       GetIt.instance<AuthProvider>().currentUser.value!.accessToken!,
     );
-    late final baseUrl = client.options.baseUrl;
+    final baseUrl = client.options.baseUrl;
+
     await player.open(
       Media(
         _getVideoUrl(baseUrl, widget.ttid),
@@ -79,6 +95,22 @@ class _VideoPlayerState extends State<VideoPlayer> {
         },
       ),
     );
+
+    if (widget.onPositionChanged == null) return;
+
+    _positionStream = player.stream.position.listen((position) {
+      final shouldUpdate = mounted &&
+          player.state.playing &&
+          _positionUpdateStopwatch.elapsed > widget.positionUpdateInterval;
+
+      if (shouldUpdate) {
+        widget.onPositionChanged!.call(
+          position,
+          position.inSeconds / actualDuration(player.state.duration).inSeconds,
+        );
+        _positionUpdateStopwatch.reset();
+      }
+    });
   }
 
   @override
@@ -98,8 +130,8 @@ class _VideoPlayerState extends State<VideoPlayer> {
                     tag: widget.ttid,
                     createRectTween: (begin, end) =>
                         CurvedRectTween(begin: begin!, end: end!),
-                    child: Image.network(
-                      "https://a.impartus.com/download1/embedded/thumbnails/${widget.ttid}.jpg",
+                    child: VideoThumbnail(
+                      ttid: widget.ttid,
                       fit: BoxFit.cover,
                       width: double.infinity,
                     ),
@@ -261,7 +293,9 @@ class _SpeedButtonState extends State<_SpeedButton>
           (context) => Text(
             "${_playbackRate()}x",
             style: TextStyle(height: 0),
-          ).animate(target: _isHovering() ? 1 : 0).fadeIn(duration: 200.ms),
+          )
+              .animate(target: _isHovering() ? 1 : 0)
+              .fadeIn(duration: Durations.short4),
         ),
         const SizedBox(width: 8),
         MouseRegion(
@@ -382,7 +416,10 @@ class _ImpartusSeekBar extends StatefulWidget {
   State<_ImpartusSeekBar> createState() => _ImpartusSeekBarState();
 }
 
-Duration actualDuration(Duration totalDuration) => totalDuration * 0.5;
+Duration actualDuration(Duration totalDuration) =>
+    totalDuration == Duration.zero
+        ? const Duration(minutes: 59, seconds: 59)
+        : totalDuration * 0.5;
 
 bool isView2(Duration position, Duration totalDuration) =>
     position > actualDuration(totalDuration);
