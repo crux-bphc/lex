@@ -309,7 +309,6 @@ class _ContinueWatchingState extends State<_ContinueWatching> {
                 final title = snapshot.data?.title;
                 final isLoading =
                     snapshot.connectionState == ConnectionState.waiting;
-                final titleExists = title != null;
 
                 return Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -328,7 +327,7 @@ class _ContinueWatchingState extends State<_ContinueWatching> {
                             width: double.infinity,
                             margin: EdgeInsets.only(bottom: 4),
                             decoration: BoxDecoration(
-                              color: titleExists || !isLoading
+                              color: snapshot.hasData || !isLoading
                                   ? Colors.transparent
                                   : Theme.of(context)
                                       .colorScheme
@@ -344,7 +343,7 @@ class _ContinueWatchingState extends State<_ContinueWatching> {
                                 height: 0,
                               ),
                             )
-                                .animate(target: titleExists ? 1 : 0)
+                                .animate(target: snapshot.hasData ? 1 : 0)
                                 .fadeIn(duration: Durations.medium2),
                           ),
                           Text(
@@ -375,6 +374,8 @@ class _ContinueWatchingState extends State<_ContinueWatching> {
     return Watch(
       (context) {
         final items = _getItems();
+
+        if (items.isEmpty) return SizedBox();
 
         return Container(
           width: 380,
