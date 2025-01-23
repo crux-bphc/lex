@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/grid_button.dart';
 import 'package:lex/modules/multipartus/widgets/thumbnail.dart';
@@ -22,28 +20,20 @@ class VideoTile extends StatefulWidget {
 }
 
 class _VideoTileState extends State<VideoTile> {
-  bool _isHovered = false;
-
   @override
   Widget build(BuildContext context) {
-    return FocusableActionDetector(
-      onShowHoverHighlight: (value) {
-        setState(() => _isHovered = value);
-      },
-      child: GridButton(
-        onPressed: widget.onPressed,
-        padding: EdgeInsets.zero,
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _Thumbnail(
-              ttid: widget.video.ttid.toString(),
-              showPlayButton: _isHovered,
-            ),
-            _Title(video: widget.video),
-          ],
-        ),
+    return GridButton(
+      onPressed: widget.onPressed,
+      padding: EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _Thumbnail(
+            ttid: widget.video.ttid.toString(),
+          ),
+          _Title(video: widget.video),
+        ],
       ),
     );
   }
@@ -117,11 +107,9 @@ class _Title extends StatelessWidget {
 class _Thumbnail extends StatelessWidget {
   const _Thumbnail({
     required this.ttid,
-    this.showPlayButton = false,
   });
 
   final String ttid;
-  final bool showPlayButton;
 
   Widget _buildChild(BuildContext context) {
     return LayoutBuilder(
@@ -164,18 +152,6 @@ class _Thumbnail extends StatelessWidget {
               child: _buildChild(context),
             ),
           ),
-          Container(
-            color: Colors.black38,
-            child: Center(
-              child: Icon(
-                LucideIcons.circle_play,
-                size: 50,
-                weight: 0.1,
-              ),
-            ),
-          )
-              .animate(target: showPlayButton ? 1 : 0)
-              .fade(duration: Durations.short2),
         ],
       ),
     );
