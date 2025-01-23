@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/disclaimer_dialog.dart';
 import 'package:lex/modules/multipartus/widgets/multipartus_title.dart';
+import 'package:lex/providers/local_storage/local_storage.dart';
 import 'package:lex/widgets/delayed_progress_indicator.dart';
 import 'package:signals/signals_flutter.dart';
 
@@ -61,25 +62,27 @@ class _Login extends StatefulWidget {
 class _LoginState extends State<_Login> {
   final _passwordController = TextEditingController();
   final _focusNode = FocusNode();
-  bool _didReadDisclaimer = false;
+  late final _didReadDisclaimer =
+      GetIt.instance<LocalStorage>().preferences.isDisclaimerAccepted;
 
   void showDisclaimerDialog() async {
-    final result = await showDialog(
+    _didReadDisclaimer.value = await showDialog(
       context: context,
       builder: (context) => const DisclaimerDialog(),
       barrierDismissible: false,
       useRootNavigator: false,
     );
-    setState(() {
-      _didReadDisclaimer = result;
-    });
   }
 
   @override
   void initState() {
     super.initState();
+
+    // don't bother subcribing
+    if (_didReadDisclaimer.value) return;
+
     _focusNode.addListener(() {
-      if (_focusNode.hasFocus && !_didReadDisclaimer) {
+      if (_focusNode.hasFocus && !_didReadDisclaimer.value) {
         showDisclaimerDialog();
       }
     });
@@ -102,16 +105,18 @@ class _LoginState extends State<_Login> {
           autofocus: false,
           onSubmitted: (text) {
             if (_didReadDisclaimer) {
-              widget.onLogin(text);
             }
           },
+                  widget.onLogin(text);
         ),
-        const SizedBox(height: 20),
-        OutlinedButton(
-          onPressed: _didReadDisclaimer
-              ? () => widget.onLogin(_passwordController.text)
-              : null,
-          child: const Text("LOGIN"),
+        const SizedBox(height: 8),
+        Watch(
+          (context) => OutlinedButton(
+            onPressed: _didReadDisclaimer.value
+                ? () => widget.onLogin(_passwordController.text)
+                : null,
+            child: const Text("LOGIN"),
+          ),
         ),
       ],
     );
