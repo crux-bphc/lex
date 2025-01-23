@@ -120,7 +120,7 @@ class LexBackend {
     debugPrint(
       "DioException: ${exception.type}\n"
       "${exception.requestOptions.method} ${exception.requestOptions.uri}\n"
-      "$exception\n"
+      "${exception.response?.data}\n"
       "------",
     );
 
