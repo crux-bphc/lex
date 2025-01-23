@@ -123,14 +123,23 @@ class _Thumbnail extends StatelessWidget {
   final String ttid;
   final bool showPlayButton;
 
+  Widget _buildChild(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return VideoThumbnail(
+          ttid: ttid,
+          fit: BoxFit.cover,
+          shouldFadeIn: true,
+          showWatchProgress: true,
+          width: constraints.maxWidth,
+          progressBarHeight: 3,
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final child = VideoThumbnail(
-      ttid: ttid,
-      fit: BoxFit.cover,
-      shouldFadeIn: true,
-    );
-
     return Expanded(
       flex: 7,
       child: Stack(
@@ -152,7 +161,7 @@ class _Thumbnail extends StatelessWidget {
                       ? toHeroContext.widget
                       : SizedBox(),
               placeholderBuilder: (context, heroSize, child) => child,
-              child: child,
+              child: _buildChild(context),
             ),
           ),
           Container(

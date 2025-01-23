@@ -22,6 +22,7 @@ class VideoThumbnail extends StatelessWidget {
     this.height,
     this.width,
     this.fadeDuration = Durations.short4,
+    this.progressBarHeight = 2,
   }) : assert(
           !showWatchProgress || width != null,
           "width must be provided when showWatchProgress is true",
@@ -35,6 +36,7 @@ class VideoThumbnail extends StatelessWidget {
   final BoxFit? fit;
 
   final double? height, width;
+  final double progressBarHeight;
 
   final Widget Function(BuildContext, Object, StackTrace?)? errorBuilder;
 
@@ -52,7 +54,7 @@ class VideoThumbnail extends StatelessWidget {
         Align(
           alignment: AlignmentDirectional.bottomStart,
           child: Container(
-            height: 2,
+            height: progressBarHeight,
             width: width! * positionFraction.clamp(0.16, 1),
             color: Theme.of(context).colorScheme.primary,
           ),
