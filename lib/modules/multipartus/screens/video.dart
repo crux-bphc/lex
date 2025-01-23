@@ -80,7 +80,7 @@ class _LeftSide extends StatelessWidget {
   final String ttid;
 
   late final _lastWatched =
-      GetIt.instance<LocalStorage>().watchHistory.read(ttid);
+      GetIt.instance<LocalStorage>().watchHistory.getByTtid(ttid);
 
   Duration? _getLastWatchedTimestamp() {
     final d = _lastWatched?.position;

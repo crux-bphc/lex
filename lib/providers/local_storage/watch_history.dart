@@ -92,8 +92,28 @@ class WatchHistory {
     _save();
   }
 
-  WatchHistoryItem? read(String ttid) {
+  WatchHistoryItem? getByTtid(String ttid) {
     return _history[int.parse(ttid)];
+  }
+
+  /// Returns the most recent watch history item for a given subject
+  /// (ttid, WatchHistoryItem)
+  (String, WatchHistoryItem)? getMostRecentBySubject({
+    required String departmentUrl,
+    required String code,
+  }) {
+    final found = _history.entries
+        .where(
+          (e) => e.value.departmentUrl == departmentUrl && e.value.code == code,
+        )
+        .fold<MapEntry<int, WatchHistoryItem>?>(
+          null,
+          (a, b) =>
+              a == null ? b : (a.value.timestamp > b.value.timestamp ? a : b),
+        );
+
+    if (found == null) return null;
+    return (found.key.toString(), found.value);
   }
 
   /// Subscribes to the history map signal

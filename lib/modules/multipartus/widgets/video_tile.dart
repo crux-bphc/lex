@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lex/modules/multipartus/service.dart';
+import 'package:lex/modules/multipartus/models/impartus_video.dart';
 import 'package:lex/modules/multipartus/widgets/grid_button.dart';
 import 'package:lex/modules/multipartus/widgets/thumbnail.dart';
 import 'package:lex/utils/misc.dart';
@@ -12,7 +12,7 @@ class VideoTile extends StatefulWidget {
     required this.video,
   });
 
-  final LectureVideo video;
+  final ImpartusVideoData video;
   final void Function() onPressed;
 
   @override
@@ -44,7 +44,7 @@ class _Title extends StatelessWidget {
     required this.video,
   });
 
-  final LectureVideo video;
+  final ImpartusVideoData video;
 
   @override
   Widget build(BuildContext context) {
@@ -120,6 +120,7 @@ class _Thumbnail extends StatelessWidget {
           shouldFadeIn: true,
           showWatchProgress: true,
           width: constraints.maxWidth,
+          height: constraints.maxHeight,
           progressBarHeight: 3,
         );
       },
@@ -128,32 +129,28 @@ class _Thumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Hero(
+    //   tag: ttid,
+    //   createRectTween: (begin, end) =>
+    //       CurvedRectTween(begin: begin!, end: end!),
+    //   flightShuttleBuilder: (
+    //     flightContext,
+    //     animation,
+    //     flightDirection,
+    //     fromHeroContext,
+    //     toHeroContext,
+    //   ) =>
+    //       // animate only in the push direction
+    //       flightDirection == HeroFlightDirection.push
+    //           ? toHeroContext.widget
+    //           : SizedBox(),
+    //   placeholderBuilder: (context, heroSize, child) => child,
+    //   child: _buildChild(context),
+    // );
+
     return Expanded(
       flex: 7,
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: Hero(
-              tag: ttid,
-              createRectTween: (begin, end) =>
-                  CurvedRectTween(begin: begin!, end: end!),
-              flightShuttleBuilder: (
-                flightContext,
-                animation,
-                flightDirection,
-                fromHeroContext,
-                toHeroContext,
-              ) =>
-                  // animate only in the push direction
-                  flightDirection == HeroFlightDirection.push
-                      ? toHeroContext.widget
-                      : SizedBox(),
-              placeholderBuilder: (context, heroSize, child) => child,
-              child: _buildChild(context),
-            ),
-          ),
-        ],
-      ),
+      child: _buildChild(context),
     );
   }
 }

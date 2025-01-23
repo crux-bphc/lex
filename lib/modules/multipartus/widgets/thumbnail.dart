@@ -42,7 +42,7 @@ class VideoThumbnail extends StatelessWidget {
 
   Widget _buildWithProgress(BuildContext context, Widget child) {
     final positionFraction =
-        GetIt.instance<LocalStorage>().watchHistory.read(ttid)?.fraction;
+        GetIt.instance<LocalStorage>().watchHistory.getByTtid(ttid)?.fraction;
     if (positionFraction == null) {
       return child;
     }

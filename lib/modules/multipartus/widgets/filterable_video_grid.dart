@@ -155,7 +155,7 @@ class _ImpartusVideoGrid extends StatelessWidget {
       ),
       itemBuilder: (context, i) {
         return VideoTile(
-          video: videos[i],
+          video: videos[i].video,
           onPressed: () => onPressed(videos[i]),
         );
       },
