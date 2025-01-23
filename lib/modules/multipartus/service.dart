@@ -11,7 +11,7 @@ import 'package:signals/signals.dart';
 class MultipartusService {
   final LexBackend _backend;
 
-  late final FutureSignal<bool> isRegistered;
+  late final FutureSignal<MultipartusRegistrationState> registrationState;
   late final MapSignal<SubjectId, Subject> subjects;
   late final FutureSignal<Map<SubjectId, Subject>> pinnedSubjects;
   late final FutureSignal<Map<int, ImpartusSessionData>> _impartusSessionMap;
@@ -55,11 +55,22 @@ class MultipartusService {
       debugLabel: 'service | impartusSessionMap',
     );
 
-    isRegistered = computedAsync(
+    registrationState = computedAsync(
       () async {
         final r = await _backend.get('/impartus/user');
-        if (r?.data is! Map) return false;
-        return (r?.data['registered'] ?? false) && (r?.data['valid'] ?? false);
+
+        if (r?.data is! Map) return MultipartusRegistrationState.notRegistered;
+
+        if (r?.data["valid"] == false) {
+          return MultipartusRegistrationState.invalidToken;
+        }
+        // if for some reason these keys don't exist we shouldn't count that
+        // as registered, so I'm strictly checking for their values.
+        if (r?.data["valid"] == true && r?.data["registered"] == true) {
+          return MultipartusRegistrationState.registered;
+        }
+
+        return MultipartusRegistrationState.notRegistered;
       },
       debugLabel: 'service | isRegistered',
     );
@@ -168,14 +179,14 @@ class MultipartusService {
   }
 
   Future<void> registerUser(String impartusPassword) async {
-    isRegistered.setLoading();
+    registrationState.setLoading();
     await _backend.post(
       '/impartus/user',
       data: {
         "password": impartusPassword,
       },
     );
-    await isRegistered.refresh();
+    await registrationState.refresh();
   }
 
   Future<ImpartusVideoData> fetchLectureVideo({
@@ -260,3 +271,9 @@ Map<SubjectId, Subject> _subjectsToIdMap(Iterable<Subject> subjects) =>
       for (final s in subjects)
         (department: s.departmentUrl.replaceAll(',', '/'), code: s.code): s,
     };
+
+enum MultipartusRegistrationState {
+  registered,
+  notRegistered,
+  invalidToken,
+}

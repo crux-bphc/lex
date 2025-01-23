@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/disclaimer_dialog.dart';
@@ -17,19 +18,24 @@ class MultipartusLoginGate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isRegistered =
-        GetIt.instance<MultipartusService>().isRegistered.watch(context);
+        GetIt.instance<MultipartusService>().registrationState.watch(context);
 
     return AnimatedSwitcher(
       duration: Durations.medium2,
       child: isRegistered.map(
-        data: (registered) => registered
-            ? child
-            : Center(
-                child: SizedBox(
-                  width: 500,
-                  child: _Login(onLogin: handleLogin),
-                ),
-              ),
+        data: (registered) =>
+            registered == MultipartusRegistrationState.registered
+                ? child
+                : Center(
+                    child: SizedBox(
+                      width: 500,
+                      child: _Login(
+                        onLogin: handleLogin,
+                        isPasswordIncorrect: registered ==
+                            MultipartusRegistrationState.invalidToken,
+                      ),
+                    ),
+                  ),
         error: (e, _) => Text("error: $e"),
         loading: () => const Center(
           child: Column(
@@ -51,9 +57,10 @@ class MultipartusLoginGate extends StatelessWidget {
 }
 
 class _Login extends StatefulWidget {
-  const _Login({required this.onLogin});
+  const _Login({required this.onLogin, required this.isPasswordIncorrect});
 
   final void Function(String password) onLogin;
+  final bool isPasswordIncorrect;
 
   @override
   State<_Login> createState() => _LoginState();
@@ -96,18 +103,31 @@ class _LoginState extends State<_Login> {
       children: [
         const MultipartusTitle(),
         const SizedBox(height: 14),
-        TextField(
-          controller: _passwordController,
-          focusNode: _focusNode,
-          decoration: const InputDecoration(hintText: "Impartus Password"),
-          textAlign: TextAlign.center,
-          obscureText: true,
-          autofocus: false,
-          onSubmitted: (text) {
-            if (_didReadDisclaimer) {
-            }
-          },
+        SizedBox(
+          height: 60,
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: TextField(
+              controller: _passwordController,
+              focusNode: _focusNode,
+              decoration: InputDecoration(
+                hintText: "Impartus Password",
+                errorText: widget.isPasswordIncorrect
+                    ? "Incorrect password. Please use your most updated Impartus password."
+                    : null,
+              ),
+              textAlign: TextAlign.center,
+              obscureText: true,
+              autofocus: false,
+              onSubmitted: (text) {
+                if (_didReadDisclaimer.value) {
                   widget.onLogin(text);
+                }
+              },
+            )
+                .animate(target: widget.isPasswordIncorrect ? 1 : 0)
+                .shakeX(duration: 500.ms, hz: 6, amount: 2),
+          ),
         ),
         const SizedBox(height: 8),
         Watch(
