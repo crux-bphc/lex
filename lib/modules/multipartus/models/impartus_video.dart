@@ -8,7 +8,8 @@ class ImpartusVideoData with _$ImpartusVideoData {
   const factory ImpartusVideoData({
     required int ttid,
     required int videoId,
-    required String topic,
+    @JsonKey(name: "topic") required String title,
+    @JsonKey(name: "professorName") required String professor,
     @JsonKey(name: "seqNo") required int lectureNo,
     @JsonKey(fromJson: _dateTimeFromJson, name: "startTime")
     required DateTime createdAt,

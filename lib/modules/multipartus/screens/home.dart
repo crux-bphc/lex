@@ -270,11 +270,11 @@ class _ContinueWatching extends StatefulWidget {
 }
 
 class _ContinueWatchingState extends State<_ContinueWatching> {
-  _getItems() {
+  List<(String, WatchHistoryItem)> _getItems() {
     return GetIt.instance<LocalStorage>().watchHistory.readAll();
   }
 
-  late List<(int, WatchHistoryItem)> items = _getItems();
+  late List<(String, WatchHistoryItem)> items = _getItems();
 
   @override
   Widget build(BuildContext context) {
@@ -312,13 +312,12 @@ class _ContinueWatchingState extends State<_ContinueWatching> {
                   final code = items[index].$2.code;
                   final departmentUrl = items[index].$2.departmentUrl;
                   final department = departmentUrl.replaceAll(',', '/');
-                  final videoId = items[index].$1;
+                  final ttid = items[index].$1;
 
-                  debugPrint("build");
                   return RawMaterialButton(
                     onPressed: () {
                       context.go(
-                        '/multipartus/courses/$departmentUrl/$code/watch/$videoId',
+                        '/multipartus/courses/$departmentUrl/$code/watch/$ttid',
                       );
                     },
                     elevation: 0,
@@ -332,10 +331,13 @@ class _ContinueWatchingState extends State<_ContinueWatching> {
                     ),
                     child: FutureBuilder(
                       future: GetIt.instance<MultipartusService>()
-                          .getVideoInfo(videoId.toString()),
+                          .fetchLectureVideo(
+                        department: department,
+                        code: code,
+                        ttid: ttid.toString(),
+                      ),
                       builder: (context, snapshot) {
-                        final ttid = items[index].$2.ttid;
-                        final title = snapshot.data?["lecturetopic"];
+                        final title = snapshot.data?.title;
                         final isLoading =
                             snapshot.connectionState != ConnectionState.done;
 

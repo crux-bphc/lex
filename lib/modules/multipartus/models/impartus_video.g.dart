@@ -11,7 +11,8 @@ _$ImpartusVideoDataImpl _$$ImpartusVideoDataImplFromJson(
     _$ImpartusVideoDataImpl(
       ttid: (json['ttid'] as num).toInt(),
       videoId: (json['videoId'] as num).toInt(),
-      topic: json['topic'] as String,
+      title: json['topic'] as String,
+      professor: json['professorName'] as String,
       lectureNo: (json['seqNo'] as num).toInt(),
       createdAt: _dateTimeFromJson(json['startTime'] as String),
     );

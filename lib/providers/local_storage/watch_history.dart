@@ -23,22 +23,36 @@ class WatchHistory {
     final map = jsonDecode(content);
     if (map is! Map) return;
 
-    _history.clear();
-    _history.addAll(
-      map.map(
-        (key, value) => MapEntry(
-          int.parse(key),
-          WatchHistoryItem(
-            value['t'] ?? 0,
-            value['p'] ?? 0,
-            value['f'] ?? 0,
-            value['d'] ?? '',
-            value['c'] ?? '',
-            value['v'] ?? '', // ttid
-          ),
+    batch(() {
+      _history.clear();
+
+      bool isOld = false;
+
+      _history.addAll(
+        map.map(
+          (key, value) {
+            if (value['v'] != null) isOld = true;
+            return MapEntry(
+              int.parse(key),
+              WatchHistoryItem(
+                value['t'] ?? 0,
+                value['p'] ?? 0,
+                value['f'] ?? 0,
+                value['d'] ?? '',
+                value['c'] ?? '',
+              ),
+            );
+          },
         ),
-      ),
-    );
+      );
+
+      if (isOld) {
+        _history.clear();
+        untracked(() {
+          _save();
+        });
+      }
+    });
   }
 
   void _save() {
@@ -52,7 +66,6 @@ class WatchHistory {
           'f': double.parse(value.fraction.toStringAsFixed(2)),
           'd': value.departmentUrl,
           'c': value.code,
-          'v': value.ttid,
         },
       ),
     );
@@ -61,7 +74,6 @@ class WatchHistory {
   }
 
   void update({
-    required int videoId,
     required int position,
     required double fraction,
     required String departmentUrl,
@@ -70,26 +82,26 @@ class WatchHistory {
     DateTime? timestamp,
   }) {
     timestamp ??= DateTime.now();
-    _history[videoId] = WatchHistoryItem.fromDateTime(
+    _history[int.parse(ttid)] = WatchHistoryItem.fromDateTime(
       timestamp,
       position,
       fraction,
       departmentUrl,
       code,
-      ttid,
     );
     _save();
   }
 
-  WatchHistoryItem? read(int videoId) {
-    return _history[videoId];
+  WatchHistoryItem? read(String ttid) {
+    return _history[int.parse(ttid)];
   }
 
-  // subscribes to the history map signal
-  List<(int, WatchHistoryItem)> readAll() {
+  /// Subscribes to the history map signal
+  /// and returns `List<(ttid, WatchHistoryItem)>`
+  List<(String, WatchHistoryItem)> readAll() {
     return _history()
         .entries
-        .map((e) => (e.key, e.value))
+        .map((e) => (e.key.toString(), e.value))
         // remove videos that are fully watched
         .where((e) => e.$2.fraction < 0.94)
         .toList()
@@ -105,7 +117,6 @@ class WatchHistoryItem {
   final int position;
   final double fraction;
   final String departmentUrl, code;
-  final String ttid;
 
   WatchHistoryItem(
     this.timestamp,
@@ -113,14 +124,13 @@ class WatchHistoryItem {
     this.fraction,
     this.departmentUrl,
     this.code,
-    this.ttid,
   );
+
   WatchHistoryItem.fromDateTime(
     DateTime timestamp,
     this.position,
     this.fraction,
     this.departmentUrl,
     this.code,
-    this.ttid,
   ) : timestamp = timestamp.millisecondsSinceEpoch ~/ 1000;
 }

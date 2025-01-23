@@ -16,8 +16,8 @@ class MultipartusService {
   late final FutureSignal<Map<SubjectId, Subject>> pinnedSubjects;
   late final FutureSignal<Map<int, ImpartusSessionData>> _impartusSessionMap;
 
-  /// videoId: LectureVideo
-  late final _lectureMap = DeferredValueMap<String, LectureVideo>();
+  /// ttid: ImpartusVideoData
+  late final _videoMap = DeferredValueMap<String, ImpartusVideoData>();
 
   MultipartusService(this._backend) {
     pinnedSubjects = computedAsync(
@@ -136,7 +136,7 @@ class MultipartusService {
             final prof = v.professor;
             profMap.putIfAbsent(prof, () => {}).add(v.session);
 
-            _lectureMap.set(v.videoId, v);
+            _videoMap.set(v.ttid, v.video);
           }
 
           return (
@@ -178,15 +178,28 @@ class MultipartusService {
     await isRegistered.refresh();
   }
 
-  Future<LectureVideo> fetchLectureVideo({
+  Future<ImpartusVideoData> fetchLectureVideo({
     required String department,
     required String code,
-    required String videoId,
-  }) {
-    return _lectureMap.get(
-      videoId,
+    required String ttid,
+  }) async {
+    // first check if we have the video in cache
+    final maybe = _videoMap.maybeGet(ttid);
+    if (maybe != null) return maybe;
+
+    // if not, fetch from video info
+    final videoData = await _getVideoInfo(ttid);
+    if (videoData != null) {
+      _videoMap.set(ttid, videoData);
+      return videoData;
+    }
+
+    // this should ideally never run but im leaving this here in case
+    // the video info endpoint fails (above)
+    return (await _videoMap.get(
+      ttid,
       () => lectures((department: department, code: code)).future,
-    );
+    ));
   }
 
   Future<List<Subject>> searchSubjects(String search) async {
@@ -203,17 +216,12 @@ class MultipartusService {
     return subs;
   }
 
-  Future<String?> ttidFromVideoId(String videoId) async {
-    final ttid = _lectureMap.maybeGet(videoId)?.ttid;
-    if (ttid != null) return ttid;
+  Future<ImpartusVideoData?> _getVideoInfo(String ttid) async {
+    final r = await _backend.get('/impartus/ttid/$ttid/info');
 
-    final data = await getVideoInfo(videoId);
-    return data?['ttid'];
-  }
+    if (r?.data is! Map) return null;
 
-  Future<Map?> getVideoInfo(String videoId) async {
-    final r = await _backend.get('/impartus/video/$videoId/info');
-    return r?.data;
+    return ImpartusVideoData.fromJson(r?.data);
   }
 }
 
@@ -224,14 +232,16 @@ class LectureVideo {
   final DateTime createdAt;
   final String ttid;
   final String videoId;
+
   final ImpartusSessionData? session;
+  final ImpartusVideoData video;
 
   LectureVideo.fromData({
     required ImpartusSectionData section,
-    required ImpartusVideoData video,
+    required this.video,
     required this.session,
   })  : professor = section.professor,
-        title = video.topic,
+        title = video.title,
         lectureNo = video.lectureNo,
         createdAt = video.createdAt,
         ttid = video.ttid.toString(),

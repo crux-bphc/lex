@@ -9,10 +9,10 @@ class VideoTitle extends StatefulWidget {
     super.key,
     required this.subjectCode,
     required this.department,
-    required this.videoId,
+    required this.ttid,
   });
 
-  final String subjectCode, department, videoId;
+  final String subjectCode, department, ttid;
 
   @override
   State<VideoTitle> createState() => _TitleState();
@@ -29,7 +29,7 @@ class _TitleState extends State<VideoTitle> {
       future: GetIt.instance<MultipartusService>().fetchLectureVideo(
         department: widget.department,
         code: widget.subjectCode,
-        videoId: widget.videoId,
+        ttid: widget.ttid,
       ),
       builder: (context, snapshot) {
         final data = snapshot.data;

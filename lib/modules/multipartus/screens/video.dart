@@ -8,13 +8,13 @@ import 'package:lex/providers/local_storage/local_storage.dart';
 class MultipartusVideoPage extends StatefulWidget {
   const MultipartusVideoPage({
     super.key,
-    required this.videoId,
+    required this.ttid,
     required this.subjectCode,
     required this.department,
     this.startTimestamp,
   });
 
-  final String subjectCode, department, videoId;
+  final String subjectCode, department, ttid;
   final int? startTimestamp;
 
   @override
@@ -39,20 +39,11 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
           children: [
             Expanded(
               flex: 5,
-              child: FutureBuilder(
-                future: GetIt.instance<MultipartusService>()
-                    .ttidFromVideoId(widget.videoId),
-                builder: (context, snapshot) {
-                  final ttid = snapshot.data;
-
-                  return _LeftSide(
-                    ttid: ttid,
-                    videoId: widget.videoId,
-                    subjectCode: widget.subjectCode,
-                    department: widget.department,
-                    startTimestamp: widget.startTimestamp,
-                  );
-                },
+              child: _LeftSide(
+                ttid: widget.ttid,
+                subjectCode: widget.subjectCode,
+                department: widget.department,
+                startTimestamp: widget.startTimestamp,
               ),
             ),
             const SizedBox(width: 20),
@@ -80,17 +71,16 @@ class _LeftSide extends StatelessWidget {
   _LeftSide({
     required this.subjectCode,
     required this.department,
-    required this.videoId,
     required this.startTimestamp,
-    this.ttid,
+    required this.ttid,
   });
 
-  final String subjectCode, department, videoId;
+  final String subjectCode, department;
   final int? startTimestamp;
-  final String? ttid;
+  final String ttid;
 
   late final _lastWatched =
-      GetIt.instance<LocalStorage>().watchHistory.read(int.parse(videoId));
+      GetIt.instance<LocalStorage>().watchHistory.read(ttid);
 
   Duration? _getLastWatchedTimestamp() {
     final d = _lastWatched?.position;
@@ -100,12 +90,9 @@ class _LeftSide extends StatelessWidget {
     return Duration(seconds: d);
   }
 
-  late final fetchedTtid = ttid ?? _lastWatched?.ttid;
-
   void _updateWatchHistory(Duration position, double fraction) {
     GetIt.instance<LocalStorage>().watchHistory.update(
-          ttid: fetchedTtid!,
-          videoId: int.parse(videoId),
+          ttid: ttid,
           position: position.inSeconds,
           fraction: fraction,
           code: subjectCode,
@@ -119,26 +106,24 @@ class _LeftSide extends StatelessWidget {
       slivers: [
         SliverList.list(
           children: [
-            fetchedTtid != null
-                ? VideoPlayer(
-                    ttid: fetchedTtid!,
-                    // start with timestamp from link if available or else
-                    // get from watch history or else start from beginning
-                    startTimestamp: (startTimestamp != null
-                            ? Duration(seconds: startTimestamp!)
-                            : _getLastWatchedTimestamp()) ??
-                        Duration.zero,
-                    // update every two seconds
-                    onPositionChanged: _updateWatchHistory,
-                    positionUpdateInterval: Duration(seconds: 2),
-                  )
-                : const SizedBox(),
+            VideoPlayer(
+              ttid: ttid,
+              // start with timestamp from link if available or else
+              // get from watch history or else start from beginning
+              startTimestamp: (startTimestamp != null
+                      ? Duration(seconds: startTimestamp!)
+                      : _getLastWatchedTimestamp()) ??
+                  Duration.zero,
+              // update every two seconds
+              onPositionChanged: _updateWatchHistory,
+              positionUpdateInterval: Duration(seconds: 2),
+            ),
             Padding(
               padding: const EdgeInsets.only(top: 16),
               child: VideoTitle(
                 department: department,
                 subjectCode: subjectCode,
-                videoId: videoId,
+                ttid: ttid,
               ),
             ),
           ],

@@ -130,7 +130,7 @@ final router = GoRouter(
                       },
                       routes: [
                         GoRoute(
-                          path: 'watch/:videoId',
+                          path: 'watch/:ttid',
                           builder: (context, state) {
                             final department = state
                                 .pathParameters['department']!
@@ -141,7 +141,7 @@ final router = GoRouter(
                             return MultipartusVideoPage(
                               department: department,
                               subjectCode: code,
-                              videoId: state.pathParameters['videoId']!,
+                              ttid: state.pathParameters['ttid']!,
                               startTimestamp: int.tryParse(timestamp ?? ''),
                             );
                           },
