@@ -3,30 +3,57 @@ import 'package:get_it/get_it.dart';
 import 'package:lex/modules/multipartus/models/subject.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/grid_button.dart';
-import 'package:signals/signals_flutter.dart';
 
-class SubjectTile extends StatelessWidget {
+class SubjectTile extends StatefulWidget {
   const SubjectTile({
     super.key,
     required this.subject,
     required this.onPressed,
+    this.eagerUpdate = false,
   });
 
   final Subject subject;
-
   final void Function() onPressed;
+  final bool eagerUpdate;
+
+  @override
+  State<SubjectTile> createState() => _SubjectTileState();
+}
+
+class _SubjectTileState extends State<SubjectTile> {
+  late bool isPinned;
+
+  @override
+  void initState() {
+    super.initState();
+    isPinned = widget.subject.isPinned;
+  }
+
+  void _togglePinnedState() {
+    setState(() {
+      isPinned = !isPinned;
+    });
+
+    if (isPinned) {
+      GetIt.instance<MultipartusService>()
+          .pinSubject(widget.subject.department, widget.subject.code);
+    } else {
+      GetIt.instance<MultipartusService>()
+          .unpinSubject(widget.subject.department, widget.subject.code);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return GridButton(
-      onPressed: onPressed,
+      onPressed: widget.onPressed,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
               Text(
-                subject.prettyCode.toUpperCase(),
+                widget.subject.prettyCode.toUpperCase(),
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w500,
@@ -34,33 +61,25 @@ class SubjectTile extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              Watch(
-                (context) {
-                  final service = GetIt.instance<MultipartusService>();
-                  final isPinned =
-                      service.subjects.value[subject.subjectId]?.isPinned ??
-                          false;
-                  return IconButton(
-                    onPressed: () async {
-                      if (isPinned) {
-                        await service.unpinSubject(
-                          subject.department,
-                          subject.code,
-                        );
-                      } else {
-                        await service.pinSubject(
-                          subject.department,
-                          subject.code,
-                        );
-                      }
-                    },
-                    icon: Icon(
-                      isPinned ? Icons.favorite : Icons.favorite_border,
-                      size: 22,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  );
+              IconButton(
+                onPressed: () {
+                  if (widget.eagerUpdate) {
+                    _togglePinnedState();
+                  } else {
+                    if (widget.subject.isPinned) {
+                      GetIt.instance<MultipartusService>().unpinSubject(
+                          widget.subject.department, widget.subject.code);
+                    } else {
+                      GetIt.instance<MultipartusService>().pinSubject(
+                          widget.subject.department, widget.subject.code);
+                    }
+                  }
                 },
+                icon: Icon(
+                  isPinned ? Icons.favorite : Icons.favorite_border,
+                  size: 22,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
               ),
             ],
           ),
@@ -68,7 +87,7 @@ class SubjectTile extends StatelessWidget {
             child: Align(
               alignment: Alignment.centerLeft + const Alignment(0, -0.2),
               child: Text(
-                subject.name.toUpperCase().trim(),
+                widget.subject.name.toUpperCase().trim(),
                 style: const TextStyle(
                   fontSize: 26,
                   letterSpacing: 2,

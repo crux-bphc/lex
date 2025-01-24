@@ -121,6 +121,7 @@ class _SubjectsState extends State<_Subjects> with SignalsMixin {
                     data: (data) => _SubjectGrid(
                       subjects: data.values.toList(),
                       onPressed: _handleSubjectPressed,
+                      eagerUpdate: false,
                     ),
                     error: (e, _) => Text("Error: $e"),
                     loading: () => _loadingWidget,
@@ -138,21 +139,24 @@ class _SubjectsState extends State<_Subjects> with SignalsMixin {
                       return Text("Error: ${snapshot.error}");
                     }
 
-                    return _SubjectGrid(
-                      subjects: snapshot.data as List<Subject>,
-                      onPressed: _handleSubjectPressed,
-                      emptyText: "No subjects found",
-                    )
-                        .animate()
-                        .slideY(
-                          duration: 200.ms,
-                          curve: Curves.easeOutCubic,
-                          begin: 0.01,
-                          end: 0,
+                        return _SubjectGrid(
+                          subjects: snapshot.data as List<Subject>,
+                          onPressed: _handleSubjectPressed,
+                          emptyText: "No subjects found",
+                          eagerUpdate: true,
                         )
-                        .fadeIn(
-                          duration: 180.ms,
-                        );
+                            .animate()
+                            .slideY(
+                              duration: 200.ms,
+                              curve: Curves.easeOutCubic,
+                              begin: 0.01,
+                              end: 0,
+                            )
+                            .fadeIn(
+                              duration: 180.ms,
+                            );
+                      },
+                    );
                   },
                 );
               }
@@ -225,11 +229,13 @@ class _SubjectGrid extends StatefulWidget {
     required this.subjects,
     required this.onPressed,
     this.emptyText = "No subjects to show",
+    this.eagerUpdate = false, 
   });
 
   final List<Subject> subjects;
   final void Function(Subject subject) onPressed;
   final String emptyText;
+  final bool eagerUpdate;
 
   @override
   State<_SubjectGrid> createState() => _SubjectGridState();
@@ -264,6 +270,7 @@ class _SubjectGridState extends State<_SubjectGrid> {
             itemBuilder: (context, i) => SubjectTile(
               onPressed: () => widget.onPressed(widget.subjects[i]),
               subject: widget.subjects[i],
+              eagerUpdate: widget.eagerUpdate,
             ),
             itemCount: widget.subjects.length,
           ),
