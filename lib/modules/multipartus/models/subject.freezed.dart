@@ -25,12 +25,123 @@ mixin _$Subject {
   String get code => throw _privateConstructorUsedError;
   @JsonKey(defaultValue: false)
   bool get isPinned => throw _privateConstructorUsedError;
+
+  /// Create a copy of Subject
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $SubjectCopyWith<Subject> get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $SubjectCopyWith<$Res> {
+  factory $SubjectCopyWith(Subject value, $Res Function(Subject) then) =
+      _$SubjectCopyWithImpl<$Res, Subject>;
+  @useResult
+  $Res call(
+      {String name,
+      String department,
+      String code,
+      @JsonKey(defaultValue: false) bool isPinned});
+}
+
+/// @nodoc
+class _$SubjectCopyWithImpl<$Res, $Val extends Subject>
+    implements $SubjectCopyWith<$Res> {
+  _$SubjectCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of Subject
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? name = null,
+    Object? department = null,
+    Object? code = null,
+    Object? isPinned = null,
+  }) {
+    return _then(_value.copyWith(
+      name: null == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String,
+      department: null == department
+          ? _value.department
+          : department // ignore: cast_nullable_to_non_nullable
+              as String,
+      code: null == code
+          ? _value.code
+          : code // ignore: cast_nullable_to_non_nullable
+              as String,
+      isPinned: null == isPinned
+          ? _value.isPinned
+          : isPinned // ignore: cast_nullable_to_non_nullable
+              as bool,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$SubjectImplCopyWith<$Res> implements $SubjectCopyWith<$Res> {
+  factory _$$SubjectImplCopyWith(
+          _$SubjectImpl value, $Res Function(_$SubjectImpl) then) =
+      __$$SubjectImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call(
+      {String name,
+      String department,
+      String code,
+      @JsonKey(defaultValue: false) bool isPinned});
+}
+
+/// @nodoc
+class __$$SubjectImplCopyWithImpl<$Res>
+    extends _$SubjectCopyWithImpl<$Res, _$SubjectImpl>
+    implements _$$SubjectImplCopyWith<$Res> {
+  __$$SubjectImplCopyWithImpl(
+      _$SubjectImpl _value, $Res Function(_$SubjectImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of Subject
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? name = null,
+    Object? department = null,
+    Object? code = null,
+    Object? isPinned = null,
+  }) {
+    return _then(_$SubjectImpl(
+      name: null == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String,
+      department: null == department
+          ? _value.department
+          : department // ignore: cast_nullable_to_non_nullable
+              as String,
+      code: null == code
+          ? _value.code
+          : code // ignore: cast_nullable_to_non_nullable
+              as String,
+      isPinned: null == isPinned
+          ? _value.isPinned
+          : isPinned // ignore: cast_nullable_to_non_nullable
+              as bool,
+    ));
+  }
 }
 
 /// @nodoc
 @JsonSerializable(createToJson: false)
 class _$SubjectImpl extends _Subject with DiagnosticableTreeMixin {
-  const _$SubjectImpl(
+  _$SubjectImpl(
       {required this.name,
       required this.department,
       required this.code,
@@ -65,16 +176,24 @@ class _$SubjectImpl extends _Subject with DiagnosticableTreeMixin {
       ..add(DiagnosticsProperty('code', code))
       ..add(DiagnosticsProperty('isPinned', isPinned));
   }
+
+  /// Create a copy of Subject
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$SubjectImplCopyWith<_$SubjectImpl> get copyWith =>
+      __$$SubjectImplCopyWithImpl<_$SubjectImpl>(this, _$identity);
 }
 
 abstract class _Subject extends Subject {
-  const factory _Subject(
+  factory _Subject(
           {required final String name,
           required final String department,
           required final String code,
           @JsonKey(defaultValue: false) required final bool isPinned}) =
       _$SubjectImpl;
-  const _Subject._() : super._();
+  _Subject._() : super._();
 
   factory _Subject.fromJson(Map<String, dynamic> json) = _$SubjectImpl.fromJson;
 
@@ -87,4 +206,11 @@ abstract class _Subject extends Subject {
   @override
   @JsonKey(defaultValue: false)
   bool get isPinned;
+
+  /// Create a copy of Subject
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$SubjectImplCopyWith<_$SubjectImpl> get copyWith =>
+      throw _privateConstructorUsedError;
 }

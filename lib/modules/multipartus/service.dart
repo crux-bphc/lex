@@ -151,20 +151,22 @@ class MultipartusService {
     cache: true,
   );
 
-  Future<void> pinSubject(String id) async {
+  Future<void> pinSubject(String department, String code) async {
     await _backend.post(
       '/impartus/user/subjects',
-      queryParameters: {'id': id},
+      data: {'department': department, 'code': code},
     );
-    pinnedSubjects.refresh();
+
+    await pinnedSubjects.refresh();
   }
 
-  Future<void> unpinSubject(String id) async {
+  Future<void> unpinSubject(String department, String code) async {
     await _backend.delete(
       '/impartus/user/subjects',
-      queryParameters: {'id': id},
+      data: {'department': department, 'code': code},
     );
-    pinnedSubjects.refresh();
+
+    await pinnedSubjects.refresh();
   }
 
   Future<void> registerUser(String impartusPassword) async {
@@ -207,9 +209,12 @@ class MultipartusService {
       "/impartus/subject/search",
       queryParameters: {"q": search},
     );
+
     if (r?.data is! List) return [];
 
-    final subs = (r!.data as List).map((e) => Subject.fromJson(e)).toList();
+    final subs =
+        _pinnifySubjects((r!.data as List).map((e) => Subject.fromJson(e)))
+            .toList();
 
     subjects.addAll(_subjectsToIdMap(subs));
 
@@ -223,6 +228,15 @@ class MultipartusService {
 
     return ImpartusVideoData.fromJson(r?.data);
   }
+
+  Iterable<Subject> _pinnifySubjects(Iterable<Subject> subs) => subs.map((s) {
+        return s.copyWith(
+          isPinned: untracked(
+                () => pinnedSubjects.value.value,
+              )?.containsKey(s.subjectId) ??
+              false,
+        );
+      });
 }
 
 class LectureVideo {

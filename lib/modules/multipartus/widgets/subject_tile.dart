@@ -1,59 +1,80 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:lex/modules/multipartus/models/subject.dart';
+import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/grid_button.dart';
 
-class SubjectTile extends StatelessWidget {
+class SubjectTile extends StatefulWidget {
   const SubjectTile({
     super.key,
     required this.subject,
     required this.onPressed,
+    this.eagerUpdate = false,
   });
 
   final Subject subject;
-
   final void Function() onPressed;
+  final bool eagerUpdate;
+
+  @override
+  State<SubjectTile> createState() => _SubjectTileState();
+}
+
+class _SubjectTileState extends State<SubjectTile> {
+  late bool isPinned = widget.subject.isPinned;
+
+  void _handleTogglePin() {
+    if (isPinned) {
+      GetIt.instance<MultipartusService>()
+          .unpinSubject(widget.subject.department, widget.subject.code);
+    } else {
+      GetIt.instance<MultipartusService>()
+          .pinSubject(widget.subject.department, widget.subject.code);
+    }
+
+    if (widget.eagerUpdate) {
+      setState(() {
+        isPinned = !isPinned;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return GridButton(
-      onPressed: onPressed,
+      onPressed: widget.onPressed,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
-              Text(
-                subject.prettyCode.toUpperCase(),
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
+              Expanded(
+                child: Text(
+                  widget.subject.prettyCode.toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              IconButton(
+                onPressed: _handleTogglePin,
+                icon: Icon(
+                  isPinned ? Icons.favorite : Icons.favorite_border,
+                  size: 22,
                   color: Theme.of(context).colorScheme.primary,
                 ),
               ),
-              // const Spacer(),
-              const Spacer(),
-              // IconButton(
-              //   onPressed: () {
-              //     if (subject.isPinned) {
-              //       // GetIt.instance<MultipartusService>()
-              //       // .unpinSubject(subject.);
-              //     } else {
-              //       // GetIt.instance<MultipartusService>().pinSubject(subject.id);
-              //     }
-              //   },
-              //   icon: Icon(
-              //     subject.isPinned ? Icons.favorite : Icons.favorite_border,
-              //     size: 22,
-              //     color: Theme.of(context).colorScheme.primary,
-              //   ),
-              // ),
             ],
           ),
           Expanded(
             child: Align(
               alignment: Alignment.centerLeft + const Alignment(0, -0.2),
               child: Text(
-                subject.name.toUpperCase().trim(),
+                widget.subject.name.toUpperCase().trim(),
                 style: const TextStyle(
                   fontSize: 26,
                   letterSpacing: 2,

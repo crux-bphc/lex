@@ -121,6 +121,7 @@ class _SubjectsState extends State<_Subjects> with SignalsMixin {
                     data: (data) => _SubjectGrid(
                       subjects: data.values.toList(),
                       onPressed: _handleSubjectPressed,
+                      eagerUpdate: false,
                     ),
                     error: (e, _) => Text("Error: $e"),
                     loading: () => _loadingWidget,
@@ -142,6 +143,7 @@ class _SubjectsState extends State<_Subjects> with SignalsMixin {
                       subjects: snapshot.data as List<Subject>,
                       onPressed: _handleSubjectPressed,
                       emptyText: "No subjects found",
+                      eagerUpdate: true,
                     )
                         .animate()
                         .slideY(
@@ -189,16 +191,24 @@ class _SearchBarState extends State<_SearchBar> {
     return SearchBar(
       autoFocus: true,
       hintText: "Search for any course",
+      controller: _controller,
       onChanged: (t) => widget.onUpdate(t.trim()),
       onSubmitted: (t) => widget.onSubmit(t.trim()),
       focusNode: _focusNode,
       trailing: [
         IconButton(
           icon: Icon(
-            LucideIcons.search,
+            _controller.text.isNotEmpty ? LucideIcons.x : LucideIcons.search,
             size: 20,
           ),
-          onPressed: () => widget.onSubmit(_controller.text),
+          onPressed: () {
+            if (_controller.text.isNotEmpty) {
+              _controller.clear();
+              widget.onUpdate('');
+            } else {
+              widget.onSubmit(_controller.text);
+            }
+          },
           visualDensity: VisualDensity.compact,
         ),
       ],
@@ -217,11 +227,13 @@ class _SubjectGrid extends StatefulWidget {
     required this.subjects,
     required this.onPressed,
     this.emptyText = "No subjects to show",
+    this.eagerUpdate = false,
   });
 
   final List<Subject> subjects;
   final void Function(Subject subject) onPressed;
   final String emptyText;
+  final bool eagerUpdate;
 
   @override
   State<_SubjectGrid> createState() => _SubjectGridState();
@@ -256,6 +268,7 @@ class _SubjectGridState extends State<_SubjectGrid> {
             itemBuilder: (context, i) => SubjectTile(
               onPressed: () => widget.onPressed(widget.subjects[i]),
               subject: widget.subjects[i],
+              eagerUpdate: widget.eagerUpdate,
             ),
             itemCount: widget.subjects.length,
           ),
