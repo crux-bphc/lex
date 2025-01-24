@@ -24,7 +24,7 @@ class _SubjectTileState extends State<SubjectTile> {
   late bool isPinned = widget.subject.isPinned;
 
   void _handleTogglePin() {
-    if (widget.subject.isPinned) {
+    if (isPinned) {
       GetIt.instance<MultipartusService>()
           .unpinSubject(widget.subject.department, widget.subject.code);
     } else {
