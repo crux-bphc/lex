@@ -139,19 +139,6 @@ class MultipartusService {
       data: {'department': department, 'code': code},
     );
 
-    final subjectId = (department: department, code: code);
-    if (subjects.value.containsKey(subjectId)) {
-      final currentSubjects = Map<SubjectId, Subject>.from(subjects.value);
-      final subject = currentSubjects[subjectId]!;
-      currentSubjects[subjectId] = Subject(
-        name: subject.name,
-        department: subject.department,
-        code: subject.code,
-        isPinned: true,
-      );
-      subjects.value = currentSubjects;
-    }
-
     await pinnedSubjects.refresh();
   }
 
@@ -160,19 +147,6 @@ class MultipartusService {
       '/impartus/user/subjects',
       data: {'department': department, 'code': code},
     );
-
-    final subjectId = (department: department, code: code);
-    if (subjects.value.containsKey(subjectId)) {
-      final currentSubjects = Map<SubjectId, Subject>.from(subjects.value);
-      final subject = currentSubjects[subjectId]!;
-      currentSubjects[subjectId] = Subject(
-        name: subject.name,
-        department: subject.department,
-        code: subject.code,
-        isPinned: false,
-      );
-      subjects.value = currentSubjects;
-    }
 
     await pinnedSubjects.refresh();
   }
@@ -200,35 +174,20 @@ class MultipartusService {
   }
 
   Future<List<Subject>> searchSubjects(String search) async {
-    final r = await _backend.get(
-      "/impartus/subject/search",
-      queryParameters: {"q": search},
-    );
-    if (r?.data is! List) return [];
+  final r = await _backend.get(
+    "/impartus/subject/search",
+    queryParameters: {"q": search},
+  );
 
-    final pinnedSubjectsData = await pinnedSubjects.future;
-    final subs = (r!.data as List).map((e) {
-      final subject = Subject.fromJson(e);
-      final subjectId = (
-        department: subject.departmentUrl,
-        code: subject.code,
-      );
+  if (r?.data is! List) return [];
 
-      final isPinned = pinnedSubjectsData.containsKey(subjectId);
-      return Subject(
-        name: subject.name,
-        department: subject.department,
-        code: subject.code,
-        isPinned: isPinned,
-      );
-    }).toList();
+    final subs = (r!.data as List).map((e) => Subject.fromJson(e)).toList();
 
-    final newSubjects = Map<SubjectId, Subject>.from(subjects.value);
-    newSubjects.addAll(_subjectsToIdMap(subs));
-    subjects.value = newSubjects;
+    subjects.addAll(_subjectsToIdMap(subs));
 
     return subs;
   }
+
 }
 
 class LectureVideo {
