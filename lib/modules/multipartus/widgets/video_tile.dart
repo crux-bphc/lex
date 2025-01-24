@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_lucide/flutter_lucide.dart';
-import 'package:lex/modules/multipartus/service.dart';
+import 'package:lex/modules/multipartus/models/impartus_video.dart';
 import 'package:lex/modules/multipartus/widgets/grid_button.dart';
-import 'package:lex/utils/image.dart';
+import 'package:lex/modules/multipartus/widgets/thumbnail.dart';
 import 'package:lex/utils/misc.dart';
 import 'package:lex/widgets/auto_tooltip_text.dart';
 
@@ -14,7 +12,7 @@ class VideoTile extends StatefulWidget {
     required this.video,
   });
 
-  final LectureVideo video;
+  final ImpartusVideoData video;
   final void Function() onPressed;
 
   @override
@@ -22,28 +20,20 @@ class VideoTile extends StatefulWidget {
 }
 
 class _VideoTileState extends State<VideoTile> {
-  bool _isHovered = false;
-
   @override
   Widget build(BuildContext context) {
-    return FocusableActionDetector(
-      onShowHoverHighlight: (value) {
-        setState(() => _isHovered = value);
-      },
-      child: GridButton(
-        onPressed: widget.onPressed,
-        padding: EdgeInsets.zero,
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _Thumbnail(
-              ttid: widget.video.ttid.toString(),
-              showPlayButton: _isHovered,
-            ),
-            _Title(video: widget.video),
-          ],
-        ),
+    return GridButton(
+      onPressed: widget.onPressed,
+      padding: EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _Thumbnail(
+            ttid: widget.video.ttid.toString(),
+          ),
+          _Title(video: widget.video),
+        ],
       ),
     );
   }
@@ -54,7 +44,7 @@ class _Title extends StatelessWidget {
     required this.video,
   });
 
-  final LectureVideo video;
+  final ImpartusVideoData video;
 
   @override
   Widget build(BuildContext context) {
@@ -117,63 +107,50 @@ class _Title extends StatelessWidget {
 class _Thumbnail extends StatelessWidget {
   const _Thumbnail({
     required this.ttid,
-    this.showPlayButton = false,
   });
 
   final String ttid;
-  final bool showPlayButton;
+
+  Widget _buildChild(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return VideoThumbnail(
+          ttid: ttid,
+          fit: BoxFit.cover,
+          shouldFadeIn: true,
+          showWatchProgress: true,
+          width: constraints.maxWidth,
+          height: constraints.maxHeight,
+          progressBarHeight: 3,
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final child = Image.network(
-      getThumbnailUrl(ttid),
-      fit: BoxFit.cover,
-      frameBuilder: fadeInImageFrameBuilder(),
-      errorBuilder: (context, error, stackTrace) => Center(
-        child: Icon(
-          LucideIcons.image,
-          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
-        ),
-      ),
-    );
+    // Hero(
+    //   tag: ttid,
+    //   createRectTween: (begin, end) =>
+    //       CurvedRectTween(begin: begin!, end: end!),
+    //   flightShuttleBuilder: (
+    //     flightContext,
+    //     animation,
+    //     flightDirection,
+    //     fromHeroContext,
+    //     toHeroContext,
+    //   ) =>
+    //       // animate only in the push direction
+    //       flightDirection == HeroFlightDirection.push
+    //           ? toHeroContext.widget
+    //           : SizedBox(),
+    //   placeholderBuilder: (context, heroSize, child) => child,
+    //   child: _buildChild(context),
+    // );
+
     return Expanded(
       flex: 7,
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: Hero(
-              tag: ttid,
-              createRectTween: (begin, end) =>
-                  CurvedRectTween(begin: begin!, end: end!),
-              flightShuttleBuilder: (
-                flightContext,
-                animation,
-                flightDirection,
-                fromHeroContext,
-                toHeroContext,
-              ) =>
-                  // animate only in the push direction
-                  flightDirection == HeroFlightDirection.push
-                      ? toHeroContext.widget
-                      : SizedBox(),
-              placeholderBuilder: (context, heroSize, child) => child,
-              child: child,
-            ),
-          ),
-          Container(
-            color: Colors.black38,
-            child: Center(
-              child: Icon(
-                LucideIcons.circle_play,
-                size: 50,
-                weight: 0.1,
-              ),
-            ),
-          )
-              .animate(target: showPlayButton ? 1 : 0)
-              .fade(duration: Durations.short2),
-        ],
-      ),
+      child: _buildChild(context),
     );
   }
 }

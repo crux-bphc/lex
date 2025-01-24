@@ -107,8 +107,9 @@ class _FilterableVideoGridState extends State<FilterableVideoGrid> {
                     dropdownMenuEntries: [
                       for (final session in sessions())
                         DropdownMenuEntry(
-                          label:
-                             session != null ? "${session.year}-${session.year + 1}, Sem ${session.sem}" : "Unknown session",
+                          label: session != null
+                              ? "${session.year}-${session.year + 1}, Sem ${session.sem}"
+                              : "Unknown session",
                           value: session,
                         ),
                     ],
@@ -121,7 +122,7 @@ class _FilterableVideoGridState extends State<FilterableVideoGrid> {
                 ),
               ],
             ),
-          ).animate().fadeIn(duration: 250.ms),
+          ).animate().fadeIn(duration: Durations.short4),
         ),
         SliverPadding(
           padding: const EdgeInsets.only(top: 12, bottom: 30),
@@ -154,7 +155,7 @@ class _ImpartusVideoGrid extends StatelessWidget {
       ),
       itemBuilder: (context, i) {
         return VideoTile(
-          video: videos[i],
+          video: videos[i].video,
           onPressed: () => onPressed(videos[i]),
         );
       },

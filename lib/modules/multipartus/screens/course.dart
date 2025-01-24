@@ -23,14 +23,6 @@ class MultipartusCoursePage extends StatefulWidget {
 
 class _MultipartusCoursePageState extends State<MultipartusCoursePage> {
   @override
-  void initState() {
-    super.initState();
-
-    // TODO: temp, replace with subject endpoint
-    GetIt.instance<MultipartusService>().pinnedSubjects();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final ScrollController scrollController = ScrollController();
 
@@ -44,9 +36,6 @@ class _MultipartusCoursePageState extends State<MultipartusCoursePage> {
               final subject = GetIt.instance<MultipartusService>()
                   .subjects()[widget.subjectId];
 
-              if (subject == null) {
-                return const Center(child: Text("Subject not found"));
-              }
               return CustomScrollView(
                 scrollBehavior:
                     ScrollConfiguration.of(context).copyWith(scrollbars: false),
@@ -55,13 +44,14 @@ class _MultipartusCoursePageState extends State<MultipartusCoursePage> {
                   decelerationRate: ScrollDecelerationRate.fast,
                 ),
                 slivers: [
-                  SliverPadding(
-                    padding: const EdgeInsets.only(top: 30, bottom: 12),
-                    sliver: SliverToBoxAdapter(
-                      child: CourseTitleBox(subject: subject),
+                  if (subject != null)
+                    SliverPadding(
+                      padding: const EdgeInsets.only(top: 30, bottom: 12),
+                      sliver: SliverToBoxAdapter(
+                        child: CourseTitleBox(subject: subject),
+                      ),
                     ),
-                  ),
-                  _Content(subject: subject),
+                  _Content(subjectId: widget.subjectId),
                 ],
               );
             },
@@ -73,9 +63,9 @@ class _MultipartusCoursePageState extends State<MultipartusCoursePage> {
 }
 
 class _Content extends StatefulWidget {
-  const _Content({required this.subject});
+  const _Content({required this.subjectId});
 
-  final Subject subject;
+  final SubjectId subjectId;
 
   @override
   State<_Content> createState() => _ContentState();
@@ -87,15 +77,15 @@ class _ContentState extends State<_Content> {
   FutureSignal<LecturesResult> _getLectures() =>
       GetIt.instance<MultipartusService>().lectures(
         (
-          department: widget.subject.department,
-          code: widget.subject.code,
+          department: widget.subjectId.department,
+          code: widget.subjectId.code,
         ),
       );
 
   @override
   void didUpdateWidget(covariant _Content oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.subject != widget.subject) {
+    if (oldWidget.subjectId != widget.subjectId) {
       lectures.dispose();
       lectures = _getLectures();
     }
@@ -113,17 +103,18 @@ class _ContentState extends State<_Content> {
               professorSessionMap: data.professorSessionMap,
               videos: data.videos,
               onPressed: (video) => context.go(
-                '/multipartus/courses/${widget.subject.departmentUrl}'
-                '/${widget.subject.code}/watch/${video.ttid}',
+                '/multipartus/courses/${widget.subjectId.department.replaceAll('/', ',')}'
+                '/${widget.subjectId.code}/watch/${video.ttid}',
               ),
             );
           },
         );
   }
 
-  @override
-  void dispose() {
-    lectures.dispose();
-    super.dispose();
-  }
+  // commenting this out allows lectures to be cached
+  // @override
+  // void dispose() {
+  //   lectures.dispose();
+  //   super.dispose();
+  // }
 }

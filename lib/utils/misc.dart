@@ -18,7 +18,14 @@ class DeferredValueMap<T, V> {
 
   void set(T key, V value) {
     final c = _completers.putIfAbsent(key, () => (value, Completer<V>())).$2;
-    if (!c.isCompleted) c.complete(value);
+    if (!c.isCompleted) {
+      c.complete(value);
+      _completers[key] = (value, c);
+    }
+  }
+
+  V? maybeGet(T key) {
+    return _completers[key]?.$1;
   }
 
   Future<V> get(T key, Function runner) async {

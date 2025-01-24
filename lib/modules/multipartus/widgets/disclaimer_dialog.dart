@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:lex/modules/multipartus/widgets/delayed_button.dart';
 
@@ -32,7 +31,7 @@ class _DisclaimerDialogState extends State<DisclaimerDialog>
             ),
             actions: [
               _DelayedProgressBarButton(
-                duration: const Duration(seconds: kDebugMode ? 0 : 3),
+                duration: const Duration(seconds: 3),
                 onPressed: () => Navigator.of(context).pop(true),
                 child: Text("PROCEED"),
               ),
