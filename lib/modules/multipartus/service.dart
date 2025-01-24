@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:lex/modules/multipartus/models/lecture_section.dart';
 import 'package:lex/modules/multipartus/models/impartus_video.dart';
+import 'package:lex/modules/multipartus/models/lecture_slide.dart';
 import 'package:lex/modules/multipartus/models/subject.dart';
 import 'package:lex/providers/backend.dart';
 import 'package:lex/utils/misc.dart';
@@ -237,6 +238,13 @@ class MultipartusService {
               false,
         );
       });
+
+  Future<List<LectureSlide>> slidesBro(String ttid) async {
+    final r = await _backend.get('/impartus/ttid/$ttid/slides');
+    if (r?.data is! List) return [];
+
+    return (r!.data as List).map((e) => LectureSlide.fromJson(e)).toList();
+  }
 }
 
 class LectureVideo {

@@ -4,6 +4,8 @@ import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/video_player.dart';
 import 'package:lex/modules/multipartus/widgets/video_title.dart';
 import 'package:lex/providers/local_storage/local_storage.dart';
+import 'package:lex/widgets/delayed_progress_indicator.dart';
+import 'package:lex/widgets/floating_sidebar.dart';
 
 class MultipartusVideoPage extends StatefulWidget {
   const MultipartusVideoPage({
@@ -47,19 +49,24 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
               ),
             ),
             const SizedBox(width: 20),
-            Expanded(flex: 2, child: Container()),
-            // FloatingSidebar(
-            //   child: Align(
-            //     alignment: AlignmentDirectional.topStart,
-            //     child: Text(
-            //       "SLIDES",
-            //       style: Theme.of(context)
-            //           .dialogTheme
-            //           .titleTextStyle!
-            //           .copyWith(letterSpacing: 1.5),
-            //     ),
-            //   ),
-            // ),
+            Expanded(
+              flex: 2,
+              child: FloatingSidebar(
+                child: Column(
+                  children: [
+                    Text(
+                      "SLIDES",
+                      style: Theme.of(context)
+                          .dialogTheme
+                          .titleTextStyle!
+                          .copyWith(letterSpacing: 1.5),
+                    ),
+                    SizedBox(height: 10),
+                    Expanded(child: _SlidesView(ttid: widget.ttid)),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -129,6 +136,36 @@ class _LeftSide extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+class _SlidesView extends StatelessWidget {
+  const _SlidesView({super.key, required this.ttid});
+
+  final String ttid;
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: GetIt.instance<MultipartusService>().slidesBro(ttid),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return Center(child: DelayedProgressIndicator());
+
+        final items = snapshot.data!;
+
+        return ListView.builder(
+          itemBuilder: (context, index) => Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Image.network(
+              items[index].url,
+              color: Colors.white.withOpacity(0.88),
+              colorBlendMode: BlendMode.modulate,
+            ),
+          ),
+          itemCount: snapshot.data!.length,
+        );
+      },
     );
   }
 }
