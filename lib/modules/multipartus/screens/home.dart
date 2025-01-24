@@ -139,24 +139,22 @@ class _SubjectsState extends State<_Subjects> with SignalsMixin {
                       return Text("Error: ${snapshot.error}");
                     }
 
-                        return _SubjectGrid(
-                          subjects: snapshot.data as List<Subject>,
-                          onPressed: _handleSubjectPressed,
-                          emptyText: "No subjects found",
-                          eagerUpdate: true,
+                    return _SubjectGrid(
+                      subjects: snapshot.data as List<Subject>,
+                      onPressed: _handleSubjectPressed,
+                      emptyText: "No subjects found",
+                      eagerUpdate: true,
+                    )
+                        .animate()
+                        .slideY(
+                          duration: 200.ms,
+                          curve: Curves.easeOutCubic,
+                          begin: 0.01,
+                          end: 0,
                         )
-                            .animate()
-                            .slideY(
-                              duration: 200.ms,
-                              curve: Curves.easeOutCubic,
-                              begin: 0.01,
-                              end: 0,
-                            )
-                            .fadeIn(
-                              duration: 180.ms,
-                            );
-                      },
-                    );
+                        .fadeIn(
+                          duration: 180.ms,
+                        );
                   },
                 );
               }
@@ -229,7 +227,7 @@ class _SubjectGrid extends StatefulWidget {
     required this.subjects,
     required this.onPressed,
     this.emptyText = "No subjects to show",
-    this.eagerUpdate = false, 
+    this.eagerUpdate = false,
   });
 
   final List<Subject> subjects;

@@ -21,25 +21,21 @@ class SubjectTile extends StatefulWidget {
 }
 
 class _SubjectTileState extends State<SubjectTile> {
-  late bool isPinned;
+  late bool isPinned = widget.subject.isPinned;
 
-  @override
-  void initState() {
-    super.initState();
-    isPinned = widget.subject.isPinned;
-  }
-
-  void _togglePinnedState() {
-    setState(() {
-      isPinned = !isPinned;
-    });
-
-    if (isPinned) {
-      GetIt.instance<MultipartusService>()
-          .pinSubject(widget.subject.department, widget.subject.code);
-    } else {
+  void _handleTogglePin() {
+    if (widget.subject.isPinned) {
       GetIt.instance<MultipartusService>()
           .unpinSubject(widget.subject.department, widget.subject.code);
+    } else {
+      GetIt.instance<MultipartusService>()
+          .pinSubject(widget.subject.department, widget.subject.code);
+    }
+
+    if (widget.eagerUpdate) {
+      setState(() {
+        isPinned = !isPinned;
+      });
     }
   }
 
@@ -52,29 +48,20 @@ class _SubjectTileState extends State<SubjectTile> {
         children: [
           Row(
             children: [
-              Text(
-                widget.subject.prettyCode.toUpperCase(),
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.primary,
+              Expanded(
+                child: Text(
+                  widget.subject.prettyCode.toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const Spacer(),
               IconButton(
-                onPressed: () {
-                  if (widget.eagerUpdate) {
-                    _togglePinnedState();
-                  } else {
-                    if (widget.subject.isPinned) {
-                      GetIt.instance<MultipartusService>().unpinSubject(
-                          widget.subject.department, widget.subject.code);
-                    } else {
-                      GetIt.instance<MultipartusService>().pinSubject(
-                          widget.subject.department, widget.subject.code);
-                    }
-                  }
-                },
+                onPressed: _handleTogglePin,
                 icon: Icon(
                   isPinned ? Icons.favorite : Icons.favorite_border,
                   size: 22,

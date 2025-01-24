@@ -212,7 +212,9 @@ class MultipartusService {
 
     if (r?.data is! List) return [];
 
-    final subs = (r!.data as List).map((e) => Subject.fromJson(e)).toList();
+    final subs =
+        _pinnifySubjects((r!.data as List).map((e) => Subject.fromJson(e)))
+            .toList();
 
     subjects.addAll(_subjectsToIdMap(subs));
 
@@ -226,6 +228,15 @@ class MultipartusService {
 
     return ImpartusVideoData.fromJson(r?.data);
   }
+
+  Iterable<Subject> _pinnifySubjects(Iterable<Subject> subs) => subs.map((s) {
+        return s.copyWith(
+          isPinned: untracked(
+                () => pinnedSubjects.value.value,
+              )?.containsKey(s.subjectId) ??
+              false,
+        );
+      });
 }
 
 class LectureVideo {
