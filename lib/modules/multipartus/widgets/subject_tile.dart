@@ -31,7 +31,7 @@ class _SubjectTileState extends State<SubjectTile> {
           return AlertDialog(
             title: const Text('Unpin Subject'),
             content: Text(
-              'Are you sure you want to unpin the subject "${widget.subject.name}"?',
+              'Are you sure you want to unpin "${widget.subject.name}"?',
             ),
             actions: [
               TextButton(
