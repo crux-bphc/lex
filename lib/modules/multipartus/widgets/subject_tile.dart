@@ -23,8 +23,32 @@ class SubjectTile extends StatefulWidget {
 class _SubjectTileState extends State<SubjectTile> {
   late bool isPinned = widget.subject.isPinned;
 
-  void _handleTogglePin() {
+  void _handleTogglePin() async {
     if (isPinned) {
+      final confirmUnpin = await showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Unpin Subject'),
+            content: Text(
+              'Are you sure you want to unpin "${widget.subject.name}"?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Unpin'),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (confirmUnpin != true) return;
+
       GetIt.instance<MultipartusService>()
           .unpinSubject(widget.subject.department, widget.subject.code);
     } else {
