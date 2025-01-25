@@ -104,10 +104,10 @@ class _VideoPlayerState extends State<VideoPlayer> {
           _positionUpdateStopwatch.elapsed > widget.positionUpdateInterval;
 
       if (shouldUpdate) {
-        widget.onPositionChanged!.call(
-          position,
-          position.inSeconds / actualDuration(player.state.duration).inSeconds,
-        );
+        final fraction = actualFraction(position, player.state.duration);
+
+        widget.onPositionChanged!.call(position, fraction);
+
         _positionUpdateStopwatch.reset();
       }
     });
