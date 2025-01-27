@@ -1,15 +1,17 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+import 'package:dio/dio.dart';
 import 'package:lex/modules/multipartus/models/lecture_section.dart';
 import 'package:lex/modules/multipartus/models/impartus_video.dart';
+import 'package:lex/modules/multipartus/models/lecture_slide.dart';
 import 'package:lex/modules/multipartus/models/subject.dart';
-import 'package:lex/providers/backend.dart';
 import 'package:lex/utils/misc.dart';
 import 'package:lex/utils/signals.dart';
 import 'package:signals/signals.dart';
 
 class MultipartusService {
-  final LexBackend _backend;
+  final Dio _backend;
 
   late final FutureSignal<MultipartusRegistrationState> registrationState;
   late final MapSignal<SubjectId, Subject> subjects;
@@ -24,8 +26,8 @@ class MultipartusService {
       () async {
         final r = await _backend.get('/impartus/user/subjects');
 
-        if (r?.data! is! List) return {};
-        final iter = (r!.data! as List)
+        if (r.data! is! List) return {};
+        final iter = (r.data! as List)
             .cast<Map>()
             .map((e) => Subject.fromJson({...e, 'isPinned': true}));
 
@@ -46,9 +48,9 @@ class MultipartusService {
     _impartusSessionMap = computedAsync(
       () async {
         final r = await _backend.get('/impartus/session');
-        if (r?.data is! Map) return {};
+        if (r.data is! Map) return {};
         return {
-          for (final e in (r?.data as Map).entries)
+          for (final e in (r.data as Map).entries)
             int.parse(e.key): (year: e.value[0], sem: e.value[1]),
         };
       },
@@ -58,23 +60,8 @@ class MultipartusService {
     registrationState = computedAsync(
       () async {
         final r = await _backend.get('/impartus/user');
-
-        if (r?.data is! Map) return MultipartusRegistrationState.notRegistered;
-
-        if (r?.data["registered"] == false) {
-          return MultipartusRegistrationState.notRegistered;
-        }
-
-        if (r?.data["valid"] == false) {
-          return MultipartusRegistrationState.invalidToken;
-        }
-        // if for some reason these keys don't exist we shouldn't count that
-        // as registered, so I'm strictly checking for their values.
-        if (r?.data["valid"] == true && r?.data["registered"] == true) {
-          return MultipartusRegistrationState.registered;
-        }
-
-        return MultipartusRegistrationState.notRegistered;
+        if (r.data is! Map) return false;
+        return (r.data['registered'] ?? false) && (r.data['valid'] ?? false);
       },
       debugLabel: 'service | isRegistered',
     );
@@ -82,9 +69,9 @@ class MultipartusService {
 
   Future<List<ImpartusSectionData>> lectureSections(String id) async {
     final r = await _backend.get('/impartus/subject/$id');
-    if (r?.data is! Map) return [];
+    if (r.data is! Map) return [];
 
-    final lectures = r!.data['lectures'] ?? [];
+    final lectures = r.data['lectures'] ?? [];
 
     final f =
         (lectures as List).map((e) => ImpartusSectionData.fromJson(e)).toList();
@@ -109,8 +96,8 @@ class MultipartusService {
     required int subjectId,
   }) async {
     final r = await _backend.get('/impartus/lecture/$sessionId/$subjectId');
-    if (r?.data is! List) return [];
-    return (r!.data as List).map((e) => ImpartusVideoData.fromJson(e)).toList();
+    if (r.data is! List) return [];
+    return (r.data as List).map((e) => ImpartusVideoData.fromJson(e)).toList();
   }
 
   late final lectures =
@@ -118,6 +105,8 @@ class MultipartusService {
     (e) {
       final departmentUrl = e.department.replaceAll('/', ',');
       final code = e.code;
+
+      debugPrint("yes");
 
       return computedAsync(
         () async {
@@ -166,20 +155,22 @@ class MultipartusService {
     cache: true,
   );
 
-  Future<void> pinSubject(String id) async {
+  Future<void> pinSubject(String department, String code) async {
     await _backend.post(
       '/impartus/user/subjects',
-      queryParameters: {'id': id},
+      data: {'department': department, 'code': code},
     );
-    pinnedSubjects.refresh();
+
+    await pinnedSubjects.refresh();
   }
 
-  Future<void> unpinSubject(String id) async {
+  Future<void> unpinSubject(String department, String code) async {
     await _backend.delete(
       '/impartus/user/subjects',
-      queryParameters: {'id': id},
+      data: {'department': department, 'code': code},
     );
-    pinnedSubjects.refresh();
+
+    await pinnedSubjects.refresh();
   }
 
   Future<void> registerUser(String impartusPassword) async {
@@ -222,9 +213,12 @@ class MultipartusService {
       "/impartus/subject/search",
       queryParameters: {"q": search},
     );
-    if (r?.data is! List) return [];
 
-    final subs = (r!.data as List).map((e) => Subject.fromJson(e)).toList();
+    if (r.data is! List) return [];
+
+    final subs =
+        _pinnifySubjects((r.data as List).map((e) => Subject.fromJson(e)))
+            .toList();
 
     subjects.addAll(_subjectsToIdMap(subs));
 
@@ -234,9 +228,25 @@ class MultipartusService {
   Future<ImpartusVideoData?> _getVideoInfo(String ttid) async {
     final r = await _backend.get('/impartus/ttid/$ttid/info');
 
-    if (r?.data is! Map) return null;
+    if (r.data is! Map) return null;
 
-    return ImpartusVideoData.fromJson(r?.data);
+    return ImpartusVideoData.fromJson(r.data);
+  }
+
+  Iterable<Subject> _pinnifySubjects(Iterable<Subject> subs) => subs.map((s) {
+        return s.copyWith(
+          isPinned: untracked(
+                () => pinnedSubjects.value.value,
+              )?.containsKey(s.subjectId) ??
+              false,
+        );
+      });
+
+  Future<List<LectureSlide>> slidesBro(String ttid) async {
+    final r = await _backend.get('/impartus/ttid/$ttid/slides');
+    if (r.data is! List) return [];
+
+    return (r.data as List).map((e) => LectureSlide.fromJson(e)).toList();
   }
 }
 

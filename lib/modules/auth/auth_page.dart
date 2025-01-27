@@ -8,7 +8,7 @@ import 'package:lex/widgets/delayed_progress_indicator.dart';
 import 'package:signals/signals_flutter.dart';
 
 /// Auth page shown while the app is starting up or when the user is not logged
-/// in via Keycloak.
+/// in via OIDC.
 class AuthPage extends StatelessWidget {
   const AuthPage({super.key});
 

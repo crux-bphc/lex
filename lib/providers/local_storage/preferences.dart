@@ -9,10 +9,11 @@ class Preferences {
 
   final List<EffectCleanup> _cleanups = [];
 
-  void initialize() {
+  void initialize() async {
+    _themeMode.value = _prefs.getString('theme_mode') ?? 'dark';
+
     _cleanups.addAll([
       effect(() => _prefs.setString('theme_mode', _themeMode.value)),
-      effect(() => _prefs.setString('cms_token', cmsToken.value)),
       effect(() =>
           _prefs.setBool('is_disclaimer_accepted', isDisclaimerAccepted.value)),
     ]);
@@ -26,8 +27,6 @@ class Preferences {
   void toggleTheme() {
     _themeMode.value = _themeMode.value == 'dark' ? 'light' : 'dark';
   }
-
-  late final cmsToken = signal(_prefs.getString('cms_token') ?? '');
 
   late final isDisclaimerAccepted =
       signal(_prefs.getBool('is_disclaimer_accepted') ?? false);

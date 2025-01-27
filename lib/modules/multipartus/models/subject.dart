@@ -4,11 +4,11 @@ import 'package:flutter/foundation.dart';
 part 'subject.freezed.dart';
 part 'subject.g.dart';
 
-@freezed
+@Freezed(copyWith: true)
 class Subject with _$Subject {
   const Subject._();
 
-  const factory Subject({
+  factory Subject({
     required String name,
     required String department,
     required String code,
@@ -22,6 +22,8 @@ class Subject with _$Subject {
   String get prettyCode => '$department $code';
 
   String get departmentUrl => department.replaceAll('/', ',');
+
+  SubjectId get subjectId => (department: department, code: code);
 
   factory Subject.fromJson(Map<String, Object?> json) =>
       _$SubjectFromJson(json);

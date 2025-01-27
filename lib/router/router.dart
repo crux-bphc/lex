@@ -11,7 +11,6 @@ import 'package:go_router/go_router.dart';
 import 'package:lex/modules/auth/auth_page.dart';
 import 'package:signals/signals_flutter.dart';
 
-final _cmsNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'cms');
 final _multipartusNavigatorKey = GlobalKey<NavigatorState>(
   debugLabel: 'multipartus',
 );
@@ -22,44 +21,6 @@ const _defaultInitialLocation = '/multipartus';
 
 // TODO: store this in local storage
 String? _initialLocation;
-
-final _cmsRoutes = [
-  GoRoute(
-    path: '/cms',
-    builder: (context, state) => const Scaffold(
-      body: Center(
-        child: Text("There's nothing to see here"),
-      ),
-    ),
-  ),
-  // ShellRoute(
-  //   builder: (builder, state, child) => CMSAuthenticate(
-  //     child: child,
-  //   ),
-  //   routes: [
-  //     GoRoute(
-  //       path: '/cms',
-  //       builder: (context, state) => const CMSHomePage(),
-  //     ),
-  //     GoRoute(
-  //       path: '/cms/course/:id',
-  //       builder: (context, state) {
-  //         return CMSCoursePage(id: state.pathParameters['id']!);
-  //       },
-  //     ),
-  //     GoRoute(
-  //       path: '/cms/search',
-  //       builder: (context, state) => const CMSSearchPage(),
-  //     ),
-  //     GoRoute(
-  //       path: '/cms/forum/:id',
-  //       builder: (context, state) {
-  //         return CMSForumPage(id: state.pathParameters['id']!);
-  //       },
-  //     ),
-  //   ],
-  // ),
-];
 
 final router = GoRouter(
   redirect: (context, state) {
@@ -102,8 +63,18 @@ final router = GoRouter(
       },
       branches: [
         StatefulShellBranch(
-          navigatorKey: _cmsNavigatorKey,
-          routes: _cmsRoutes,
+          routes: [
+            GoRoute(
+              path: '/cgpa',
+              builder: (context, state) {
+                return Scaffold(
+                  body: const Center(
+                    child: Text('Coming soon!'),
+                  ),
+                );
+              },
+            ),
+          ],
         ),
         StatefulShellBranch(
           navigatorKey: _multipartusNavigatorKey,
