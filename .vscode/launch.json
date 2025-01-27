@@ -9,7 +9,8 @@
       "request": "launch",
       "type": "dart",
       "args": [
-        "--dart-define-from-file=.env"
+        "--dart-define-from-file=.env",
+        "--web-port=7000"
       ]
     },
     {
@@ -18,7 +19,8 @@
       "type": "dart",
       "flutterMode": "profile",
       "args": [
-        "--dart-define-from-file=.env"
+        "--dart-define-from-file=.env",
+        "--web-port=7000"
       ]
     },
     {
@@ -27,7 +29,8 @@
       "type": "dart",
       "flutterMode": "release",
       "args": [
-        "--dart-define-from-file=.env"
+        "--dart-define-from-file=.env",
+        "--web-port=7000"
       ]
     }
   ]
