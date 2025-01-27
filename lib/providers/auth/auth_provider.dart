@@ -1,8 +1,10 @@
+import 'package:dio/dio.dart';
 import 'package:lex/providers/auth/auth_user.dart';
 import 'package:signals/signals.dart';
 
 abstract class AuthProvider {
   ReadonlySignal<AuthUser?> get currentUser;
+  Dio get dioClient;
 
   /// Whether the current user is logged in.
   /// `true` when [currentUser] is not `null` and `false` otherwise.

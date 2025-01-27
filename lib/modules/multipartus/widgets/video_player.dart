@@ -9,7 +9,6 @@ import 'package:get_it/get_it.dart';
 import 'package:lex/modules/multipartus/widgets/seekbar.dart';
 import 'package:lex/modules/multipartus/widgets/thumbnail.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
-import 'package:lex/providers/backend.dart';
 import 'package:lex/utils/extensions.dart';
 import 'package:lex/utils/misc.dart';
 import 'package:media_kit/media_kit.dart';
@@ -81,9 +80,9 @@ class _VideoPlayerState extends State<VideoPlayer> {
   }
 
   void _setup() async {
-    final client = GetIt.instance<LexBackend>().dioClient!;
-    final accessToken = Uri.encodeQueryComponent(
-      GetIt.instance<AuthProvider>().currentUser.value!.accessToken!,
+    final client = GetIt.instance<AuthProvider>().dioClient;
+    final idToken = Uri.encodeQueryComponent(
+      GetIt.instance<AuthProvider>().currentUser.value!.idToken!,
     );
     final baseUrl = client.options.baseUrl;
 
@@ -91,7 +90,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
       Media(
         _getVideoUrl(baseUrl, widget.ttid),
         httpHeaders: {
-          'Authorization': 'Bearer $accessToken',
+          'Authorization': 'Bearer $idToken',
         },
       ),
     );
