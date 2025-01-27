@@ -14,8 +14,10 @@ class Preferences {
 
     _cleanups.addAll([
       effect(() => _prefs.setString('theme_mode', _themeMode.value)),
-      effect(() =>
-          _prefs.setBool('is_disclaimer_accepted', isDisclaimerAccepted.value)),
+      effect(
+        () => _prefs.setBool(
+            'is_disclaimer_accepted', isDisclaimerAccepted.value),
+      ),
     ]);
   }
 

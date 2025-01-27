@@ -89,7 +89,7 @@ class _AllReadyWidget extends StatelessWidget {
             GetIt.instance<AuthProvider>().isLoggedIn.watch(context);
 
         return AnimatedSwitcher(
-          duration: Durations.medium4,
+          duration: Durations.short3,
           child: isLoading
               ? const SizedBox.square(
                   dimension: 26,

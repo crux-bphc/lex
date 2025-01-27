@@ -13,7 +13,6 @@ import 'package:signals/signals.dart';
 class MultipartusService {
   final Dio _backend;
 
-  late final FutureSignal<MultipartusRegistrationState> registrationState;
   late final MapSignal<SubjectId, Subject> subjects;
   late final FutureSignal<Map<SubjectId, Subject>> pinnedSubjects;
   late final FutureSignal<Map<int, ImpartusSessionData>> _impartusSessionMap;
@@ -56,15 +55,33 @@ class MultipartusService {
       },
       debugLabel: 'service | impartusSessionMap',
     );
+  }
 
-    registrationState = computedAsync(
-      () async {
-        final r = await _backend.get('/impartus/user');
-        if (r.data is! Map) return false;
-        return (r.data['registered'] ?? false) && (r.data['valid'] ?? false);
+  Future<MultipartusRegistrationState> getRegistrationState() async {
+    final r = await _backend.get('/impartus/user');
+    if (r.data is! Map) return MultipartusRegistrationState.notRegistered;
+
+    final registered = r.data['registered'] ?? false;
+    final valid = r.data['valid'] ?? false;
+
+    if (registered && valid) {
+      return MultipartusRegistrationState.registered;
+    } else if (registered && !valid) {
+      return MultipartusRegistrationState.invalidToken;
+    }
+
+    return MultipartusRegistrationState.notRegistered;
+  }
+
+  Future<bool> registerUser(String impartusPassword) async {
+    final r = await _backend.post(
+      '/impartus/user',
+      data: {
+        "password": impartusPassword,
       },
-      debugLabel: 'service | isRegistered',
     );
+
+    return r.statusCode == 200;
   }
 
   Future<List<ImpartusSectionData>> lectureSections(String id) async {
@@ -171,17 +188,6 @@ class MultipartusService {
     );
 
     await pinnedSubjects.refresh();
-  }
-
-  Future<void> registerUser(String impartusPassword) async {
-    registrationState.setLoading();
-    await _backend.post(
-      '/impartus/user',
-      data: {
-        "password": impartusPassword,
-      },
-    );
-    await registrationState.refresh();
   }
 
   Future<ImpartusVideoData> fetchLectureVideo({
