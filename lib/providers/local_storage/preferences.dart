@@ -11,11 +11,9 @@ class Preferences {
 
   void initialize() async {
     _themeMode.value = _prefs.getString('theme_mode') ?? 'dark';
-    cmsToken.value = _prefs.getString('cms_token') ?? '';
 
     _cleanups.addAll([
       effect(() => _prefs.setString('theme_mode', _themeMode.value)),
-      effect(() => _prefs.setString('cms_token', cmsToken.value)),
     ]);
   }
 
@@ -27,8 +25,6 @@ class Preferences {
   void toggleTheme() {
     _themeMode.value = _themeMode.value == 'dark' ? 'light' : 'dark';
   }
-
-  late final cmsToken = signal('');
 
   void dispose() {
     for (final cleanup in _cleanups) {

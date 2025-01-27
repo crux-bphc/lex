@@ -12,8 +12,8 @@ import 'package:signals/signals_flutter.dart';
 
 const _navItems = [
   _NavItem(
-    icon: LucideIcons.book,
-    label: 'CMS',
+    icon: LucideIcons.calculator,
+    label: 'CG Calc',
   ),
   _NavItem(
     icon: LucideIcons.video,
