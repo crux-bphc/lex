@@ -22,10 +22,10 @@ class MultipartusCoursePage extends StatefulWidget {
 }
 
 class _MultipartusCoursePageState extends State<MultipartusCoursePage> {
+  final ScrollController scrollController = ScrollController();
+
   @override
   Widget build(BuildContext context) {
-    final ScrollController scrollController = ScrollController();
-
     return Scaffold(
       body: Scrollbar(
         controller: scrollController,
@@ -59,6 +59,13 @@ class _MultipartusCoursePageState extends State<MultipartusCoursePage> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+
+    super.dispose();
   }
 }
 

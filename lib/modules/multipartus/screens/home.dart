@@ -394,7 +394,7 @@ class _ContinueWatchingState extends State<_ContinueWatching> {
           width: 380,
           padding: EdgeInsets.only(right: 30),
           child: FloatingSidebar(
-            padding: EdgeInsets.all(14),
+            padding: EdgeInsets.fromLTRB(14, 20, 14, 14),
             child: Column(
               children: [
                 Row(
@@ -403,7 +403,10 @@ class _ContinueWatchingState extends State<_ContinueWatching> {
                       child: Center(
                         child: Text(
                           "CONTINUE WATCHING",
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
                         ),
                       ),
                     ),

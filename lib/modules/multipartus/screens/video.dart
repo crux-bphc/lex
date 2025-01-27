@@ -25,14 +25,6 @@ class MultipartusVideoPage extends StatefulWidget {
 
 class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
   @override
-  void initState() {
-    super.initState();
-
-    GetIt.instance<MultipartusService>()
-        .lectures((code: widget.subjectCode, department: widget.department));
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
@@ -141,7 +133,7 @@ class _LeftSide extends StatelessWidget {
 }
 
 class _SlidesView extends StatelessWidget {
-  const _SlidesView({super.key, required this.ttid});
+  const _SlidesView({required this.ttid});
 
   final String ttid;
 
