@@ -21,10 +21,13 @@ class MultipartusLoginGate extends StatefulWidget {
 }
 
 class _MultipartusLoginGateState extends State<MultipartusLoginGate> {
+  Future<MultipartusRegistrationState> registrationState =
+      GetIt.instance<MultipartusService>().getRegistrationState();
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: GetIt.instance<MultipartusService>().getRegistrationState(),
+      future: registrationState,
       builder: (context, snapshot) {
         final registrationState = snapshot.data;
 
@@ -64,8 +67,14 @@ class _MultipartusLoginGateState extends State<MultipartusLoginGate> {
     );
   }
 
-  Future<bool> handleLogin(String password) {
-    return GetIt.instance<MultipartusService>().registerUser(password);
+  Future<bool> handleLogin(String password) async {
+    final result =
+        await GetIt.instance<MultipartusService>().registerUser(password);
+    if (result) {
+      setState(() => registrationState =
+          GetIt.instance<MultipartusService>().getRegistrationState());
+    }
+    return result;
   }
 }
 
