@@ -5,8 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
-import 'package:lex/providers/auth/keycloak_auth.dart';
-import 'package:lex/providers/backend.dart';
+import 'package:lex/providers/auth/oidc_auth.dart';
 import 'package:lex/providers/error.dart';
 import 'package:lex/providers/local_storage/local_storage.dart';
 import 'package:lex/router/router.dart';
@@ -52,22 +51,16 @@ Future<void> _prelaunchTasks() async {
 
   getIt.registerSingletonAsync<AuthProvider>(
     () async {
-      final auth = KeycloakAuthProvider();
+      final auth = OidcAuthProvider();
       await auth.initialise();
       return auth;
     },
     dispose: (auth) => auth.dispose(),
   );
 
-  getIt.registerSingletonWithDependencies<LexBackend>(
-    () => LexBackend(getIt<AuthProvider>()),
-    dispose: (backend) => backend.dispose(),
-    dependsOn: [AuthProvider],
-  );
-
   getIt.registerSingletonWithDependencies<MultipartusService>(
-    () => MultipartusService(getIt<LexBackend>()),
-    dependsOn: [LexBackend],
+    () => MultipartusService(getIt<AuthProvider>().dioClient),
+    dependsOn: [AuthProvider],
   );
 }
 
