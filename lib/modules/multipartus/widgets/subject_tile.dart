@@ -40,7 +40,13 @@ class _SubjectTileState extends State<SubjectTile> {
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Unpin'),
+                style: TextButton.styleFrom(
+                  overlayColor: Theme.of(context).colorScheme.error,
+                ),
+                child: Text(
+                  'Unpin',
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
               ),
             ],
           );
