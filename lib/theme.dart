@@ -132,6 +132,13 @@ ThemeData buildTheme(ThemeMode mode) {
     waitDuration: Durations.extralong2,
   );
 
+  final scrollbarTheme = ScrollbarThemeData(
+    thickness: WidgetStateProperty.resolveWith(
+      (states) => states.contains(WidgetState.hovered) ? 8 : 4,
+    ),
+    crossAxisMargin: 0,
+    mainAxisMargin: 8,
+  );
   return ThemeData(
     colorScheme: scheme,
     useMaterial3: true,
@@ -144,5 +151,6 @@ ThemeData buildTheme(ThemeMode mode) {
     dialogTheme: dialogTheme,
     tooltipTheme: tooltipTheme,
     textTheme: textTheme,
+    scrollbarTheme: scrollbarTheme,
   );
 }
