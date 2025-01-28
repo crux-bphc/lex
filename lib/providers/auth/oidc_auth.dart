@@ -71,34 +71,7 @@ class OidcAuthProvider extends AuthProvider {
 
   @override
   Future<void> logout() async {
-    final success = await _postEndSessionRequest();
-    if (success) {
-      await _authManager.forgetUser();
-    }
-  }
-
-  /// Log out without needing a new browser tab
-  Future<bool> _postEndSessionRequest() async {
-    final user = _currentUser.value;
-    if (user == null) {
-      return false;
-    }
-
-    // The default logout method that the Oidc auth manager
-    // uses opens a new browser tab.
-
-    final response = await dioClient.postUri(
-      _authManager.discoveryDocument.endSessionEndpoint!,
-      options: Options(contentType: "application/x-www-form-urlencoded"),
-      data: {
-        "client_id": _clientId,
-        "refresh_token": user.refreshToken!,
-      },
-    );
-
-    if (response.statusCode == null) return false;
-
-    return 200 <= response.statusCode! && response.statusCode! < 300;
+    await _authManager.logout();
   }
 
   @override

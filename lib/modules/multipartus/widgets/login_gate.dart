@@ -71,8 +71,10 @@ class _MultipartusLoginGateState extends State<MultipartusLoginGate> {
     final result =
         await GetIt.instance<MultipartusService>().registerUser(password);
     if (result) {
-      setState(() => registrationState =
-          GetIt.instance<MultipartusService>().getRegistrationState());
+      setState(
+        () => registrationState =
+            GetIt.instance<MultipartusService>().getRegistrationState(),
+      );
     }
     return result;
   }

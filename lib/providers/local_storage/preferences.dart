@@ -16,7 +16,9 @@ class Preferences {
       effect(() => _prefs.setString('theme_mode', _themeMode.value)),
       effect(
         () => _prefs.setBool(
-            'is_disclaimer_accepted', isDisclaimerAccepted.value),
+          'is_disclaimer_accepted',
+          isDisclaimerAccepted.value,
+        ),
       ),
     ]);
   }
