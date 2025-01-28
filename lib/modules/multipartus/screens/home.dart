@@ -12,6 +12,7 @@ import 'package:lex/providers/local_storage/local_storage.dart';
 import 'package:lex/providers/local_storage/watch_history.dart';
 import 'package:lex/utils/misc.dart';
 import 'package:lex/widgets/auto_tooltip_text.dart';
+import 'package:lex/widgets/bird.dart';
 import 'package:lex/widgets/delayed_progress_indicator.dart';
 import 'package:lex/widgets/floating_sidebar.dart';
 import 'package:signals/signals_flutter.dart';
@@ -84,7 +85,7 @@ class _SubjectsState extends State<_Subjects> with SignalsMixin {
 
   final _searchText = signal('');
 
-  late final isSearchMode = createComputed(() => _searchText().isEmpty);
+  late final isSearchMode = createComputed(() => _searchText().isNotEmpty);
 
   late final _debouncedTextUpdater = debouncer<String>(
     (t) => _searchText.value = t,
@@ -114,20 +115,6 @@ class _SubjectsState extends State<_Subjects> with SignalsMixin {
           child: Watch(
             (context) {
               if (isSearchMode()) {
-                return Watch((context) {
-                  final subjects =
-                      GetIt.instance<MultipartusService>().pinnedSubjects();
-                  return subjects.map(
-                    data: (data) => _SubjectGrid(
-                      subjects: data.values.toList(),
-                      onPressed: _handleSubjectPressed,
-                      eagerUpdate: false,
-                    ),
-                    error: (e, _) => Text("Error: $e"),
-                    loading: () => _loadingWidget,
-                  );
-                });
-              } else {
                 return FutureBuilder(
                   future: GetIt.instance<MultipartusService>()
                       .searchSubjects(_searchText()),
@@ -157,6 +144,20 @@ class _SubjectsState extends State<_Subjects> with SignalsMixin {
                         );
                   },
                 );
+              } else {
+                return Watch((context) {
+                  final subjects =
+                      GetIt.instance<MultipartusService>().pinnedSubjects();
+                  return subjects.map(
+                    data: (data) => _SubjectGrid(
+                      subjects: data.values.toList(),
+                      onPressed: _handleSubjectPressed,
+                      eagerUpdate: false,
+                    ),
+                    error: (e, _) => Text("Error: $e"),
+                    loading: () => _loadingWidget,
+                  );
+                });
               }
             },
           ),
@@ -245,7 +246,7 @@ class _SubjectGridState extends State<_SubjectGrid> {
   @override
   Widget build(BuildContext context) {
     if (widget.subjects.isEmpty) {
-      return Center(child: Text(widget.emptyText));
+      return ErrorBird(message: widget.emptyText);
     }
 
     return Scrollbar(

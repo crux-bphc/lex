@@ -26,6 +26,7 @@ class _MultipartusCoursePageState extends State<MultipartusCoursePage> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       body: Scrollbar(
         controller: scrollController,
@@ -107,7 +108,7 @@ class _ContentState extends State<_Content> {
           ),
           data: (data) {
             return FilterableVideoGrid(
-              professorSessionMap: data.professorSessionMap,
+              professorSessionList: data.professorSessionList,
               videos: data.videos,
               onPressed: (video) => context.go(
                 '/multipartus/courses/${widget.subjectId.department.replaceAll('/', ',')}'
