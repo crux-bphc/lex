@@ -5,14 +5,14 @@ class MultipartusTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const child = Text.rich(
+    final child = Text.rich(
       TextSpan(
         text: 'MULTI',
         children: [
           TextSpan(
             text: 'PARTUS',
             style: TextStyle(
-              color: Color(0xFF434C5D),
+              color: Theme.of(context).colorScheme.onInverseSurface,
             ),
           ),
         ],
@@ -26,6 +26,19 @@ class MultipartusTitle extends StatelessWidget {
       ),
     );
 
-    return child;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        child,
+        Text(
+          'β',
+          style: TextStyle(
+            fontFeatures: [FontFeature.superscripts()],
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+      ],
+    );
   }
 }
