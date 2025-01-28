@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'package:lex/modules/multipartus/models/lecture_section.dart';
 import 'package:lex/modules/multipartus/models/impartus_video.dart';
@@ -15,7 +14,7 @@ class MultipartusService {
 
   late final MapSignal<SubjectId, Subject> subjects;
   late final FutureSignal<Map<SubjectId, Subject>> pinnedSubjects;
-  late final FutureSignal<Map<int, ImpartusSessionData>> _impartusSessionMap;
+  late final FutureSignal<Map<int, ImpartusSession>> _impartusSessionMap;
 
   /// ttid: ImpartusVideoData
   late final _videoMap = DeferredValueMap<String, ImpartusVideoData>();
@@ -50,7 +49,8 @@ class MultipartusService {
         if (r.data is! Map) return {};
         return {
           for (final e in (r.data as Map).entries)
-            int.parse(e.key): (year: e.value[0], sem: e.value[1]),
+            int.parse(e.key):
+                ImpartusSession(year: e.value[0], sem: e.value[1]),
         };
       },
       debugLabel: 'service | impartusSessionMap',
@@ -123,8 +123,6 @@ class MultipartusService {
       final departmentUrl = e.department.replaceAll('/', ',');
       final code = e.code;
 
-      debugPrint("yes");
-
       return computedAsync(
         () async {
           final sections = await lectureSections("$departmentUrl/$code");
@@ -151,18 +149,23 @@ class MultipartusService {
           ))
               .reduce((a, b) => a + b);
 
-          final profMap = <String, Set<ImpartusSessionData?>>{};
+          final profList = sections
+              .map(
+                (e) => (
+                  professor: e.professor,
+                  session:
+                      sessions[e.impartusSession] ?? ImpartusSession.unknown,
+                ),
+              )
+              .toList();
 
           for (final v in vidsList) {
-            final prof = v.professor;
-            profMap.putIfAbsent(prof, () => {}).add(v.session);
-
             _videoMap.set(v.ttid, v.video);
           }
 
           return (
             videos: vidsList,
-            professorSessionMap: profMap,
+            professorSessionList: profList,
           );
         },
         autoDispose: true,
@@ -264,7 +267,7 @@ class LectureVideo {
   final String ttid;
   final String videoId;
 
-  final ImpartusSessionData? session;
+  final ImpartusSession? session;
   final ImpartusVideoData video;
 
   LectureVideo.fromData({
@@ -279,11 +282,22 @@ class LectureVideo {
         videoId = video.videoId.toString();
 }
 
-typedef ImpartusSessionData = ({int year, int sem});
+class ImpartusSession {
+  final int? year;
+  final int? sem;
+
+  ImpartusSession({required this.year, required this.sem});
+
+  static final unknown = ImpartusSession(year: null, sem: null);
+
+  bool get isUnknown => year == null || sem == null;
+}
+
+typedef ProfessorSession = ({String professor, ImpartusSession session});
 
 typedef LecturesResult = ({
   List<LectureVideo> videos,
-  Map<String, Set<ImpartusSessionData?>> professorSessionMap,
+  List<ProfessorSession> professorSessionList,
 });
 
 Map<SubjectId, Subject> _subjectsToIdMap(Iterable<Subject> subjects) =>

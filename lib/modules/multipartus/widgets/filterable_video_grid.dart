@@ -1,49 +1,33 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/video_tile.dart';
+import 'package:lex/widgets/bird.dart';
+import 'package:lex/widgets/linked_dropdown.dart';
 import 'package:signals/signals_flutter.dart';
 
 class FilterableVideoGrid extends StatefulWidget {
   const FilterableVideoGrid({
     super.key,
-    required this.professorSessionMap,
     required this.videos,
     required this.onPressed,
+    required this.professorSessionList,
   });
 
-  final Map<String, Set<ImpartusSessionData?>> professorSessionMap;
   final List<LectureVideo> videos;
   final void Function(LectureVideo video) onPressed;
+  final List<ProfessorSession> professorSessionList;
 
   @override
   State<FilterableVideoGrid> createState() => _FilterableVideoGridState();
 }
 
 class _FilterableVideoGridState extends State<FilterableVideoGrid> {
-  late final professors = widget.professorSessionMap.keys.toList();
-
-  late final professor = signal<String?>(
-    professors.first,
-    autoDispose: true,
-    debugLabel: 'ui | professor',
-  );
-  late final sessions = computed(
-    () => widget.professorSessionMap[professor()]?.toList() ?? [],
-    autoDispose: true,
-    debugLabel: 'ui | sessions',
-  );
-
-  late final session = signal<ImpartusSessionData?>(
-    sessions().first,
-    autoDispose: true,
-    debugLabel: 'ui | session',
-  );
+  late final _selected = signal(widget.professorSessionList.first);
 
   late final videos = computed(
     () {
-      final p = professor();
-      final s = session();
+      final p = _selected().professor;
+      final s = _selected().session;
       return widget.videos
           .where((v) => v.session == s && v.professor == p)
           .toList();
@@ -52,85 +36,38 @@ class _FilterableVideoGridState extends State<FilterableVideoGrid> {
     debugLabel: 'ui | videos',
   );
 
-  late final Function() effectDispose;
-
-  @override
-  void initState() {
-    super.initState();
-
-    effectDispose = effect(
-      () {
-        session.value = sessions().first;
-      },
-      debugLabel: 'ui | session effect',
-    );
-  }
-
-  @override
-  void dispose() {
-    effectDispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return SliverMainAxisGroup(
       slivers: [
-        SliverAppBar(
-          automaticallyImplyLeading: false,
-          backgroundColor: Theme.of(context).colorScheme.surface,
-          elevation: 0,
-          pinned: true,
-          surfaceTintColor: Theme.of(context).colorScheme.surface,
-          title: Container(
-            color: Theme.of(context).colorScheme.surface,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                DropdownMenu(
-                  dropdownMenuEntries: [
-                    for (final prof in professors)
-                      DropdownMenuEntry(
-                        value: prof,
-                        label: prof,
-                      ),
-                  ],
-                  hintText: "PROFESSOR",
-                  onSelected: (value) {
-                    professor.value = value;
-                  },
-                  initialSelection: professors.first,
-                ),
-                const SizedBox(width: 12),
-                Watch(
-                  (context) => DropdownMenu(
-                    dropdownMenuEntries: [
-                      for (final session in sessions())
-                        DropdownMenuEntry(
-                          label: session != null
-                              ? "${session.year}-${session.year + 1}, Sem ${session.sem}"
-                              : "Unknown session",
-                          value: session,
-                        ),
-                    ],
-                    hintText: "SESSION",
-                    onSelected: (value) {
-                      session.value = value;
-                    },
-                    initialSelection: sessions().first,
-                  ),
-                ),
-              ],
+        SliverToBoxAdapter(
+          child: Center(
+            child: Watch(
+              (context) {
+                return FilterDropdown(
+                  items: widget.professorSessionList,
+                  onSelected: (s) => _selected.value = s,
+                  selected: _selected(),
+                );
+              },
             ),
-          ).animate().fadeIn(duration: Durations.short4),
+          ),
         ),
         SliverPadding(
           padding: const EdgeInsets.only(top: 12, bottom: 30),
           sliver: Watch(
-            (context) => _ImpartusVideoGrid(
-              videos: videos(),
-              onPressed: widget.onPressed,
-            ),
+            (context) {
+              final vids = videos();
+
+              if (vids.isEmpty) {
+                return SliverFillRemaining(child: ErrorBird());
+              }
+
+              return _ImpartusVideoGrid(
+                videos: vids,
+                onPressed: widget.onPressed,
+              );
+            },
           ),
         ),
       ],
