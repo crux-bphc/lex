@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/video_tile.dart';
 import 'package:lex/widgets/bird.dart';
-import 'package:lex/widgets/linked_dropdown.dart';
+import 'package:lex/modules/multipartus/widgets/filter_dropdown.dart';
 import 'package:signals/signals_flutter.dart';
 
 class FilterableVideoGrid extends StatefulWidget {
