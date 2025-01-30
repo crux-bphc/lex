@@ -62,16 +62,12 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
                   int getCurrentIndex() =>
                       lectures.indexWhere((e) => e.ttid == widget.ttid);
 
-                  final currentIndex = getCurrentIndex();
-                  final canNavigateNext = currentIndex > 0;
-                  final canNavigatePrevious =
-                      currentIndex + 1 < lectures.length;
-
                   // TODO: fetch lectures of only this section
                   return NotificationListener<VideoNavigateNotification>(
                     onNotification: (notification) {
-                      final index = getCurrentIndex() -
-                          notification.navigationType.offset;
+                      final index = (getCurrentIndex() -
+                              notification.navigationType.offset) %
+                          lectures.length;
 
                       final newTtid = lectures[index].ttid;
 
@@ -87,8 +83,9 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
                       subjectCode: widget.subjectCode,
                       department: widget.department,
                       startTimestamp: widget.startTimestamp,
-                      canNavigateNext: canNavigateNext,
-                      canNavigatePrevious: canNavigatePrevious,
+                      // TODO: please god this needs to change
+                      canNavigateNext: true,
+                      canNavigatePrevious: true,
                     ),
                   );
                 },
