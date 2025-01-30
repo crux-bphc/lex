@@ -123,7 +123,9 @@ class _SubjectsState extends State<_Subjects> with SignalsMixin {
                       return _loadingWidget;
                     }
                     if (snapshot.hasError) {
-                      return Text("Error: ${snapshot.error}");
+                      return ErrorBird(
+                        message: "There was a problem while searching",
+                      );
                     }
 
                     return _SubjectGrid(
@@ -154,7 +156,10 @@ class _SubjectsState extends State<_Subjects> with SignalsMixin {
                       onPressed: _handleSubjectPressed,
                       eagerUpdate: false,
                     ),
-                    error: (e, _) => Text("Error: $e"),
+                    error: (e, _) => ErrorBird(
+                      message:
+                          "There was a problem while retrieving your pinned subjects",
+                    ),
                     loading: () => _loadingWidget,
                   );
                 });
