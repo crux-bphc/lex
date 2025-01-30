@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/utils/misc.dart';
-import 'package:signals/signals_flutter.dart';
 
-class VideoTitle extends StatefulWidget {
+class VideoTitle extends StatelessWidget {
   const VideoTitle({
     super.key,
     required this.subjectCode,
@@ -15,21 +14,12 @@ class VideoTitle extends StatefulWidget {
   final String subjectCode, department, ttid;
 
   @override
-  State<VideoTitle> createState() => _TitleState();
-}
-
-class _TitleState extends State<VideoTitle> {
-  late final subject = GetIt.instance<MultipartusService>().subjects.select(
-        (s) => s()[(department: widget.department, code: widget.subjectCode)],
-      );
-
-  @override
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: GetIt.instance<MultipartusService>().fetchLectureVideo(
-        department: widget.department,
-        code: widget.subjectCode,
-        ttid: widget.ttid,
+        department: department,
+        code: subjectCode,
+        ttid: ttid,
       ),
       builder: (context, snapshot) {
         final data = snapshot.data;
@@ -40,12 +30,15 @@ class _TitleState extends State<VideoTitle> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  child: Watch(
-                    (context) {
-                      final name = subject()?.name;
+                  child: FutureBuilder(
+                    future: GetIt.instance<MultipartusService>()
+                        .fetchSubject(department, subjectCode),
+                    builder: (context, snapshot) {
+                      final subject = snapshot.data;
+
+                      final name = subject?.name;
                       final append = name != null ? " - $name" : "";
-                      final text =
-                          "${widget.department} ${widget.subjectCode}$append";
+                      final text = "$department $subjectCode$append";
 
                       return Text(
                         text,
@@ -90,13 +83,6 @@ class _TitleState extends State<VideoTitle> {
         );
       },
     );
-  }
-
-  @override
-  void dispose() {
-    subject.dispose();
-
-    super.dispose();
   }
 }
 

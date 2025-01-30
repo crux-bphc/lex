@@ -14,31 +14,31 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
-ImpartusSectionData _$ImpartusSectionDataFromJson(Map<String, dynamic> json) {
-  return _ImpartusSectionData.fromJson(json);
+ImpartusSection _$ImpartusSectionFromJson(Map<String, dynamic> json) {
+  return _ImpartusSection.fromJson(json);
 }
 
 /// @nodoc
-mixin _$ImpartusSectionData {
+mixin _$ImpartusSection {
   @JsonKey(name: 'impartus_session')
   int get impartusSession => throw _privateConstructorUsedError;
   @JsonKey(name: 'impartus_subject')
   int get impartusSubject => throw _privateConstructorUsedError;
-  int get section => throw _privateConstructorUsedError;
+  String get section => throw _privateConstructorUsedError;
   String get professor => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
 @JsonSerializable(createToJson: false)
-class _$ImpartusSectionDataImpl implements _ImpartusSectionData {
-  const _$ImpartusSectionDataImpl(
+class _$ImpartusSectionImpl implements _ImpartusSection {
+  const _$ImpartusSectionImpl(
       {@JsonKey(name: 'impartus_session') required this.impartusSession,
       @JsonKey(name: 'impartus_subject') required this.impartusSubject,
       required this.section,
       required this.professor});
 
-  factory _$ImpartusSectionDataImpl.fromJson(Map<String, dynamic> json) =>
-      _$$ImpartusSectionDataImplFromJson(json);
+  factory _$ImpartusSectionImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ImpartusSectionImplFromJson(json);
 
   @override
   @JsonKey(name: 'impartus_session')
@@ -47,25 +47,25 @@ class _$ImpartusSectionDataImpl implements _ImpartusSectionData {
   @JsonKey(name: 'impartus_subject')
   final int impartusSubject;
   @override
-  final int section;
+  final String section;
   @override
   final String professor;
 
   @override
   String toString() {
-    return 'ImpartusSectionData(impartusSession: $impartusSession, impartusSubject: $impartusSubject, section: $section, professor: $professor)';
+    return 'ImpartusSection(impartusSession: $impartusSession, impartusSubject: $impartusSubject, section: $section, professor: $professor)';
   }
 }
 
-abstract class _ImpartusSectionData implements ImpartusSectionData {
-  const factory _ImpartusSectionData(
+abstract class _ImpartusSection implements ImpartusSection {
+  const factory _ImpartusSection(
       {@JsonKey(name: 'impartus_session') required final int impartusSession,
       @JsonKey(name: 'impartus_subject') required final int impartusSubject,
-      required final int section,
-      required final String professor}) = _$ImpartusSectionDataImpl;
+      required final String section,
+      required final String professor}) = _$ImpartusSectionImpl;
 
-  factory _ImpartusSectionData.fromJson(Map<String, dynamic> json) =
-      _$ImpartusSectionDataImpl.fromJson;
+  factory _ImpartusSection.fromJson(Map<String, dynamic> json) =
+      _$ImpartusSectionImpl.fromJson;
 
   @override
   @JsonKey(name: 'impartus_session')
@@ -74,7 +74,7 @@ abstract class _ImpartusSectionData implements ImpartusSectionData {
   @JsonKey(name: 'impartus_subject')
   int get impartusSubject;
   @override
-  int get section;
+  String get section;
   @override
   String get professor;
 }

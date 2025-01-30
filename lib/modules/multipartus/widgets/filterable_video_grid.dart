@@ -26,11 +26,8 @@ class _FilterableVideoGridState extends State<FilterableVideoGrid> {
 
   late final videos = computed(
     () {
-      final p = _selected().professor;
-      final s = _selected().session;
-      return widget.videos
-          .where((v) => v.session == s && v.professor == p)
-          .toList();
+      final s = _selected().section;
+      return widget.videos.where((v) => v.section == s).toList();
     },
     autoDispose: true,
     debugLabel: 'ui | videos',

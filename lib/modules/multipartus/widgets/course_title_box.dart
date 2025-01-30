@@ -9,7 +9,7 @@ import 'package:lex/providers/local_storage/local_storage.dart';
 class CourseTitleBox extends StatelessWidget {
   const CourseTitleBox({super.key, required this.subject});
 
-  final Subject subject;
+  final Subject? subject;
 
   @override
   Widget build(BuildContext context) {
@@ -24,48 +24,49 @@ class CourseTitleBox extends StatelessWidget {
       ),
       child: SizedBox(
         height: 300,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
+        child: subject == null
+            ? null
+            : Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    subject.prettyCode,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onInverseSurface,
-                      fontSize: 38,
-                      fontWeight: FontWeight.bold,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          subject!.prettyCode,
+                          style: TextStyle(
+                            color:
+                                Theme.of(context).colorScheme.onInverseSurface,
+                            fontSize: 38,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          subject!.name,
+                          style: const TextStyle(
+                            fontSize: 50,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.5,
+                            height: 1.1,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  Text(
-                    subject.name,
-                    style: const TextStyle(
-                      fontSize: 50,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.5,
-                      height: 1.1,
+                  const SizedBox(width: 30),
+                  Expanded(
+                    child: Align(
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(maxWidth: 500),
+                        child: _RecentlyWatched(subject: subject!),
+                      ),
                     ),
                   ),
                 ],
               ),
-            ),
-            const SizedBox(width: 30),
-            Expanded(
-              child: Align(
-                alignment: AlignmentDirectional.centerEnd,
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: 500),
-                  child: _RecentlyWatched(
-                    subject: subject,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
