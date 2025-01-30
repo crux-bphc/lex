@@ -36,7 +36,8 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
   Future<List<LectureVideo>> _fetchLectures() async {
     final service = GetIt.instance<MultipartusService>();
     final result = await service.lectures(
-        (department: widget.department, code: widget.subjectCode)).future;
+      (department: widget.department, code: widget.subjectCode),
+    ).future;
     return result.videos;
   }
 
@@ -52,25 +53,42 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
               child: FutureBuilder<List<LectureVideo>>(
                 future: _lecturesFuture,
                 builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
+                  if (!snapshot.hasData) {
                     return Center(child: DelayedProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Center(child: Text('No lectures found.'));
                   }
 
                   final lectures = snapshot.data!;
-                  final currentIndex = lectures
-                      .indexWhere((lecture) => lecture.ttid == widget.ttid);
 
-                  return _LeftSide(
-                    ttid: widget.ttid,
-                    subjectCode: widget.subjectCode,
-                    department: widget.department,
-                    startTimestamp: widget.startTimestamp,
-                    lectures: lectures,
-                    currentIndex: currentIndex,
+                  int getCurrentIndex() =>
+                      lectures.indexWhere((e) => e.ttid == widget.ttid);
+
+                  final currentIndex = getCurrentIndex();
+                  final canNavigateNext = currentIndex > 0;
+                  final canNavigatePrevious =
+                      currentIndex + 1 < lectures.length;
+
+                  return NotificationListener<VideoNavigateNotification>(
+                    onNotification: (notification) {
+                      final index = getCurrentIndex() -
+                          notification.navigationType.offset;
+
+                      final newTtid = lectures[index].ttid;
+
+                      context.go(
+                        '/multipartus/courses/${widget.department.replaceAll('/', ',')}'
+                        '/${widget.subjectCode}/watch/$newTtid',
+                      );
+
+                      return true;
+                    },
+                    child: _LeftSide(
+                      ttid: widget.ttid,
+                      subjectCode: widget.subjectCode,
+                      department: widget.department,
+                      startTimestamp: widget.startTimestamp,
+                      canNavigateNext: canNavigateNext,
+                      canNavigatePrevious: canNavigatePrevious,
+                    ),
                   );
                 },
               ),
@@ -107,15 +125,15 @@ class _LeftSide extends StatelessWidget {
     required this.department,
     required this.startTimestamp,
     required this.ttid,
-    required this.lectures,
-    required this.currentIndex,
+    required this.canNavigateNext,
+    required this.canNavigatePrevious,
   });
 
   final String subjectCode, department;
   final int? startTimestamp;
   final String ttid;
-  final List<LectureVideo> lectures;
-  final int currentIndex;
+
+  final bool canNavigateNext, canNavigatePrevious;
 
   late final _lastWatched =
       GetIt.instance<LocalStorage>().watchHistory.getByTtid(ttid);
@@ -138,14 +156,6 @@ class _LeftSide extends StatelessWidget {
         );
   }
 
-  void _navigateToLecture(BuildContext context, String newTtid) {
-    context.go(
-      '/multipartus/courses/${department.replaceAll('/', ',')}'
-      '/$subjectCode/watch/$newTtid',
-    );
-  }
-  
-
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
@@ -160,9 +170,8 @@ class _LeftSide extends StatelessWidget {
                   Duration.zero,
               onPositionChanged: _updateWatchHistory,
               positionUpdateInterval: Duration(seconds: 2),
-              lectures: lectures,
-              currentIndex: currentIndex,
-              onNavigate: (newTtid) => _navigateToLecture(context, newTtid),
+              canNavigateNext: canNavigateNext,
+              canNavigatePrevious: canNavigatePrevious,
             ),
             Padding(
               padding: const EdgeInsets.only(top: 16),
@@ -172,31 +181,6 @@ class _LeftSide extends StatelessWidget {
                 ttid: ttid,
               ),
             ),
-            if (lectures.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    if (currentIndex > 0)
-                      ElevatedButton(
-                        onPressed: () {
-                          final previousLecture = lectures[currentIndex + 1];
-                          _navigateToLecture(context, previousLecture.ttid);
-                        },
-                        child: Text('Previous Lecture'),
-                      ),
-                    if (currentIndex < lectures.length - 1)
-                      ElevatedButton(
-                        onPressed: () {
-                          final nextLecture = lectures[currentIndex - 1];
-                          _navigateToLecture(context, nextLecture.ttid);
-                        },
-                        child: Text('Next Lecture'),
-                      ),
-                  ],
-                ),
-              ),
           ],
         ),
       ],

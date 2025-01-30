@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:get_it/get_it.dart';
-import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/seekbar.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
 import 'package:lex/utils/extensions.dart';
@@ -25,9 +24,8 @@ class VideoPlayer extends StatefulWidget {
     required this.startTimestamp,
     this.onPositionChanged,
     this.positionUpdateInterval = const Duration(seconds: 3),
-    required this.lectures,
-    required this.currentIndex,
-    required this.onNavigate,
+    required this.canNavigateNext,
+    required this.canNavigatePrevious,
   });
 
   final String ttid;
@@ -35,9 +33,8 @@ class VideoPlayer extends StatefulWidget {
   final void Function(Duration position, double fractionComplete)?
       onPositionChanged;
   final Duration positionUpdateInterval;
-  final List<LectureVideo> lectures;
-  final int currentIndex;
-  final void Function(String newTtid) onNavigate;
+
+  final bool canNavigateNext, canNavigatePrevious;
 
   @override
   State<VideoPlayer> createState() => _VideoPlayerState();
@@ -125,9 +122,8 @@ class _VideoPlayerState extends State<VideoPlayer> {
         builder: (context, constraints) {
           final controls = buildDesktopControls(
             context,
-            lectures: widget.lectures,
-            currentIndex: widget.currentIndex,
-            onNavigate: widget.onNavigate,
+            canNavigateNext: widget.canNavigateNext,
+            canNavigatePrevious: widget.canNavigatePrevious,
           );
           return SizedBox(
             width: constraints.maxWidth,
@@ -172,9 +168,8 @@ VideoController getController(BuildContext context) =>
 
 MaterialDesktopVideoControlsThemeData buildDesktopControls(
   BuildContext context, {
-  required List<LectureVideo> lectures,
-  required int currentIndex,
-  required void Function(String newTtid) onNavigate,
+  required bool canNavigateNext,
+  required bool canNavigatePrevious,
 }) {
   return MaterialDesktopVideoControlsThemeData(
     seekBarPositionColor: Theme.of(context).colorScheme.primary,
@@ -195,21 +190,19 @@ MaterialDesktopVideoControlsThemeData buildDesktopControls(
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (currentIndex > 0)
+                if (canNavigatePrevious)
                   MaterialDesktopCustomButton(
-                    onPressed: () {
-                      final previousLecture = lectures[currentIndex + 1];
-                      onNavigate(previousLecture.ttid);
-                    },
+                    onPressed: () =>
+                        VideoNavigateNotification(NavigationType.previous)
+                            .dispatch(context),
                     icon: Icon(LucideIcons.skip_back),
                   ),
                 _PlayPauseButton(),
-                if (currentIndex < lectures.length - 1)
+                if (canNavigateNext)
                   MaterialDesktopCustomButton(
-                    onPressed: () {
-                      final nextLecture = lectures[currentIndex - 1];
-                      onNavigate(nextLecture.ttid);
-                    },
+                    onPressed: () =>
+                        VideoNavigateNotification(NavigationType.next)
+                            .dispatch(context),
                     icon: Icon(LucideIcons.skip_forward),
                   ),
                 _VolumeButton(),
@@ -534,4 +527,20 @@ class _ImpartusPositionIndicatorState extends State<_ImpartusPositionIndicator>
       "${position().value!.format()} / ${duration().value!.format()}",
     );
   }
+}
+
+class VideoNavigateNotification extends Notification {
+  final NavigationType navigationType;
+
+  VideoNavigateNotification(this.navigationType);
+}
+
+enum NavigationType {
+  next,
+  previous;
+
+  int get offset => switch (this) {
+        NavigationType.next => 1,
+        NavigationType.previous => -1,
+      };
 }
