@@ -139,7 +139,7 @@ class _LeftSide extends StatelessWidget {
 }
 
 class _DownloadSlidesButton extends StatefulWidget {
-  const _DownloadSlidesButton({super.key, required this.ttid});
+  const _DownloadSlidesButton({required this.ttid});
 
   final String ttid;
 
