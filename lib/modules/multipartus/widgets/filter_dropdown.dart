@@ -165,27 +165,24 @@ class _FilterPopupOther extends StatelessWidget {
       borderRadius: BorderRadius.circular(6),
       child: ConstrainedBox(
         constraints: BoxConstraints(maxHeight: 200),
-        child: Scrollbar(
-          thumbVisibility: true,
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemBuilder: (context, index) {
-              return Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () => onSelected(items[index]),
-                  child: _Item(
-                    first: items[index].section.section,
-                    second: items[index].professor,
-                    third: _sessionToText(items[index].session),
-                    middle: (context) => SizedBox(width: 40),
-                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                  ),
+        child: ListView.builder(
+          shrinkWrap: true,
+          itemBuilder: (context, index) {
+            return Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => onSelected(items[index]),
+                child: _Item(
+                  first: items[index].section.section,
+                  second: items[index].professor,
+                  third: _sessionToText(items[index].session),
+                  middle: (context) => SizedBox(width: 40),
+                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                 ),
-              );
-            },
-            itemCount: items.length,
-          ),
+              ),
+            );
+          },
+          itemCount: items.length,
         ),
       ),
     )
