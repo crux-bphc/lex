@@ -46,12 +46,18 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
               child: FloatingSidebar(
                 child: Column(
                   children: [
-                    Text(
-                      "SLIDES",
-                      style: Theme.of(context)
-                          .dialogTheme
-                          .titleTextStyle!
-                          .copyWith(letterSpacing: 1.5),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "SLIDES",
+                          style: Theme.of(context)
+                              .dialogTheme
+                              .titleTextStyle!
+                              .copyWith(letterSpacing: 1.5),
+                        ),
+                        _DownloadSlidesButton(ttid: widget.ttid),
+                      ],
                     ),
                     SizedBox(height: 10),
                     Expanded(child: _SlidesView(ttid: widget.ttid)),
@@ -132,6 +138,37 @@ class _LeftSide extends StatelessWidget {
   }
 }
 
+class _DownloadSlidesButton extends StatefulWidget {
+  const _DownloadSlidesButton({super.key, required this.ttid});
+
+  final String ttid;
+
+  @override
+  State<_DownloadSlidesButton> createState() => __DownloadSlidesButtonState();
+}
+
+class __DownloadSlidesButtonState extends State<_DownloadSlidesButton> {
+  bool _isEnabled = true;
+
+  Future<void> _downloadSlides() async {
+    setState(() {
+      _isEnabled = false;
+    });
+    await GetIt.instance<MultipartusService>().downloadSlides(widget.ttid);
+    setState(() {
+      _isEnabled = true;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: _isEnabled ? _downloadSlides : null,
+      icon: Icon(Icons.download),
+    );
+  }
+}
+
 class _SlidesView extends StatelessWidget {
   const _SlidesView({required this.ttid});
 
@@ -151,7 +188,7 @@ class _SlidesView extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Image.network(
               items[index].url,
-              color: Colors.white.withOpacity(0.88),
+              color: Colors.white.withValues(alpha: 0.88),
               colorBlendMode: BlendMode.modulate,
             ),
           ),

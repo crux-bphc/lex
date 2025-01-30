@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:file_saver/file_saver.dart';
+import 'package:flutter/foundation.dart';
 import 'package:lex/modules/multipartus/models/lecture_section.dart';
 import 'package:lex/modules/multipartus/models/impartus_video.dart';
 import 'package:lex/modules/multipartus/models/lecture_slide.dart';
@@ -262,6 +264,19 @@ class MultipartusService {
     if (r.data is! List) return [];
 
     return (r.data as List).map((e) => LectureSlide.fromJson(e)).toList();
+  }
+
+  Future<bool> downloadSlides(String ttid) async {
+    final r = await _backend.get<Uint8List>(
+      '/impartus/ttid/$ttid/slides/download',
+      options: Options(responseType: ResponseType.bytes),
+    );
+    await FileSaver.instance.saveFile(
+      name: "slides.pdf",
+      bytes: r.data,
+    );
+
+    return true;
   }
 }
 
