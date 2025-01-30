@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:get_it/get_it.dart';
+import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/seekbar.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
 import 'package:lex/utils/extensions.dart';
@@ -24,6 +25,9 @@ class VideoPlayer extends StatefulWidget {
     required this.startTimestamp,
     this.onPositionChanged,
     this.positionUpdateInterval = const Duration(seconds: 3),
+    required this.lectures,
+    required this.currentIndex,
+    required this.onNavigate,
   });
 
   final String ttid;
@@ -31,6 +35,9 @@ class VideoPlayer extends StatefulWidget {
   final void Function(Duration position, double fractionComplete)?
       onPositionChanged;
   final Duration positionUpdateInterval;
+  final List<LectureVideo> lectures;
+  final int currentIndex;
+  final void Function(String newTtid) onNavigate;
 
   @override
   State<VideoPlayer> createState() => _VideoPlayerState();
@@ -116,7 +123,12 @@ class _VideoPlayerState extends State<VideoPlayer> {
       borderRadius: BorderRadius.circular(10),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final controls = buildDesktopControls(context);
+          final controls = buildDesktopControls(
+            context,
+            lectures: widget.lectures,
+            currentIndex: widget.currentIndex,
+            onNavigate: widget.onNavigate,
+          );
           return SizedBox(
             width: constraints.maxWidth,
             child: AspectRatio(
@@ -159,8 +171,11 @@ VideoController getController(BuildContext context) =>
     VideoStateInheritedWidget.of(context).state.widget.controller;
 
 MaterialDesktopVideoControlsThemeData buildDesktopControls(
-  BuildContext context,
-) {
+  BuildContext context, {
+  required List<LectureVideo> lectures,
+  required int currentIndex,
+  required void Function(String newTtid) onNavigate,
+}) {
   return MaterialDesktopVideoControlsThemeData(
     seekBarPositionColor: Theme.of(context).colorScheme.primary,
     seekBarThumbColor: Theme.of(context).colorScheme.primary,
@@ -180,7 +195,23 @@ MaterialDesktopVideoControlsThemeData buildDesktopControls(
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                if (currentIndex > 0)
+                  MaterialDesktopCustomButton(
+                    onPressed: () {
+                      final previousLecture = lectures[currentIndex + 1];
+                      onNavigate(previousLecture.ttid);
+                    },
+                    icon: Icon(LucideIcons.skip_back),
+                  ),
                 _PlayPauseButton(),
+                if (currentIndex < lectures.length - 1)
+                  MaterialDesktopCustomButton(
+                    onPressed: () {
+                      final nextLecture = lectures[currentIndex - 1];
+                      onNavigate(nextLecture.ttid);
+                    },
+                    icon: Icon(LucideIcons.skip_forward),
+                  ),
                 _VolumeButton(),
                 _ImpartusPositionIndicator(),
                 Spacer(),
