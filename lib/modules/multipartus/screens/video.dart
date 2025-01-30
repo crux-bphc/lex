@@ -67,6 +67,7 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
                   final canNavigatePrevious =
                       currentIndex + 1 < lectures.length;
 
+                  // TODO: fetch lectures of only this section
                   return NotificationListener<VideoNavigateNotification>(
                     onNotification: (notification) {
                       final index = getCurrentIndex() -
