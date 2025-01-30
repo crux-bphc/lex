@@ -32,10 +32,13 @@ class _MultipartusCoursePageState extends State<MultipartusCoursePage> {
         controller: scrollController,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: Watch(
-            (context) {
-              final subject = GetIt.instance<MultipartusService>()
-                  .subjects()[widget.subjectId];
+          child: FutureBuilder(
+            future: GetIt.instance<MultipartusService>().fetchSubject(
+              widget.subjectId.department,
+              widget.subjectId.code,
+            ),
+            builder: (context, snapshot) {
+              final subject = snapshot.data;
 
               return CustomScrollView(
                 scrollBehavior:
@@ -45,13 +48,12 @@ class _MultipartusCoursePageState extends State<MultipartusCoursePage> {
                   decelerationRate: ScrollDecelerationRate.fast,
                 ),
                 slivers: [
-                  if (subject != null)
-                    SliverPadding(
-                      padding: const EdgeInsets.only(top: 30, bottom: 12),
-                      sliver: SliverToBoxAdapter(
-                        child: CourseTitleBox(subject: subject),
-                      ),
+                  SliverPadding(
+                    padding: const EdgeInsets.only(top: 30, bottom: 12),
+                    sliver: SliverToBoxAdapter(
+                      child: CourseTitleBox(subject: subject),
                     ),
+                  ),
                   _Content(subjectId: widget.subjectId),
                 ],
               );

@@ -12,7 +12,7 @@ import 'package:signals/signals.dart';
 class MultipartusService {
   final Dio _backend;
 
-  late final MapSignal<SubjectId, Subject> subjects;
+  late final MapSignal<SubjectId, Subject> _subjectMap;
   late final FutureSignal<Map<SubjectId, Subject>> pinnedSubjects;
   late final FutureSignal<Map<int, ImpartusSession>> _impartusSessionMap;
 
@@ -31,7 +31,7 @@ class MultipartusService {
 
         final subs = _subjectsToIdMap(iter);
 
-        subjects.addAll(subs);
+        _subjectMap.addAll(subs);
         return subs;
       },
       debugLabel: 'service | pinnedSubjects',
@@ -39,7 +39,7 @@ class MultipartusService {
 
     // modified by: pinnedSubjects, searchSubjects, and
     // lectureSections (indirectly by fetchLectureVideo),
-    subjects = <SubjectId, Subject>{}.toSignal(
+    _subjectMap = <SubjectId, Subject>{}.toSignal(
       debugLabel: 'service | subjects',
     );
 
@@ -84,25 +84,12 @@ class MultipartusService {
     return r.statusCode == 200;
   }
 
-  Future<List<ImpartusSectionData>> lectureSections(String id) async {
-    final r = await _backend.get('/impartus/subject/$id');
-    if (r.data is! Map) return [];
+  Future<List<ImpartusSection>> lectureSections(String id) async {
+    final r = await _backend.get('/impartus/subject/$id/lectures');
 
-    final lectures = r.data['lectures'] ?? [];
+    final lectures = r.data ?? [];
 
     final f =
-
-    final subject = r.data['subject'];
-    if (subject is Map) {
-      final s = Subject.fromJson(subject.cast());
-      final id = (code: s.code, department: s.department);
-      // add subject to cache if its not already there, we don't get pinned
-      // data from this endpoint so if this subject exists as pinned already
-      // don't touch it
-      if (untracked(() => subjects[id]?.isPinned) != true) {
-        subjects[id] = s;
-      }
-    }
         (lectures as List).map((e) => ImpartusSection.fromJson(e)).toList();
 
     return f;
@@ -152,6 +139,7 @@ class MultipartusService {
           final profList = sections
               .map(
                 (e) => (
+                  section: e,
                   professor: e.professor,
                   session:
                       sessions[e.impartusSession] ?? ImpartusSession.unknown,
@@ -211,10 +199,28 @@ class MultipartusService {
 
     // this should ideally never run but im leaving this here in case
     // the video info endpoint fails (above)
-    return (await _videoMap.get(
+    return _videoMap.get(
       ttid,
       () => lectures((department: department, code: code)).future,
-    ));
+    );
+  }
+
+  Future<Subject?> fetchSubject(String department, String code) async {
+    final id = (department: department, code: code);
+
+    final maybe = _subjectMap[id];
+
+    if (maybe != null) return maybe;
+
+    final departmentUrl = department.replaceAll('/', ',');
+
+    final r = await _backend.get('/impartus/subject/$departmentUrl/$code');
+    if (r.data is! Map) return null;
+
+    final s = Subject.fromJson(r.data);
+    _subjectMap[id] = s;
+
+    return s;
   }
 
   Future<List<Subject>> searchSubjects(String search) async {
@@ -229,7 +235,7 @@ class MultipartusService {
         _pinnifySubjects((r.data as List).map((e) => Subject.fromJson(e)))
             .toList();
 
-    subjects.addAll(_subjectsToIdMap(subs));
+    _subjectMap.addAll(_subjectsToIdMap(subs));
 
     return subs;
   }
@@ -268,10 +274,11 @@ class LectureVideo {
   final String videoId;
 
   final ImpartusSession? session;
+  final ImpartusSection section;
   final ImpartusVideo video;
 
   LectureVideo.fromData({
-    required ImpartusSectionData section,
+    required this.section,
     required this.video,
     required this.session,
   })  : professor = section.professor,
@@ -293,7 +300,11 @@ class ImpartusSession {
   bool get isUnknown => year == null || sem == null;
 }
 
-typedef ProfessorSession = ({String professor, ImpartusSession session});
+typedef ProfessorSession = ({
+  String professor,
+  ImpartusSession session,
+  ImpartusSection section,
+});
 
 typedef LecturesResult = ({
   List<LectureVideo> videos,
@@ -302,8 +313,7 @@ typedef LecturesResult = ({
 
 Map<SubjectId, Subject> _subjectsToIdMap(Iterable<Subject> subjects) =>
     <SubjectId, Subject>{
-      for (final s in subjects)
-        (department: s.departmentUrl.replaceAll(',', '/'), code: s.code): s,
+      for (final s in subjects) (department: s.department, code: s.code): s,
     };
 
 enum MultipartusRegistrationState {
