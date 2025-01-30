@@ -4,14 +4,14 @@ part 'lecture_section.freezed.dart';
 part 'lecture_section.g.dart';
 
 @freezed
-class ImpartusSectionData with _$ImpartusSectionData {
-  const factory ImpartusSectionData({
+class ImpartusSection with _$ImpartusSection {
+  const factory ImpartusSection({
     @JsonKey(name: 'impartus_session') required int impartusSession,
     @JsonKey(name: 'impartus_subject') required int impartusSubject,
-    required int section,
+    required String section,
     required String professor,
-  }) = _ImpartusSectionData;
+  }) = _ImpartusSection;
 
-  factory ImpartusSectionData.fromJson(Map<String, Object?> json) =>
-      _$ImpartusSectionDataFromJson(json);
+  factory ImpartusSection.fromJson(Map<String, Object?> json) =>
+      _$ImpartusSectionFromJson(json);
 }

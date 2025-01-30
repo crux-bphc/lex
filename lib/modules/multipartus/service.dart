@@ -17,7 +17,7 @@ class MultipartusService {
   late final FutureSignal<Map<int, ImpartusSession>> _impartusSessionMap;
 
   /// ttid: ImpartusVideoData
-  late final _videoMap = DeferredValueMap<String, ImpartusVideoData>();
+  late final _videoMap = DeferredValueMap<String, ImpartusVideo>();
 
   MultipartusService(this._backend) {
     pinnedSubjects = computedAsync(
@@ -91,7 +91,6 @@ class MultipartusService {
     final lectures = r.data['lectures'] ?? [];
 
     final f =
-        (lectures as List).map((e) => ImpartusSectionData.fromJson(e)).toList();
 
     final subject = r.data['subject'];
     if (subject is Map) {
@@ -104,17 +103,18 @@ class MultipartusService {
         subjects[id] = s;
       }
     }
+        (lectures as List).map((e) => ImpartusSection.fromJson(e)).toList();
 
     return f;
   }
 
-  Future<List<ImpartusVideoData>> _fetchImpartusVideos({
+  Future<List<ImpartusVideo>> _fetchImpartusVideos({
     required int sessionId,
     required int subjectId,
   }) async {
     final r = await _backend.get('/impartus/lecture/$sessionId/$subjectId');
     if (r.data is! List) return [];
-    return (r.data as List).map((e) => ImpartusVideoData.fromJson(e)).toList();
+    return (r.data as List).map((e) => ImpartusVideo.fromJson(e)).toList();
   }
 
   late final lectures =
@@ -193,7 +193,7 @@ class MultipartusService {
     await pinnedSubjects.refresh();
   }
 
-  Future<ImpartusVideoData> fetchLectureVideo({
+  Future<ImpartusVideo> fetchLectureVideo({
     required String department,
     required String code,
     required String ttid,
@@ -234,12 +234,12 @@ class MultipartusService {
     return subs;
   }
 
-  Future<ImpartusVideoData?> _getVideoInfo(String ttid) async {
+  Future<ImpartusVideo?> _getVideoInfo(String ttid) async {
     final r = await _backend.get('/impartus/ttid/$ttid/info');
 
     if (r.data is! Map) return null;
 
-    return ImpartusVideoData.fromJson(r.data);
+    return ImpartusVideo.fromJson(r.data);
   }
 
   Iterable<Subject> _pinnifySubjects(Iterable<Subject> subs) => subs.map((s) {
@@ -268,7 +268,7 @@ class LectureVideo {
   final String videoId;
 
   final ImpartusSession? session;
-  final ImpartusVideoData video;
+  final ImpartusVideo video;
 
   LectureVideo.fromData({
     required ImpartusSectionData section,

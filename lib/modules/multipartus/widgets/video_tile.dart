@@ -12,7 +12,7 @@ class VideoTile extends StatefulWidget {
     required this.video,
   });
 
-  final ImpartusVideoData video;
+  final ImpartusVideo video;
   final void Function() onPressed;
 
   @override
@@ -44,7 +44,7 @@ class _Title extends StatelessWidget {
     required this.video,
   });
 
-  final ImpartusVideoData video;
+  final ImpartusVideo video;
 
   @override
   Widget build(BuildContext context) {

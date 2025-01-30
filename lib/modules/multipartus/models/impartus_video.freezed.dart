@@ -14,12 +14,12 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
-ImpartusVideoData _$ImpartusVideoDataFromJson(Map<String, dynamic> json) {
-  return _ImpartusVideoData.fromJson(json);
+ImpartusVideo _$ImpartusVideoFromJson(Map<String, dynamic> json) {
+  return _ImpartusVideo.fromJson(json);
 }
 
 /// @nodoc
-mixin _$ImpartusVideoData {
+mixin _$ImpartusVideo {
   int get ttid => throw _privateConstructorUsedError;
   int get videoId => throw _privateConstructorUsedError;
   @JsonKey(name: "topic")
@@ -34,8 +34,8 @@ mixin _$ImpartusVideoData {
 
 /// @nodoc
 @JsonSerializable(createToJson: false)
-class _$ImpartusVideoDataImpl implements _ImpartusVideoData {
-  const _$ImpartusVideoDataImpl(
+class _$ImpartusVideoImpl implements _ImpartusVideo {
+  const _$ImpartusVideoImpl(
       {required this.ttid,
       required this.videoId,
       @JsonKey(name: "topic") required this.title,
@@ -44,8 +44,8 @@ class _$ImpartusVideoDataImpl implements _ImpartusVideoData {
       @JsonKey(fromJson: _dateTimeFromJson, name: "startTime")
       required this.createdAt});
 
-  factory _$ImpartusVideoDataImpl.fromJson(Map<String, dynamic> json) =>
-      _$$ImpartusVideoDataImplFromJson(json);
+  factory _$ImpartusVideoImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ImpartusVideoImplFromJson(json);
 
   @override
   final int ttid;
@@ -66,22 +66,22 @@ class _$ImpartusVideoDataImpl implements _ImpartusVideoData {
 
   @override
   String toString() {
-    return 'ImpartusVideoData(ttid: $ttid, videoId: $videoId, title: $title, professor: $professor, lectureNo: $lectureNo, createdAt: $createdAt)';
+    return 'ImpartusVideo(ttid: $ttid, videoId: $videoId, title: $title, professor: $professor, lectureNo: $lectureNo, createdAt: $createdAt)';
   }
 }
 
-abstract class _ImpartusVideoData implements ImpartusVideoData {
-  const factory _ImpartusVideoData(
+abstract class _ImpartusVideo implements ImpartusVideo {
+  const factory _ImpartusVideo(
       {required final int ttid,
       required final int videoId,
       @JsonKey(name: "topic") required final String title,
       @JsonKey(name: "professorName") required final String professor,
       @JsonKey(name: "seqNo") required final int lectureNo,
       @JsonKey(fromJson: _dateTimeFromJson, name: "startTime")
-      required final DateTime createdAt}) = _$ImpartusVideoDataImpl;
+      required final DateTime createdAt}) = _$ImpartusVideoImpl;
 
-  factory _ImpartusVideoData.fromJson(Map<String, dynamic> json) =
-      _$ImpartusVideoDataImpl.fromJson;
+  factory _ImpartusVideo.fromJson(Map<String, dynamic> json) =
+      _$ImpartusVideoImpl.fromJson;
 
   @override
   int get ttid;

@@ -6,9 +6,8 @@ part of 'impartus_video.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$ImpartusVideoDataImpl _$$ImpartusVideoDataImplFromJson(
-        Map<String, dynamic> json) =>
-    _$ImpartusVideoDataImpl(
+_$ImpartusVideoImpl _$$ImpartusVideoImplFromJson(Map<String, dynamic> json) =>
+    _$ImpartusVideoImpl(
       ttid: (json['ttid'] as num).toInt(),
       videoId: (json['videoId'] as num).toInt(),
       title: json['topic'] as String,
