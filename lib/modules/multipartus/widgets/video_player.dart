@@ -7,10 +7,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lex/modules/multipartus/widgets/seekbar.dart';
-import 'package:lex/modules/multipartus/widgets/thumbnail.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
 import 'package:lex/utils/extensions.dart';
-import 'package:lex/utils/misc.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:signals/signals_flutter.dart';
@@ -125,16 +123,16 @@ class _VideoPlayerState extends State<VideoPlayer> {
               aspectRatio: 1280 / 720,
               child: Stack(
                 children: [
-                  Hero(
-                    tag: widget.ttid,
-                    createRectTween: (begin, end) =>
-                        CurvedRectTween(begin: begin!, end: end!),
-                    child: VideoThumbnail(
-                      ttid: widget.ttid,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                    ),
-                  ),
+                  // Hero(
+                  //   tag: widget.ttid,
+                  //   createRectTween: (begin, end) =>
+                  //       CurvedRectTween(begin: begin!, end: end!),
+                  //   child: VideoThumbnail(
+                  //     ttid: widget.ttid,
+                  //     fit: BoxFit.cover,
+                  //     width: double.infinity,
+                  //   ),
+                  // ),
                   Theme(
                     data: Theme.of(context).copyWith(
                       textTheme: Theme.of(context)
@@ -144,10 +142,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
                     child: MaterialDesktopVideoControlsTheme(
                       normal: controls,
                       fullscreen: controls,
-                      child: Video(
-                        controller: controller,
-                        fill: Colors.transparent,
-                      ),
+                      child: Video(controller: controller),
                     ),
                   ),
                 ],
