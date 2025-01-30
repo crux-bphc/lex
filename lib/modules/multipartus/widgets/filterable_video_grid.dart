@@ -60,7 +60,10 @@ class _FilterableVideoGridState extends State<FilterableVideoGrid> {
               final vids = videos();
 
               if (vids.isEmpty) {
-                return SliverFillRemaining(child: ErrorBird(message: "No lectures found"));
+                return SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: ErrorBird(message: "No lectures found"),
+                );
               }
 
               return _ImpartusVideoGrid(

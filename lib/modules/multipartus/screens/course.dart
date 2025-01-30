@@ -5,6 +5,7 @@ import 'package:lex/modules/multipartus/models/subject.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/course_title_box.dart';
 import 'package:lex/modules/multipartus/widgets/filterable_video_grid.dart';
+import 'package:lex/widgets/bird.dart';
 import 'package:lex/widgets/delayed_progress_indicator.dart';
 import 'package:signals/signals_flutter.dart';
 
@@ -26,7 +27,6 @@ class _MultipartusCoursePageState extends State<MultipartusCoursePage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       body: Scrollbar(
         controller: scrollController,
@@ -102,8 +102,14 @@ class _ContentState extends State<_Content> {
   @override
   Widget build(BuildContext context) {
     return lectures.watch(context).map(
-          error: (e, s) => SliverToBoxAdapter(child: Text("error $e")),
+          error: (e, s) => SliverFillRemaining(
+            hasScrollBody: false,
+            child: ErrorBird(
+              message: "There was a problem while retrieving lectures",
+            ),
+          ),
           loading: () => const SliverFillRemaining(
+            hasScrollBody: false,
             child: Center(child: DelayedProgressIndicator()),
           ),
           data: (data) {
