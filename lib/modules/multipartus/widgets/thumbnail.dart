@@ -68,7 +68,10 @@ class VideoThumbnail extends StatelessWidget {
         (context, error, stackTrace) => Center(
               child: Icon(
                 LucideIcons.image,
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.8),
               ),
             );
 

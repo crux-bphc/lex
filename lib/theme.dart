@@ -100,7 +100,7 @@ ThemeData buildTheme(ThemeMode mode) {
         (states) => BorderSide(
           width: 1,
           color: states.contains(WidgetState.disabled)
-              ? scheme.outlineVariant.withOpacity(0.3)
+              ? scheme.outlineVariant.withValues(alpha: 0.3)
               : scheme.primary,
         ),
       ),
@@ -124,7 +124,7 @@ ThemeData buildTheme(ThemeMode mode) {
       fontSize: 21,
       color: scheme.onSurface,
     ),
-    barrierColor: Colors.black.withOpacity(0.3),
+    barrierColor: Colors.black.withValues(alpha: 0.3),
   );
 
   final tooltipTheme = TooltipThemeData(

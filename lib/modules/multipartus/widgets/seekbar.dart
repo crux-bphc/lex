@@ -125,7 +125,7 @@ class _SeekBarState extends State<SeekBar> with SignalsMixin {
                                                 constraints.maxWidth,
                                             color: isHovering()
                                                 ? widget.bufferColor
-                                                    .withOpacity(0.8)
+                                                    .withValues(alpha: 0.8)
                                                 : Colors.transparent,
                                           ),
                                         ),

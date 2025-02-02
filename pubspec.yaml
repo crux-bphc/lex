@@ -57,6 +57,7 @@ dependencies:
   intl: ^0.20.0
   flutter_animate: ^4.5.0
   google_fonts: ^6.2.1
+  file_saver: ^0.2.14
 
 dependency_overrides:
   media_kit:

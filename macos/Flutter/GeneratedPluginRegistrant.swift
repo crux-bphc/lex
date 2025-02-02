@@ -5,6 +5,7 @@
 import FlutterMacOS
 import Foundation
 
+import file_saver
 import flutter_appauth
 import flutter_secure_storage_macos
 import media_kit_libs_macos_video
@@ -19,6 +20,7 @@ import wakelock_plus
 import window_to_front
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
+  FileSaverPlugin.register(with: registry.registrar(forPlugin: "FileSaverPlugin"))
   FlutterAppauthPlugin.register(with: registry.registrar(forPlugin: "FlutterAppauthPlugin"))
   FlutterSecureStoragePlugin.register(with: registry.registrar(forPlugin: "FlutterSecureStoragePlugin"))
   MediaKitLibsMacosVideoPlugin.register(with: registry.registrar(forPlugin: "MediaKitLibsMacosVideoPlugin"))
