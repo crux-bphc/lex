@@ -56,6 +56,17 @@ class WatchHistory {
   }
 
   void _save() {
+    final sortedEntries = _history.entries.toList()
+      ..sort((a, b) => -a.value.timestamp.compareTo(b.value.timestamp));
+
+    // Keep only the first 30 items
+    if (sortedEntries.length > 30) {
+      _history.clear();
+      _history.addAll(
+        Map.fromEntries(sortedEntries.take(30)),
+      );
+    }
+
     final map = _history.map(
       (key, value) => MapEntry(
         key.toString(),
@@ -129,6 +140,12 @@ class WatchHistory {
         // sort by most recent
         (a, b) => -a.$2.timestamp.compareTo(b.$2.timestamp),
       );
+  }
+
+  /// Clears the entire watch history
+  void clear() {
+    _history.clear();
+    _save();
   }
 }
 

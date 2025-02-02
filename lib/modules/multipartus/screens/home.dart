@@ -294,6 +294,12 @@ class _ContinueWatchingState extends State<_ContinueWatching> {
     return GetIt.instance<LocalStorage>().watchHistory.readAll();
   }
 
+  void _clearHistory() {
+    setState(() {
+      GetIt.instance<LocalStorage>().watchHistory.clear();
+    });
+  }
+
   Widget _buildList(List<(String, WatchHistoryItem)> items) {
     return Expanded(
       child: ListView.builder(
@@ -415,6 +421,11 @@ class _ContinueWatchingState extends State<_ContinueWatching> {
                           ),
                         ),
                       ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.delete),
+                      onPressed: _clearHistory,
+                      tooltip: 'Clear History',
                     ),
                   ],
                 ),
