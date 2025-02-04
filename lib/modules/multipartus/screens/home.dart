@@ -11,6 +11,7 @@ import 'package:lex/modules/multipartus/widgets/video_thumbnail.dart';
 import 'package:lex/providers/local_storage/local_storage.dart';
 import 'package:lex/providers/local_storage/watch_history.dart';
 import 'package:lex/utils/misc.dart';
+import 'package:lex/widgets/are_you_sure_dialog.dart';
 import 'package:lex/widgets/auto_tooltip_text.dart';
 import 'package:lex/widgets/error_bird.dart';
 import 'package:lex/widgets/delayed_progress_indicator.dart';
@@ -289,10 +290,22 @@ class _ContinueWatchingState extends State<_ContinueWatching> {
     return GetIt.instance<LocalStorage>().watchHistory.readAll();
   }
 
-  void _clearHistory() {
-    setState(() {
+  void _handleClearHistory() async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AreYouSureDialog(
+          confirmText: "Clear",
+          content: 'Are you sure you want to clear your watch history?',
+          title: "Clear watch history",
+          confirmColor: Theme.of(context).colorScheme.error,
+        );
+      },
+    );
+
+    if (result == true) {
       GetIt.instance<LocalStorage>().watchHistory.clear();
-    });
+    }
   }
 
   Widget _buildList(List<(String, WatchHistoryItem)> items) {
@@ -304,85 +317,14 @@ class _ContinueWatchingState extends State<_ContinueWatching> {
           final department = departmentUrl.replaceAll(',', '/');
           final ttid = items[index].$1;
 
-          return RawMaterialButton(
-            onPressed: () {
-              context.go(
-                '/multipartus/courses/$departmentUrl/$code/watch/$ttid',
-              );
-            },
-            elevation: 0,
-            visualDensity: VisualDensity.compact,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            padding: EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 16,
-            ),
-            child: FutureBuilder(
-              future: GetIt.instance<MultipartusService>()
-                  .fetchImpartusVideo(ttid.toString()),
-              builder: (context, snapshot) {
-                final title = snapshot.data?.title;
-                final isLoading =
-                    snapshot.connectionState == ConnectionState.waiting;
-
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _MiniVideoThumbnail(
-                      ttid: ttid,
-                      positionFraction: items[index].$2.fraction,
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          AnimatedContainer(
-                            duration: Durations.short4,
-                            width: double.infinity,
-                            margin: EdgeInsets.only(bottom: 4),
-                            decoration: BoxDecoration(
-                              color: snapshot.hasData || !isLoading
-                                  ? Colors.transparent
-                                  : Theme.of(context)
-                                      .colorScheme
-                                      .onSurface
-                                      .withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: AutoTooltipText(
-                              text: title ?? (isLoading ? "" : "Unknown title"),
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.primary,
-                                height: 0,
-                              ),
-                            )
-                                .animate(target: snapshot.hasData ? 1 : 0)
-                                .fadeIn(duration: Durations.medium2),
-                          ),
-                          Text(
-                            "$department $code",
-                            style: TextStyle(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
+          return _WatchHistoryItem(
+            ttid: ttid,
+            subjectId: SubjectId(department: department, code: code),
+            watchFraction: items[index].$2.fraction,
           );
         },
         itemCount: items.length,
-      ).animate().fadeIn(),
+      ),
     );
   }
 
@@ -403,21 +345,20 @@ class _ContinueWatchingState extends State<_ContinueWatching> {
               children: [
                 Row(
                   children: [
-                    Expanded(
-                      child: Center(
-                        child: Text(
-                          "CONTINUE WATCHING",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                          ),
-                        ),
+                    Spacer(),
+                    Text(
+                      "CONTINUE WATCHING",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
                       ),
                     ),
+                    Spacer(),
                     IconButton(
-                      icon: Icon(Icons.delete),
-                      onPressed: _clearHistory,
-                      tooltip: 'Clear History',
+                      icon: Icon(LucideIcons.trash),
+                      onPressed: _handleClearHistory,
+                      tooltip: 'Clear history',
+                      iconSize: 22,
                     ),
                   ],
                 ),
@@ -428,6 +369,95 @@ class _ContinueWatchingState extends State<_ContinueWatching> {
           ),
         );
       },
+    );
+  }
+}
+
+class _WatchHistoryItem extends StatelessWidget {
+  const _WatchHistoryItem({
+    required this.subjectId,
+    required this.ttid,
+    required this.watchFraction,
+  });
+
+  final SubjectId subjectId;
+  final String ttid;
+  final double watchFraction;
+
+  @override
+  Widget build(BuildContext context) {
+    return RawMaterialButton(
+      onPressed: () {
+        context.go(
+          '/multipartus/courses/${subjectId.asUrl}/watch/$ttid',
+        );
+      },
+      elevation: 0,
+      visualDensity: VisualDensity.compact,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      padding: EdgeInsets.symmetric(
+        horizontal: 20,
+        vertical: 16,
+      ),
+      child: FutureBuilder(
+        future: GetIt.instance<MultipartusService>()
+            .fetchImpartusVideo(ttid.toString()),
+        builder: (context, snapshot) {
+          final title = snapshot.data?.title;
+          final isLoading = snapshot.connectionState == ConnectionState.waiting;
+
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _MiniVideoThumbnail(
+                ttid: ttid,
+                positionFraction: watchFraction,
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AnimatedContainer(
+                      duration: Durations.short4,
+                      width: double.infinity,
+                      margin: EdgeInsets.only(bottom: 4),
+                      decoration: BoxDecoration(
+                        color: snapshot.hasData || !isLoading
+                            ? Colors.transparent
+                            : Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: AutoTooltipText(
+                        text: title ?? (isLoading ? "" : "Unknown title"),
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                          height: 0,
+                        ),
+                      )
+                          .animate(target: snapshot.hasData ? 1 : 0)
+                          .fadeIn(duration: Durations.medium2),
+                    ),
+                    Text(
+                      "${subjectId.department} ${subjectId.code}",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }
