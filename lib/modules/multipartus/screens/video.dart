@@ -35,7 +35,7 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
     final vids = await service.fetchImpartusVideos(
       (
         sessionId: vid.sessionId,
-        subjectId: vid.subjectId,
+        subjectId: vid.impartusSubjectId,
       ),
     );
     return vids;
@@ -235,7 +235,7 @@ class _SlidesView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: GetIt.instance<MultipartusService>().slidesBro(ttid),
+      future: GetIt.instance<MultipartusService>().fetchSlides(ttid),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return Center(child: DelayedProgressIndicator());
 

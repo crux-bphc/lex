@@ -13,9 +13,14 @@ import 'package:signals/signals.dart';
 class MultipartusService {
   final Dio _backend;
 
+  /// A map of all pinned subjects. It is refreshed when
+  /// the user pins or unpins a subject.
   late final FutureSignal<Map<SubjectId, Subject>> pinnedSubjects;
-  late final FutureSignal<Map<int, ImpartusSession>> _impartusSessionMap;
 
+  /// A map of all impartus sessions.
+  late final FutureSignal<Map<int, ImpartusTimeSession>> _impartusSessionMap;
+
+  /// A sort of cache for all the subjects that have been fetched so far.
   final _subjectMap = <SubjectId, Subject>{};
 
   MultipartusService(this._backend) {
@@ -23,7 +28,7 @@ class MultipartusService {
       () async {
         final r = await _backend.get('/impartus/user/subjects');
 
-        requireDataType<List>(
+        backendAssertType<List>(
           r,
           "Your pinned subjects could not be retrieved"
           " in a format we understand",
@@ -45,7 +50,7 @@ class MultipartusService {
       () async {
         final r = await _backend.get('/impartus/session');
 
-        requireDataType<Map>(
+        backendAssertType<Map>(
           r,
           "Impartus session data is not in the expected format",
         );
@@ -53,7 +58,7 @@ class MultipartusService {
         return {
           for (final e in (r.data as Map).entries)
             int.parse(e.key):
-                ImpartusSession(year: e.value[0], sem: e.value[1]),
+                ImpartusTimeSession(year: e.value[0], sem: e.value[1]),
         };
       },
       debugLabel: 'service | impartusSessionMap',
@@ -63,7 +68,7 @@ class MultipartusService {
   Future<MultipartusRegistrationState> fetchRegistrationState() async {
     final r = await _backend.get('/impartus/user');
 
-    requireDataType<Map>(
+    backendAssertType<Map>(
       r,
       "Multipartus registration data is not in the expected format",
     );
@@ -96,7 +101,10 @@ class MultipartusService {
     final r =
         await _backend.get('/impartus/subject/$department/${id.code}/lectures');
 
-    requireDataType<List>(r, "Lecture data is not in the expected format");
+    backendAssertType<List>(
+      r,
+      "Lecture section data is not in the expected format",
+    );
 
     final lectures = r.data as List;
     final sessions = await _impartusSessionMap.future;
@@ -106,7 +114,7 @@ class MultipartusService {
         .map(
           (e) => SectionSession(
             section: e,
-            session: sessions[e.impartusSession] ?? ImpartusSession.unknown,
+            session: sessions[e.impartusSession] ?? ImpartusTimeSession.unknown,
           ),
         )
         .toList();
@@ -125,54 +133,13 @@ class MultipartusService {
 
     final r = await _backend.get('/impartus/lecture/$sessionId/$subjectId');
 
-    requireDataType<List>(
+    backendAssertType<List>(
       r,
       "Lecture video data is not in the expected format",
     );
 
     return (r.data as List).map((e) => ImpartusVideo.fromJson(e)).toList();
   });
-
-  late final fetchLectures = AsyncCached((ImpartusSection section) async {
-    final vids = await fetchImpartusVideos(
-      (
-        sessionId: section.impartusSession,
-        subjectId: section.impartusSubject,
-      ),
-    );
-    final sessions = await _impartusSessionMap.future;
-
-    final result = vids
-        .map(
-          (e) => LectureVideo.fromData(
-            section: section,
-            video: e,
-            session:
-                sessions[section.impartusSession] ?? ImpartusSession.unknown,
-          ),
-        )
-        .toList();
-
-    return result;
-  });
-
-  Future<void> pinSubject(String department, String code) async {
-    await _backend.post(
-      '/impartus/user/subjects',
-      data: {'department': department, 'code': code},
-    );
-
-    await pinnedSubjects.refresh();
-  }
-
-  Future<void> unpinSubject(String department, String code) async {
-    await _backend.delete(
-      '/impartus/user/subjects',
-      data: {'department': department, 'code': code},
-    );
-
-    await pinnedSubjects.refresh();
-  }
 
   late final fetchImpartusVideo = AsyncCached((String ttid) async {
     final videoData = await _getVideoInfo(ttid);
@@ -183,16 +150,69 @@ class MultipartusService {
     throw BackendError("No video found with ttid $ttid");
   });
 
-  late final fetchSubject = AsyncCached((SubjectId id) async {
-    final r =
-        await _backend.get('/impartus/subject/${id.departmentUrl}/${id.code}');
+  late final fetchLectureVideos = AsyncCached((ImpartusSection section) async {
+    final vids = await fetchImpartusVideos(
+      (
+        sessionId: section.impartusSession,
+        subjectId: section.impartusSubject,
+      ),
+    );
 
-    requireDataType<Map>(r, "Subject data is not in the expected format");
+    final sessions = await _impartusSessionMap.future;
+
+    final result = vids
+        .map(
+          (e) => LectureVideo.fromData(
+            section: section,
+            video: e,
+            session: sessions[section.impartusSession] ??
+                ImpartusTimeSession.unknown,
+          ),
+        )
+        .toList();
+
+    return result;
+  });
+
+  late final fetchSubject = AsyncCached((SubjectId id) async {
+    final r = await _backend.get('/impartus/subject/${id.asUrl}');
+
+    backendAssertType<Map>(r, "Subject data is not in the expected format");
 
     final s = Subject.fromJson(r.data);
 
     return s;
   });
+
+  Future<ImpartusVideo?> _getVideoInfo(String ttid) async {
+    final r = await _backend.get('/impartus/ttid/$ttid/info');
+
+    if (r.data is! Map) return null;
+
+    return ImpartusVideo.fromJson(r.data);
+  }
+
+  Future<void> pinSubject(String department, String code) async {
+    final r = await _backend.post(
+      '/impartus/user/subjects',
+      data: {'department': department, 'code': code},
+    );
+
+    if (r.statusCode == 200) {
+      await pinnedSubjects.refresh();
+    }
+  }
+
+  Future<void> unpinSubject(String department, String code) async {
+    final r = await _backend.delete(
+      '/impartus/user/subjects',
+      data: {'department': department, 'code': code},
+    );
+
+    if (r.statusCode == 200) {
+      await pinnedSubjects.refresh();
+    }
+  }
 
   Future<List<Subject>> searchSubjects(String search) async {
     final r = await _backend.get(
@@ -200,7 +220,7 @@ class MultipartusService {
       queryParameters: {"q": search},
     );
 
-    if (r.data is! List) return [];
+    backendAssertType<List>(r, "Search results are not in the expected format");
 
     final subs =
         _pinnifySubjects((r.data as List).map((e) => Subject.fromJson(e)))
@@ -211,14 +231,12 @@ class MultipartusService {
     return subs;
   }
 
-  Future<ImpartusVideo?> _getVideoInfo(String ttid) async {
-    final r = await _backend.get('/impartus/ttid/$ttid/info');
-
-    if (r.data is! Map) return null;
-
-    return ImpartusVideo.fromJson(r.data);
-  }
-
+  /// Given an iterable of Subjects, this function will return an iterable with
+  /// the pinned subjects marked as pinned in each Subject object.
+  ///
+  /// This is useful when you need to find out if subjects that are returned
+  /// from, for example, the search endpoint are pinned because the backend
+  /// does not give us that information.
   Iterable<Subject> _pinnifySubjects(Iterable<Subject> subs) => subs.map((s) {
         return s.copyWith(
           isPinned: untracked(
@@ -228,7 +246,7 @@ class MultipartusService {
         );
       });
 
-  Future<List<LectureSlide>> slidesBro(String ttid) async {
+  Future<List<LectureSlide>> fetchSlides(String ttid) async {
     final r = await _backend.get('/impartus/ttid/$ttid/slides');
     if (r.data is! List) return [];
 
@@ -257,7 +275,7 @@ class LectureVideo {
   final String ttid;
   final String videoId;
 
-  final ImpartusSession? session;
+  final ImpartusTimeSession? session;
   final ImpartusSection section;
   final ImpartusVideo video;
 
@@ -273,13 +291,16 @@ class LectureVideo {
         videoId = video.videoId.toString();
 }
 
-class ImpartusSession {
+class ImpartusTimeSession {
   final int? year;
   final int? sem;
 
-  ImpartusSession({required this.year, required this.sem});
+  ImpartusTimeSession({required this.year, required this.sem});
 
-  static final unknown = ImpartusSession(year: null, sem: null);
+  /// A session with no year or semester is considered unknown.
+  /// This type of session will show up when a session id that the backend does
+  /// not know of has to be displayed to the user.
+  static final unknown = ImpartusTimeSession(year: null, sem: null);
 
   bool get isUnknown => year == null || sem == null;
 }
@@ -311,29 +332,14 @@ class BackendError extends Error {
   String toString() => 'BackendError: $message';
 }
 
-void requireDataType<T>(Response r, String message) {
+void backendAssertType<T>(Response r, String message) {
   if (r.data is! T) {
-    throw BackendError(
-      message,
-      r,
-    );
-  }
-}
-
-List<T> requireListType<T>(Response r, String message) {
-  final data = r.data;
-  if (data is! List) {
-    throw BackendError(message, r);
-  }
-  try {
-    return data.cast<T>();
-  } on TypeError {
     throw BackendError(message, r);
   }
 }
 
 class SectionSession {
-  final ImpartusSession session;
+  final ImpartusTimeSession session;
   final ImpartusSection section;
 
   SectionSession({

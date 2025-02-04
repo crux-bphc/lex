@@ -156,7 +156,7 @@ class _VideoGridSliver extends StatelessWidget {
   Widget build(BuildContext context) {
     return SliverManagedFutureBuilder(
       future: GetIt.instance<MultipartusService>()
-          .fetchLectures(selectedSession.section),
+          .fetchLectureVideos(selectedSession.section),
       data: (lecs) => VideoGrid(
         videos: lecs,
         onPressed: onPressed,

@@ -13,7 +13,11 @@ class ImpartusVideo with _$ImpartusVideo {
     @JsonKey(name: "seqNo") required int lectureNo,
     @JsonKey(fromJson: _dateTimeFromJson, name: "startTime")
     required DateTime createdAt,
-    required int subjectId,
+
+    /// The ID of the subject provided by Impartus
+    @JsonKey(name: "subjectId") required int impartusSubjectId,
+
+    /// The session ID of the video provided by Impartus
     required int sessionId,
   }) = _ImpartusVideo;
 

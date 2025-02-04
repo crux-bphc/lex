@@ -30,7 +30,12 @@ mixin _$ImpartusVideo {
   int get lectureNo => throw _privateConstructorUsedError;
   @JsonKey(fromJson: _dateTimeFromJson, name: "startTime")
   DateTime get createdAt => throw _privateConstructorUsedError;
-  int get subjectId => throw _privateConstructorUsedError;
+
+  /// The ID of the subject provided by Impartus
+  @JsonKey(name: "subjectId")
+  int get impartusSubjectId => throw _privateConstructorUsedError;
+
+  /// The session ID of the video provided by Impartus
   int get sessionId => throw _privateConstructorUsedError;
 }
 
@@ -45,7 +50,7 @@ class _$ImpartusVideoImpl implements _ImpartusVideo {
       @JsonKey(name: "seqNo") required this.lectureNo,
       @JsonKey(fromJson: _dateTimeFromJson, name: "startTime")
       required this.createdAt,
-      required this.subjectId,
+      @JsonKey(name: "subjectId") required this.impartusSubjectId,
       required this.sessionId});
 
   factory _$ImpartusVideoImpl.fromJson(Map<String, dynamic> json) =>
@@ -67,14 +72,19 @@ class _$ImpartusVideoImpl implements _ImpartusVideo {
   @override
   @JsonKey(fromJson: _dateTimeFromJson, name: "startTime")
   final DateTime createdAt;
+
+  /// The ID of the subject provided by Impartus
   @override
-  final int subjectId;
+  @JsonKey(name: "subjectId")
+  final int impartusSubjectId;
+
+  /// The session ID of the video provided by Impartus
   @override
   final int sessionId;
 
   @override
   String toString() {
-    return 'ImpartusVideo(ttid: $ttid, videoId: $videoId, title: $title, professor: $professor, lectureNo: $lectureNo, createdAt: $createdAt, subjectId: $subjectId, sessionId: $sessionId)';
+    return 'ImpartusVideo(ttid: $ttid, videoId: $videoId, title: $title, professor: $professor, lectureNo: $lectureNo, createdAt: $createdAt, impartusSubjectId: $impartusSubjectId, sessionId: $sessionId)';
   }
 }
 
@@ -87,7 +97,7 @@ abstract class _ImpartusVideo implements ImpartusVideo {
       @JsonKey(name: "seqNo") required final int lectureNo,
       @JsonKey(fromJson: _dateTimeFromJson, name: "startTime")
       required final DateTime createdAt,
-      required final int subjectId,
+      @JsonKey(name: "subjectId") required final int impartusSubjectId,
       required final int sessionId}) = _$ImpartusVideoImpl;
 
   factory _ImpartusVideo.fromJson(Map<String, dynamic> json) =
@@ -109,8 +119,13 @@ abstract class _ImpartusVideo implements ImpartusVideo {
   @override
   @JsonKey(fromJson: _dateTimeFromJson, name: "startTime")
   DateTime get createdAt;
+
+  /// The ID of the subject provided by Impartus
   @override
-  int get subjectId;
+  @JsonKey(name: "subjectId")
+  int get impartusSubjectId;
+
+  /// The session ID of the video provided by Impartus
   @override
   int get sessionId;
 }

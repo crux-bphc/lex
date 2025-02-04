@@ -222,6 +222,6 @@ class _SectionText extends StatelessWidget {
   }
 }
 
-String _sessionToText(ImpartusSession session) => session.isUnknown
+String _sessionToText(ImpartusTimeSession session) => session.isUnknown
     ? "Unknown session"
     : "${session.year!}-${session.year! + 1}, Sem ${session.sem}";
