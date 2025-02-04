@@ -32,12 +32,10 @@ class _MultipartusCoursePageState extends State<MultipartusCoursePage> {
         controller: scrollController,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: FutureBuilder(
+          child: ManagedFutureBuilder(
             future: GetIt.instance<MultipartusService>()
                 .fetchSubject(widget.subjectId),
-            builder: (context, snapshot) {
-              final subject = snapshot.data;
-
+            data: (subject) {
               return CustomScrollView(
                 scrollBehavior:
                     ScrollConfiguration.of(context).copyWith(scrollbars: false),
@@ -91,7 +89,7 @@ class _ContentState extends State<_Content> {
 
   @override
   Widget build(BuildContext context) {
-    return SliverManagedFutureBuilder(
+    return ManagedFutureBuilder.sliver(
       future: GetIt.instance<MultipartusService>()
           .lectureSections(widget.subjectId),
       data: (sections) {
@@ -154,7 +152,7 @@ class _VideoGridSliver extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SliverManagedFutureBuilder(
+    return ManagedFutureBuilder.sliver(
       future: GetIt.instance<MultipartusService>()
           .fetchLectureVideos(selectedSession.section),
       data: (lecs) => VideoGrid(

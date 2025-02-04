@@ -12,6 +12,8 @@ final _darkScheme = ColorScheme.fromSeed(
   tertiary: const Color(0xFFcb8beb),
   onTertiary: const Color(0xFF213611),
   error: const Color(0xFFFFB2B7),
+  errorContainer: const Color(0xFFF7768E),
+  onErrorContainer: const Color(0xFF1E2128),
   onError: const Color(0xFF5D1521),
   surface: const Color(0xFF1E2128),
   onSurface: const Color(0xFFE5E2E2),

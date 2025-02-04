@@ -7,6 +7,7 @@ import 'package:lex/modules/multipartus/widgets/disclaimer_dialog.dart';
 import 'package:lex/modules/multipartus/widgets/multipartus_title.dart';
 import 'package:lex/providers/local_storage/local_storage.dart';
 import 'package:lex/widgets/delayed_progress_indicator.dart';
+import 'package:lex/widgets/managed_future_builder.dart';
 import 'package:signals/signals_flutter.dart';
 
 /// Displays [child] when the user is registered to Multipartus, otherwise
@@ -30,6 +31,7 @@ class _MultipartusLoginGateState extends State<MultipartusLoginGate> {
       future: registrationState,
       builder: (context, snapshot) {
         final registrationState = snapshot.data;
+        final error = snapshot.error;
 
         return AnimatedSwitcher(
           duration: Durations.medium4,
@@ -40,24 +42,12 @@ class _MultipartusLoginGateState extends State<MultipartusLoginGate> {
                     width: 500,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         MultipartusTitle(),
                         SizedBox(height: 16),
-                        SizedBox(
-                          height: 100,
-                          child: Center(
-                            child: registrationState == null
-                                ? Container()
-                                : _Login(
-                                    onLogin: handleLogin,
-                                    showIncorrectPassword: registrationState ==
-                                        MultipartusRegistrationState
-                                            .invalidToken,
-                                  )
-                                    .animate()
-                                    .fadeIn(duration: Durations.short3),
-                          ),
+                        _buildSub(
+                          registrationState: registrationState,
+                          error: error,
                         ),
                       ],
                     ),
@@ -65,6 +55,30 @@ class _MultipartusLoginGateState extends State<MultipartusLoginGate> {
                 ),
         );
       },
+    );
+  }
+
+  Widget _buildSub({
+    MultipartusRegistrationState? registrationState,
+    Object? error,
+  }) {
+    if (error != null) {
+      return SizedBox(
+        height: 200,
+        child: ErrorBirdContainer(error),
+      );
+    }
+    return SizedBox(
+      height: 100,
+      child: Center(
+        child: registrationState == null
+            ? Container()
+            : _Login(
+                onLogin: handleLogin,
+                showIncorrectPassword: registrationState ==
+                    MultipartusRegistrationState.invalidToken,
+              ).animate().fadeIn(duration: Durations.short3),
+      ),
     );
   }
 

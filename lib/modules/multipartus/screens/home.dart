@@ -15,6 +15,7 @@ import 'package:lex/widgets/auto_tooltip_text.dart';
 import 'package:lex/widgets/bird.dart';
 import 'package:lex/widgets/delayed_progress_indicator.dart';
 import 'package:lex/widgets/floating_sidebar.dart';
+import 'package:lex/widgets/managed_future_builder.dart';
 import 'package:signals/signals_flutter.dart';
 
 const _loadingWidget = Center(child: DelayedProgressIndicator());
@@ -103,21 +104,12 @@ class _SubjectsState extends State<_Subjects> with SignalsMixin {
           child: Watch(
             (context) {
               if (isSearchMode()) {
-                return FutureBuilder(
+                return ManagedFutureBuilder(
                   future: GetIt.instance<MultipartusService>()
                       .searchSubjects(_searchText()),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return _loadingWidget;
-                    }
-                    if (snapshot.hasError) {
-                      return ErrorBird(
-                        message: "There was a problem while searching",
-                      );
-                    }
-
+                  data: (subjects) {
                     return _SubjectGrid(
-                      subjects: snapshot.data as List<Subject>,
+                      subjects: subjects,
                       onPressed: _handleSubjectPressed,
                       emptyText: "No subjects found",
                       eagerUpdate: true,

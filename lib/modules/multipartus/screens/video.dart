@@ -7,8 +7,8 @@ import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/video_player.dart';
 import 'package:lex/modules/multipartus/widgets/video_title.dart';
 import 'package:lex/providers/local_storage/local_storage.dart';
-import 'package:lex/widgets/delayed_progress_indicator.dart';
 import 'package:lex/widgets/floating_sidebar.dart';
+import 'package:lex/widgets/managed_future_builder.dart';
 
 class MultipartusVideoPage extends StatefulWidget {
   const MultipartusVideoPage({
@@ -231,23 +231,19 @@ class _SlidesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
+    return ManagedFutureBuilder(
       future: GetIt.instance<MultipartusService>().fetchSlides(ttid),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) return Center(child: DelayedProgressIndicator());
-
-        final items = snapshot.data!;
-
+      data: (slides) {
         return ListView.builder(
           itemBuilder: (context, index) => Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Image.network(
-              items[index].url,
+              slides[index].url,
               color: Colors.white.withValues(alpha: 0.88),
               colorBlendMode: BlendMode.modulate,
             ),
           ),
-          itemCount: snapshot.data!.length,
+          itemCount: slides.length,
         );
       },
     );

@@ -10,64 +10,72 @@ class ManagedFutureBuilder<T> extends StatelessWidget {
     required this.data,
     this.loading,
     this.error,
-  });
+  }) : _isSliver = false;
+
+  const ManagedFutureBuilder.sliver({
+    super.key,
+    required this.future,
+    required this.data,
+    this.loading,
+    this.error,
+  }) : _isSliver = true;
 
   final Future<T> future;
 
   final Widget Function(T data) data;
   final Widget Function()? loading;
   final Widget Function(Object? error)? error;
+
+  final bool _isSliver;
+
+  Widget _sliverify(Widget child) {
+    if (_isSliver) {
+      return SliverFillRemaining(
+        hasScrollBody: false,
+        child: child,
+      );
+    } else {
+      return child;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: future,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          return snapshot.hasError
-              ? error?.call(snapshot.error) ??
-                  ErrorBird(message: snapshot.error.toString())
-              : data(snapshot.requireData);
+        if (snapshot.hasData) {
+          return data(snapshot.requireData);
         }
 
-        return loading?.call() ?? DelayedProgressIndicator();
+        if (snapshot.hasError) {
+          return error?.call(snapshot.error) ??
+              _sliverify(ErrorBirdContainer(snapshot.error));
+        }
+
+        return loading?.call() ?? _sliverify(DelayedProgressIndicator());
       },
     );
   }
 }
 
-class SliverManagedFutureBuilder<T> extends StatelessWidget {
-  const SliverManagedFutureBuilder({
-    super.key,
-    required this.future,
-    required this.data,
-    this.loading,
-    this.error,
-  });
+class ErrorBirdContainer extends StatelessWidget {
+  const ErrorBirdContainer(this.error, {super.key});
 
-  final Future<T> future;
-
-  final Widget Function(T data) data;
-  final Widget Function()? loading;
-  final Widget Function(Object? error)? error;
+  final Object? error;
 
   @override
   Widget build(BuildContext context) {
-    return ManagedFutureBuilder(
-      future: future,
-      data: data,
-      loading: () =>
-          loading?.call() ??
-          SliverFillRemaining(
-            hasScrollBody: false,
-            child: DelayedProgressIndicator(),
-          ),
-      error: (e) =>
-          error?.call(e) ??
-          SliverFillRemaining(
-            hasScrollBody: false,
-            child: ErrorBird(message: e.toString()),
-          ),
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.errorContainer,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      padding: EdgeInsets.all(16),
+      child: ErrorBird(
+        message: error.toString(),
+        foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
+      ),
     );
   }
 }

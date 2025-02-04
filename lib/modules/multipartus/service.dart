@@ -29,7 +29,7 @@ class MultipartusService {
         final r = await _backend.get('/impartus/user/subjects');
 
         backendAssertType<List>(
-          r,
+          r.data,
           "Your pinned subjects could not be retrieved"
           " in a format we understand",
         );
@@ -51,7 +51,7 @@ class MultipartusService {
         final r = await _backend.get('/impartus/session');
 
         backendAssertType<Map>(
-          r,
+          r.data,
           "Impartus session data is not in the expected format",
         );
 
@@ -69,7 +69,7 @@ class MultipartusService {
     final r = await _backend.get('/impartus/user');
 
     backendAssertType<Map>(
-      r,
+      r.data,
       "Multipartus registration data is not in the expected format",
     );
 
@@ -102,7 +102,7 @@ class MultipartusService {
         await _backend.get('/impartus/subject/$department/${id.code}/lectures');
 
     backendAssertType<List>(
-      r,
+      r.data,
       "Lecture section data is not in the expected format",
     );
 
@@ -134,7 +134,7 @@ class MultipartusService {
     final r = await _backend.get('/impartus/lecture/$sessionId/$subjectId');
 
     backendAssertType<List>(
-      r,
+      r.data,
       "Lecture video data is not in the expected format",
     );
 
@@ -181,7 +181,10 @@ class MultipartusService {
 
     final r = await _backend.get('/impartus/subject/${id.asUrl}');
 
-    backendAssertType<Map>(r, "Subject data is not in the expected format");
+    backendAssertType<Map>(
+      r.data,
+      "Subject data is not in the expected format",
+    );
 
     final s = Subject.fromJson(r.data);
 
@@ -224,7 +227,10 @@ class MultipartusService {
       queryParameters: {"q": search},
     );
 
-    backendAssertType<List>(r, "Search results are not in the expected format");
+    backendAssertType<List>(
+      r.data,
+      "Search results are not in the expected format",
+    );
 
     final subs =
         _pinnifySubjects((r.data as List).map((e) => Subject.fromJson(e)))
@@ -327,18 +333,18 @@ enum MultipartusRegistrationState {
 }
 
 class BackendError extends Error {
-  final Response? response;
+  final Object? object;
   final String message;
 
-  BackendError(this.message, [this.response]);
+  BackendError(this.message, [this.object]);
 
   @override
   String toString() => 'BackendError: $message';
 }
 
-void backendAssertType<T>(Response r, String message) {
-  if (r.data is! T) {
-    throw BackendError(message, r);
+void backendAssertType<T>(Object obj, String message) {
+  if (obj is! T) {
+    throw BackendError(message, obj);
   }
 }
 
