@@ -7,6 +7,7 @@ import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/video_player.dart';
 import 'package:lex/modules/multipartus/widgets/video_title.dart';
 import 'package:lex/providers/local_storage/local_storage.dart';
+import 'package:lex/widgets/error_bird.dart';
 import 'package:lex/widgets/floating_sidebar.dart';
 import 'package:lex/widgets/managed_future_builder.dart';
 
@@ -110,7 +111,7 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
                               .titleTextStyle!
                               .copyWith(letterSpacing: 1.5),
                         ),
-                        _DownloadSlidesButton(ttid: widget.ttid),
+                        // _DownloadSlidesButton(ttid: widget.ttid),
                       ],
                     ),
                     SizedBox(height: 10),
@@ -234,6 +235,12 @@ class _SlidesView extends StatelessWidget {
     return ManagedFutureBuilder(
       future: GetIt.instance<MultipartusService>().fetchSlides(ttid),
       data: (slides) {
+        if (slides.isEmpty) {
+          return ErrorBird(
+            message: "We couldn't find slides for this lecture",
+          );
+        }
+
         return ListView.builder(
           itemBuilder: (context, index) => Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
