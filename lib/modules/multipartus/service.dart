@@ -114,10 +114,15 @@ class MultipartusService {
     return f;
   });
 
-  Future<List<ImpartusVideo>> fetchImpartusVideos({
-    required int sessionId,
-    required int subjectId,
-  }) async {
+  late final fetchImpartusVideos = AsyncCached((
+    ({
+      int sessionId,
+      int subjectId,
+    }) e,
+  ) async {
+    final sessionId = e.sessionId;
+    final subjectId = e.subjectId;
+
     final r = await _backend.get('/impartus/lecture/$sessionId/$subjectId');
 
     requireDataType<List>(
@@ -126,12 +131,14 @@ class MultipartusService {
     );
 
     return (r.data as List).map((e) => ImpartusVideo.fromJson(e)).toList();
-  }
+  });
 
   late final fetchLectures = AsyncCached((ImpartusSection section) async {
     final vids = await fetchImpartusVideos(
-      sessionId: section.impartusSession,
-      subjectId: section.impartusSubject,
+      (
+        sessionId: section.impartusSession,
+        subjectId: section.impartusSubject,
+      ),
     );
     final sessions = await _impartusSessionMap.future;
 

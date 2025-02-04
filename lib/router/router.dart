@@ -111,8 +111,10 @@ final router = GoRouter(
                             final timestamp = state.uri.queryParameters['t'];
 
                             return MultipartusVideoPage(
-                              department: department,
-                              subjectCode: code,
+                              subjectId: SubjectId(
+                                department: department,
+                                code: code,
+                              ),
                               ttid: state.pathParameters['ttid']!,
                               startTimestamp: int.tryParse(timestamp ?? ''),
                             );

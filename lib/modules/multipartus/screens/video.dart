@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lex/modules/multipartus/models/impartus_video.dart';
+import 'package:lex/modules/multipartus/models/subject.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/video_player.dart';
 import 'package:lex/modules/multipartus/widgets/video_title.dart';
@@ -12,12 +14,12 @@ class MultipartusVideoPage extends StatefulWidget {
   const MultipartusVideoPage({
     super.key,
     required this.ttid,
-    required this.subjectCode,
-    required this.department,
     this.startTimestamp,
+    required this.subjectId,
   });
 
-  final String subjectCode, department, ttid;
+  final SubjectId subjectId;
+  final String ttid;
   final int? startTimestamp;
 
   @override
@@ -25,17 +27,46 @@ class MultipartusVideoPage extends StatefulWidget {
 }
 
 class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
-  late Future<List<LectureVideo>> _lecturesFuture;
+  late Future<List<ImpartusVideo>> _lecturesFuture;
+
+  Future<List<ImpartusVideo>> _fetchLectures() async {
+    final service = GetIt.instance<MultipartusService>();
+    final vid = await service.fetchImpartusVideo(widget.ttid);
+    final vids = await service.fetchImpartusVideos(
+      (
+        sessionId: vid.sessionId,
+        subjectId: vid.subjectId,
+      ),
+    );
+    return vids;
+  }
+
+  void _handle(int offset) async {
+    final lecs = await _lecturesFuture;
+    final index = lecs.indexWhere((e) => e.ttid.toString() == widget.ttid);
+    final newLec = lecs.elementAtOrNull((index - offset) % lecs.length);
+    final newTtid = newLec?.ttid;
+
+    if (newTtid != null && !mounted) return;
+    context.go('/multipartus/courses/${widget.subjectId.asUrl}/watch/$newTtid');
+  }
+
+  @override
+  void didUpdateWidget(covariant MultipartusVideoPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.ttid != widget.ttid) {
+      setState(() {
+        _lecturesFuture = _fetchLectures();
+      });
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    _lecturesFuture = _fetchLectures();
-  }
 
-  Future<List<LectureVideo>> _fetchLectures() async {
-    final service = GetIt.instance<MultipartusService>();
-    return [];
+    _lecturesFuture = _fetchLectures();
   }
 
   @override
@@ -46,28 +77,24 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
         child: Row(
           children: [
             Expanded(
-                flex: 5,
-                child:
-                    // TODO: fetch lectures of only this section
-                    NotificationListener<VideoNavigateNotification>(
-                  onNotification: (notification) {
-                    //                       context.go(
-                    //   '/multipartus/courses/${widget.department.replaceAll('/', ',')}'
-                    //   '/${widget.subjectCode}/watch/$newTtid',
-                    // );
+              flex: 5,
+              child: NotificationListener<VideoNavigateNotification>(
+                onNotification: (notification) {
+                  _handle(notification.navigationType.offset);
 
-                    return true;
-                  },
-                  child: _LeftSide(
-                    ttid: widget.ttid,
-                    subjectCode: widget.subjectCode,
-                    department: widget.department,
-                    startTimestamp: widget.startTimestamp,
-                    // TODO: please god this needs to change
-                    canNavigateNext: true,
-                    canNavigatePrevious: true,
-                  ),
-                )),
+                  return true;
+                },
+                child: _LeftSide(
+                  ttid: widget.ttid,
+                  subjectCode: widget.subjectId.code,
+                  department: widget.subjectId.department,
+                  startTimestamp: widget.startTimestamp,
+                  // TODO: please god this needs to change
+                  canNavigateNext: true,
+                  canNavigatePrevious: true,
+                ),
+              ),
+            ),
             const SizedBox(width: 20),
             Expanded(
               flex: 2,
