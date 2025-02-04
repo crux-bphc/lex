@@ -148,22 +148,14 @@ class BackButtonObserver extends NavigatorObserver {
   }
 
   @override
-  void didPush(Route route, Route? previousRoute) {
-    _updateSignal();
-  }
+  void didPush(Route route, Route? previousRoute) => _updateSignal();
 
   @override
-  void didReplace({Route? newRoute, Route? oldRoute}) {
-    _updateSignal();
-  }
+  void didReplace({Route? newRoute, Route? oldRoute}) => _updateSignal();
 
   @override
-  void didRemove(Route route, Route? previousRoute) {
-    _updateSignal();
-  }
+  void didRemove(Route route, Route? previousRoute) => _updateSignal();
 
   @override
-  void didPop(Route route, Route? previousRoute) {
-    _updateSignal();
-  }
+  void didPop(Route route, Route? previousRoute) => _updateSignal();
 }

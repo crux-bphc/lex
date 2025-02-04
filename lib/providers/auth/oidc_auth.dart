@@ -20,6 +20,7 @@ const _platformSpecificOptions = OidcPlatformSpecificOptions(
 
 class OidcAuthProvider extends AuthProvider {
   final OidcUserManager _authManager;
+
   final _currentUser = signal<AuthUser?>(null);
 
   final List<Function> _cleanups = [];
@@ -58,7 +59,7 @@ class OidcAuthProvider extends AuthProvider {
     _cleanups.add(sub.cancel);
     await _authManager.init();
 
-    dioClient.interceptors.add(DioAuthInterceptor(authProvider: this));
+    dioClient.interceptors.add(_DioAuthInterceptor(authProvider: this));
 
     // if this, for some reason, is null we can't logout
     assert(_authManager.discoveryDocument.endSessionEndpoint != null);
@@ -83,10 +84,10 @@ class OidcAuthProvider extends AuthProvider {
   }
 }
 
-class DioAuthInterceptor extends Interceptor {
+class _DioAuthInterceptor extends Interceptor {
   final AuthProvider _authProvider;
 
-  DioAuthInterceptor({required AuthProvider authProvider})
+  _DioAuthInterceptor({required AuthProvider authProvider})
       : _authProvider = authProvider;
 
   @override

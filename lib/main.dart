@@ -31,11 +31,10 @@ Future<void> _prelaunchTasks() async {
 
   await initializeDateFormatting();
 
+  // prevent the default signals logger
   SignalsObserver.instance = null;
 
   final getIt = GetIt.instance;
-
-  getIt.registerSingleton<BackButtonObserver>(backButtonObserver);
 
   getIt.registerSingletonAsync<LocalStorage>(
     () async {
@@ -45,6 +44,7 @@ Future<void> _prelaunchTasks() async {
     },
     dispose: (storage) => storage.dispose(),
   );
+  // wait for local storage to get ready, mostly to load the app's theme
   await getIt.isReady<LocalStorage>();
 
   getIt.registerSingleton<ErrorService>(ErrorService());

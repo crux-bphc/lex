@@ -166,45 +166,40 @@ class CruxBackButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isRegistered = GetIt.instance.isRegistered<BackButtonObserver>();
     return SizedBox.square(
       dimension: 60,
-      child: Center(
-        child: isRegistered
-            ? Watch(
-                (context) {
-                  final backProvider = GetIt.instance<BackButtonObserver>();
-                  final showBack = backProvider.showBackButton();
+      child: Center(child: Watch(
+        (context) {
+          final showBack = backButtonObserver.showBackButton();
 
-                  return const _CruxIcon()
-                      .animate(target: showBack ? 1 : 0)
-                      .fadeOut(duration: 160.ms, curve: Curves.easeOutCubic)
-                      .slideX(
-                        begin: 0,
-                        end: -0.2,
-                        duration: 180.ms,
-                        curve: Curves.easeIn,
-                      )
-                      .swap(
-                        duration: 180.ms,
-                        builder: (_, __) =>
-                            _BackButton(onPressed: backProvider.pop)
-                                .animate()
-                                .fadeIn(
-                                  duration: 100.ms,
-                                  curve: Curves.easeOutCubic,
-                                )
-                                .slideX(
-                                  begin: 0.1,
-                                  end: 0,
-                                  duration: 120.ms,
-                                  curve: Curves.easeOutQuad,
-                                ),
-                      );
-                },
+          return const _CruxIcon()
+              .animate(target: showBack ? 1 : 0)
+              .fadeOut(duration: 160.ms, curve: Curves.easeOutCubic)
+              .slideX(
+                begin: 0,
+                end: -0.2,
+                duration: 180.ms,
+                curve: Curves.easeIn,
               )
-            : const _CruxIcon(),
-      ),
+              .swap(
+                duration: 180.ms,
+                builder: (_, __) => _BackButton(
+                  onPressed: backButtonObserver.pop,
+                )
+                    .animate()
+                    .fadeIn(
+                      duration: 100.ms,
+                      curve: Curves.easeOutCubic,
+                    )
+                    .slideX(
+                      begin: 0.1,
+                      end: 0,
+                      duration: 120.ms,
+                      curve: Curves.easeOutQuad,
+                    ),
+              );
+        },
+      )),
     );
   }
 }
