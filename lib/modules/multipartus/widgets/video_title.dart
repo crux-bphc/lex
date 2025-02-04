@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:lex/modules/multipartus/models/subject.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/utils/misc.dart';
 
@@ -16,11 +17,7 @@ class VideoTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: GetIt.instance<MultipartusService>().fetchLectureVideo(
-        department: department,
-        code: subjectCode,
-        ttid: ttid,
-      ),
+      future: GetIt.instance<MultipartusService>().fetchImpartusVideo(ttid),
       builder: (context, snapshot) {
         final data = snapshot.data;
         return Column(
@@ -31,8 +28,9 @@ class VideoTitle extends StatelessWidget {
               children: [
                 Expanded(
                   child: FutureBuilder(
-                    future: GetIt.instance<MultipartusService>()
-                        .fetchSubject(department, subjectCode),
+                    future: GetIt.instance<MultipartusService>().fetchSubject(
+                      SubjectId(department: department, code: subjectCode),
+                    ),
                     builder: (context, snapshot) {
                       final subject = snapshot.data;
 

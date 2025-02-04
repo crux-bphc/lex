@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:lex/modules/multipartus/models/subject.dart';
 import 'package:lex/modules/multipartus/screens/course.dart';
 import 'package:lex/modules/multipartus/screens/home.dart';
 import 'package:lex/modules/multipartus/screens/video.dart';
@@ -95,8 +96,8 @@ final router = GoRouter(
                             .replaceAll(',', '/');
                         final code = state.pathParameters['code']!;
                         return MultipartusCoursePage(
-                          department: department,
-                          subjectCode: code,
+                          subjectId:
+                              SubjectId(department: department, code: code),
                         );
                       },
                       routes: [

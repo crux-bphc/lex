@@ -214,3 +214,59 @@ abstract class _Subject extends Subject {
   _$$SubjectImplCopyWith<_$SubjectImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
+
+/// @nodoc
+mixin _$SubjectId {
+  String get department => throw _privateConstructorUsedError;
+  String get code => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+
+class _$SubjectIdImpl extends _SubjectId with DiagnosticableTreeMixin {
+  _$SubjectIdImpl({required this.department, required this.code}) : super._();
+
+  @override
+  final String department;
+  @override
+  final String code;
+
+  @override
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+    return 'SubjectId(department: $department, code: $code)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'SubjectId'))
+      ..add(DiagnosticsProperty('department', department))
+      ..add(DiagnosticsProperty('code', code));
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$SubjectIdImpl &&
+            (identical(other.department, department) ||
+                other.department == department) &&
+            (identical(other.code, code) || other.code == code));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, department, code);
+}
+
+abstract class _SubjectId extends SubjectId {
+  factory _SubjectId(
+      {required final String department,
+      required final String code}) = _$SubjectIdImpl;
+  _SubjectId._() : super._();
+
+  @override
+  String get department;
+  @override
+  String get code;
+}

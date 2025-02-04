@@ -59,7 +59,7 @@ class OidcAuthProvider extends AuthProvider {
     _cleanups.add(sub.cancel);
     await _authManager.init();
 
-    dioClient.interceptors.add(_DioAuthInterceptor(authProvider: this));
+    dioClient.interceptors.add(DioAuthInterceptor(authProvider: this));
 
     // if this, for some reason, is null we can't logout
     assert(_authManager.discoveryDocument.endSessionEndpoint != null);
@@ -82,30 +82,6 @@ class OidcAuthProvider extends AuthProvider {
     }
     _authManager.dispose();
   }
-}
-
-class _DioAuthInterceptor extends Interceptor {
-  final AuthProvider _authProvider;
-
-  _DioAuthInterceptor({required AuthProvider authProvider})
-      : _authProvider = authProvider;
-
-  @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    _appendAuthHeader(_authProvider, options.headers);
-    handler.next(options);
-  }
-}
-
-void _appendAuthHeader(AuthProvider provider, Map<String, dynamic> headers) {
-  // If the Authorization header is already set, don't override it
-  if (headers.containsKey('Authorization')) return;
-
-  // If there's no idToken, don't set the Authorization header
-  final idToken = provider.currentUser.value?.idToken;
-  if (idToken == null) return;
-
-  headers['Authorization'] = 'Bearer $idToken';
 }
 
 String _getRedirectUri() {

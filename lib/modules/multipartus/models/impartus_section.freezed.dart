@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'lecture_section.dart';
+part of 'impartus_section.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -24,6 +24,8 @@ mixin _$ImpartusSection {
   int get impartusSession => throw _privateConstructorUsedError;
   @JsonKey(name: 'impartus_subject')
   int get impartusSubject => throw _privateConstructorUsedError;
+
+  /// eg. L1, T3, P2
   String get section => throw _privateConstructorUsedError;
   String get professor => throw _privateConstructorUsedError;
 }
@@ -46,6 +48,8 @@ class _$ImpartusSectionImpl implements _ImpartusSection {
   @override
   @JsonKey(name: 'impartus_subject')
   final int impartusSubject;
+
+  /// eg. L1, T3, P2
   @override
   final String section;
   @override
@@ -55,6 +59,25 @@ class _$ImpartusSectionImpl implements _ImpartusSection {
   String toString() {
     return 'ImpartusSection(impartusSession: $impartusSession, impartusSubject: $impartusSubject, section: $section, professor: $professor)';
   }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$ImpartusSectionImpl &&
+            (identical(other.impartusSession, impartusSession) ||
+                other.impartusSession == impartusSession) &&
+            (identical(other.impartusSubject, impartusSubject) ||
+                other.impartusSubject == impartusSubject) &&
+            (identical(other.section, section) || other.section == section) &&
+            (identical(other.professor, professor) ||
+                other.professor == professor));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+      runtimeType, impartusSession, impartusSubject, section, professor);
 }
 
 abstract class _ImpartusSection implements ImpartusSection {
@@ -73,6 +96,8 @@ abstract class _ImpartusSection implements ImpartusSection {
   @override
   @JsonKey(name: 'impartus_subject')
   int get impartusSubject;
+
+  /// eg. L1, T3, P2
   @override
   String get section;
   @override

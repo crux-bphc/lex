@@ -22,7 +22,7 @@ class MultipartusLoginGate extends StatefulWidget {
 
 class _MultipartusLoginGateState extends State<MultipartusLoginGate> {
   Future<MultipartusRegistrationState> registrationState =
-      GetIt.instance<MultipartusService>().getRegistrationState();
+      GetIt.instance<MultipartusService>().fetchRegistrationState();
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +40,7 @@ class _MultipartusLoginGateState extends State<MultipartusLoginGate> {
                     width: 500,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         MultipartusTitle(),
                         SizedBox(height: 16),
@@ -47,7 +48,7 @@ class _MultipartusLoginGateState extends State<MultipartusLoginGate> {
                           height: 100,
                           child: Center(
                             child: registrationState == null
-                                ? DelayedProgressIndicator()
+                                ? Container()
                                 : _Login(
                                     onLogin: handleLogin,
                                     showIncorrectPassword: registrationState ==
@@ -73,7 +74,7 @@ class _MultipartusLoginGateState extends State<MultipartusLoginGate> {
     if (result) {
       setState(
         () => registrationState =
-            GetIt.instance<MultipartusService>().getRegistrationState(),
+            GetIt.instance<MultipartusService>().fetchRegistrationState(),
       );
     }
     return result;

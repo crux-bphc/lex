@@ -12,9 +12,9 @@ class FilterDropdown<V> extends StatefulWidget {
     this.width = 540,
   });
 
-  final List<ProfessorSession> items;
-  final ProfessorSession selected;
-  final void Function(ProfessorSession selected) onSelected;
+  final List<SectionSession> items;
+  final SectionSession selected;
+  final void Function(SectionSession selected) onSelected;
   final double width;
 
   @override
@@ -73,7 +73,7 @@ class _FilterDropdownState<V> extends State<FilterDropdown<V>>
             onTap: _onPressed,
             child: _Item(
               style: style,
-              first: widget.selected.section.section,
+              first: widget.selected.lectureSection,
               second: widget.selected.professor,
               third: _sessionToText(widget.selected.session),
               middle: (context) => CompositedTransformTarget(
@@ -153,8 +153,8 @@ class _Item extends StatelessWidget {
 class _FilterPopupOther extends StatelessWidget {
   const _FilterPopupOther({required this.items, required this.onSelected});
 
-  final List<ProfessorSession> items;
-  final void Function(ProfessorSession selected) onSelected;
+  final List<SectionSession> items;
+  final void Function(SectionSession selected) onSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -173,7 +173,7 @@ class _FilterPopupOther extends StatelessWidget {
               child: InkWell(
                 onTap: () => onSelected(items[index]),
                 child: _Item(
-                  first: items[index].section.section,
+                  first: items[index].lectureSection,
                   second: items[index].professor,
                   third: _sessionToText(items[index].session),
                   middle: (context) => SizedBox(width: 40),

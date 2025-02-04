@@ -13,6 +13,8 @@ class ImpartusVideo with _$ImpartusVideo {
     @JsonKey(name: "seqNo") required int lectureNo,
     @JsonKey(fromJson: _dateTimeFromJson, name: "startTime")
     required DateTime createdAt,
+    required int subjectId,
+    required int sessionId,
   }) = _ImpartusVideo;
 
   factory ImpartusVideo.fromJson(Map<String, Object?> json) =>

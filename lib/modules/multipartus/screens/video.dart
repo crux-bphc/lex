@@ -35,10 +35,7 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
 
   Future<List<LectureVideo>> _fetchLectures() async {
     final service = GetIt.instance<MultipartusService>();
-    final result = await service.lectures(
-      (department: widget.department, code: widget.subjectCode),
-    ).future;
-    return result.videos;
+    return [];
   }
 
   @override
@@ -49,48 +46,28 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
         child: Row(
           children: [
             Expanded(
-              flex: 5,
-              child: FutureBuilder<List<LectureVideo>>(
-                future: _lecturesFuture,
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return Center(child: DelayedProgressIndicator());
-                  }
+                flex: 5,
+                child:
+                    // TODO: fetch lectures of only this section
+                    NotificationListener<VideoNavigateNotification>(
+                  onNotification: (notification) {
+                    //                       context.go(
+                    //   '/multipartus/courses/${widget.department.replaceAll('/', ',')}'
+                    //   '/${widget.subjectCode}/watch/$newTtid',
+                    // );
 
-                  final lectures = snapshot.data!;
-
-                  int getCurrentIndex() =>
-                      lectures.indexWhere((e) => e.ttid == widget.ttid);
-
-                  // TODO: fetch lectures of only this section
-                  return NotificationListener<VideoNavigateNotification>(
-                    onNotification: (notification) {
-                      final index = (getCurrentIndex() -
-                              notification.navigationType.offset) %
-                          lectures.length;
-
-                      final newTtid = lectures[index].ttid;
-
-                      context.go(
-                        '/multipartus/courses/${widget.department.replaceAll('/', ',')}'
-                        '/${widget.subjectCode}/watch/$newTtid',
-                      );
-
-                      return true;
-                    },
-                    child: _LeftSide(
-                      ttid: widget.ttid,
-                      subjectCode: widget.subjectCode,
-                      department: widget.department,
-                      startTimestamp: widget.startTimestamp,
-                      // TODO: please god this needs to change
-                      canNavigateNext: true,
-                      canNavigatePrevious: true,
-                    ),
-                  );
-                },
-              ),
-            ),
+                    return true;
+                  },
+                  child: _LeftSide(
+                    ttid: widget.ttid,
+                    subjectCode: widget.subjectCode,
+                    department: widget.department,
+                    startTimestamp: widget.startTimestamp,
+                    // TODO: please god this needs to change
+                    canNavigateNext: true,
+                    canNavigatePrevious: true,
+                  ),
+                )),
             const SizedBox(width: 20),
             Expanded(
               flex: 2,

@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'lecture_section.dart';
+part of 'impartus_section.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator

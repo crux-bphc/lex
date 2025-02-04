@@ -168,38 +168,40 @@ class CruxBackButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox.square(
       dimension: 60,
-      child: Center(child: Watch(
-        (context) {
-          final showBack = backButtonObserver.showBackButton();
+      child: Center(
+        child: Watch(
+          (context) {
+            final showBack = backButtonObserver.showBackButton();
 
-          return const _CruxIcon()
-              .animate(target: showBack ? 1 : 0)
-              .fadeOut(duration: 160.ms, curve: Curves.easeOutCubic)
-              .slideX(
-                begin: 0,
-                end: -0.2,
-                duration: 180.ms,
-                curve: Curves.easeIn,
-              )
-              .swap(
-                duration: 180.ms,
-                builder: (_, __) => _BackButton(
-                  onPressed: backButtonObserver.pop,
+            return const _CruxIcon()
+                .animate(target: showBack ? 1 : 0)
+                .fadeOut(duration: 160.ms, curve: Curves.easeOutCubic)
+                .slideX(
+                  begin: 0,
+                  end: -0.2,
+                  duration: 180.ms,
+                  curve: Curves.easeIn,
                 )
-                    .animate()
-                    .fadeIn(
-                      duration: 100.ms,
-                      curve: Curves.easeOutCubic,
-                    )
-                    .slideX(
-                      begin: 0.1,
-                      end: 0,
-                      duration: 120.ms,
-                      curve: Curves.easeOutQuad,
-                    ),
-              );
-        },
-      )),
+                .swap(
+                  duration: 180.ms,
+                  builder: (_, __) => _BackButton(
+                    onPressed: backButtonObserver.pop,
+                  )
+                      .animate()
+                      .fadeIn(
+                        duration: 100.ms,
+                        curve: Curves.easeOutCubic,
+                      )
+                      .slideX(
+                        begin: 0.1,
+                        end: 0,
+                        duration: 120.ms,
+                        curve: Curves.easeOutQuad,
+                      ),
+                );
+          },
+        ),
+      ),
     );
   }
 }

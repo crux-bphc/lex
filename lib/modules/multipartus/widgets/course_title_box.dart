@@ -5,6 +5,7 @@ import 'package:lex/modules/multipartus/models/subject.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/video_tile.dart';
 import 'package:lex/providers/local_storage/local_storage.dart';
+import 'package:lex/widgets/delayed_progress_indicator.dart';
 
 class CourseTitleBox extends StatelessWidget {
   const CourseTitleBox({super.key, required this.subject});
@@ -25,7 +26,7 @@ class CourseTitleBox extends StatelessWidget {
       child: SizedBox(
         height: 300,
         child: subject == null
-            ? null
+            ? Center(child: DelayedProgressIndicator())
             : Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -90,11 +91,8 @@ class _RecentlyWatched extends StatelessWidget {
     }
 
     return FutureBuilder(
-      future: GetIt.instance<MultipartusService>().fetchLectureVideo(
-        department: subject.department,
-        code: subject.code,
-        ttid: _lastWatched!.$1,
-      ),
+      future: GetIt.instance<MultipartusService>()
+          .fetchImpartusVideo(_lastWatched!.$1),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           final video = snapshot.data!;

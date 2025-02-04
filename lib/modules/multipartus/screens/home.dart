@@ -156,10 +156,18 @@ class _SubjectsState extends State<_Subjects> with SignalsMixin {
                       onPressed: _handleSubjectPressed,
                       eagerUpdate: false,
                     ),
-                    error: (e, _) => ErrorBird(
-                      message:
-                          "There was a problem while retrieving your pinned subjects",
-                    ),
+                    error: (e, _) {
+                      if (e is BackendError) {
+                        return ErrorBird(
+                          message: e.message,
+                        );
+                      }
+
+                      return ErrorBird(
+                        message:
+                            "There was a problem while retrieving your pinned subjects",
+                      );
+                    },
                     loading: () => _loadingWidget,
                   );
                 });
@@ -325,11 +333,8 @@ class _ContinueWatchingState extends State<_ContinueWatching> {
               vertical: 16,
             ),
             child: FutureBuilder(
-              future: GetIt.instance<MultipartusService>().fetchLectureVideo(
-                department: department,
-                code: code,
-                ttid: ttid.toString(),
-              ),
+              future: GetIt.instance<MultipartusService>()
+                  .fetchImpartusVideo(ttid.toString()),
               builder: (context, snapshot) {
                 final title = snapshot.data?.title;
                 final isLoading =

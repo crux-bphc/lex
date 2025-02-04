@@ -21,12 +21,21 @@ class Subject with _$Subject {
   /// Example: `CHEM F111`.
   String get prettyCode => '$department $code';
 
-  String get departmentUrl => department.replaceAll('/', ',');
+  String get departmentUrl => subjectId.departmentUrl;
 
-  SubjectId get subjectId => (department: department, code: code);
+  SubjectId get subjectId => SubjectId(department: department, code: code);
 
   factory Subject.fromJson(Map<String, Object?> json) =>
       _$SubjectFromJson(json);
 }
 
-typedef SubjectId = ({String department, String code});
+@Freezed(equal: true)
+class SubjectId with _$SubjectId {
+  const SubjectId._();
+
+  factory SubjectId({required String department, required String code}) =
+      _SubjectId;
+
+  String get departmentUrl => department.replaceAll('/', ',');
+  String get asUrl => '$departmentUrl/$code';
+}

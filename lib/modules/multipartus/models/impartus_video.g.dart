@@ -14,4 +14,6 @@ _$ImpartusVideoImpl _$$ImpartusVideoImplFromJson(Map<String, dynamic> json) =>
       professor: json['professorName'] as String,
       lectureNo: (json['seqNo'] as num).toInt(),
       createdAt: _dateTimeFromJson(json['startTime'] as String),
+      subjectId: (json['subjectId'] as num).toInt(),
+      sessionId: (json['sessionId'] as num).toInt(),
     );

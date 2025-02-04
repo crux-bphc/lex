@@ -3,32 +3,34 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:file_saver/file_saver.dart';
 import 'package:flutter/foundation.dart';
-import 'package:lex/modules/multipartus/models/lecture_section.dart';
+import 'package:lex/modules/multipartus/models/impartus_section.dart';
 import 'package:lex/modules/multipartus/models/impartus_video.dart';
 import 'package:lex/modules/multipartus/models/lecture_slide.dart';
 import 'package:lex/modules/multipartus/models/subject.dart';
 import 'package:lex/utils/misc.dart';
-import 'package:lex/utils/signals.dart';
 import 'package:signals/signals.dart';
 
 class MultipartusService {
   final Dio _backend;
 
-  late final MapSignal<SubjectId, Subject> _subjectMap;
   late final FutureSignal<Map<SubjectId, Subject>> pinnedSubjects;
   late final FutureSignal<Map<int, ImpartusSession>> _impartusSessionMap;
 
-  /// ttid: ImpartusVideoData
-  late final _videoMap = DeferredValueMap<String, ImpartusVideo>();
+  final _subjectMap = <SubjectId, Subject>{};
 
   MultipartusService(this._backend) {
     pinnedSubjects = computedAsync(
       () async {
         final r = await _backend.get('/impartus/user/subjects');
 
-        if (r.data! is! List) return {};
-        final iter = (r.data! as List)
-            .cast<Map>()
+        requireDataType<List>(
+          r,
+          "Your pinned subjects could not be retrieved"
+          " in a format we understand",
+        );
+
+        // all these subjects are pinned
+        final iter = (r.data as List)
             .map((e) => Subject.fromJson({...e, 'isPinned': true}));
 
         final subs = _subjectsToIdMap(iter);
@@ -39,16 +41,15 @@ class MultipartusService {
       debugLabel: 'service | pinnedSubjects',
     );
 
-    // modified by: pinnedSubjects, searchSubjects, and
-    // lectureSections (indirectly by fetchLectureVideo),
-    _subjectMap = <SubjectId, Subject>{}.toSignal(
-      debugLabel: 'service | subjects',
-    );
-
     _impartusSessionMap = computedAsync(
       () async {
         final r = await _backend.get('/impartus/session');
-        if (r.data is! Map) return {};
+
+        requireDataType<Map>(
+          r,
+          "Impartus session data is not in the expected format",
+        );
+
         return {
           for (final e in (r.data as Map).entries)
             int.parse(e.key):
@@ -59,9 +60,13 @@ class MultipartusService {
     );
   }
 
-  Future<MultipartusRegistrationState> getRegistrationState() async {
+  Future<MultipartusRegistrationState> fetchRegistrationState() async {
     final r = await _backend.get('/impartus/user');
-    if (r.data is! Map) return MultipartusRegistrationState.notRegistered;
+
+    requireDataType<Map>(
+      r,
+      "Multipartus registration data is not in the expected format",
+    );
 
     final registered = r.data['registered'] ?? false;
     final valid = r.data['valid'] ?? false;
@@ -86,84 +91,63 @@ class MultipartusService {
     return r.statusCode == 200;
   }
 
-  Future<List<ImpartusSection>> lectureSections(String id) async {
-    final r = await _backend.get('/impartus/subject/$id/lectures');
+  late final lectureSections = AsyncCached((SubjectId id) async {
+    final department = id.department.replaceAll('/', ',');
+    final r =
+        await _backend.get('/impartus/subject/$department/${id.code}/lectures');
 
-    final lectures = r.data ?? [];
+    requireDataType<List>(r, "Lecture data is not in the expected format");
 
-    final f =
-        (lectures as List).map((e) => ImpartusSection.fromJson(e)).toList();
+    final lectures = r.data as List;
+    final sessions = await _impartusSessionMap.future;
+
+    final f = lectures
+        .map((e) => ImpartusSection.fromJson(e))
+        .map(
+          (e) => SectionSession(
+            section: e,
+            session: sessions[e.impartusSession] ?? ImpartusSession.unknown,
+          ),
+        )
+        .toList();
 
     return f;
-  }
+  });
 
-  Future<List<ImpartusVideo>> _fetchImpartusVideos({
+  Future<List<ImpartusVideo>> fetchImpartusVideos({
     required int sessionId,
     required int subjectId,
   }) async {
     final r = await _backend.get('/impartus/lecture/$sessionId/$subjectId');
-    if (r.data is! List) return [];
+
+    requireDataType<List>(
+      r,
+      "Lecture video data is not in the expected format",
+    );
+
     return (r.data as List).map((e) => ImpartusVideo.fromJson(e)).toList();
   }
 
-  late final lectures =
-      asyncSignalContainer<LecturesResult, ({String department, String code})>(
-    (e) {
-      final departmentUrl = e.department.replaceAll('/', ',');
-      final code = e.code;
+  late final fetchLectures = AsyncCached((ImpartusSection section) async {
+    final vids = await fetchImpartusVideos(
+      sessionId: section.impartusSession,
+      subjectId: section.impartusSubject,
+    );
+    final sessions = await _impartusSessionMap.future;
 
-      return computedAsync(
-        () async {
-          final sections = await lectureSections("$departmentUrl/$code");
+    final result = vids
+        .map(
+          (e) => LectureVideo.fromData(
+            section: section,
+            video: e,
+            session:
+                sessions[section.impartusSession] ?? ImpartusSession.unknown,
+          ),
+        )
+        .toList();
 
-          final sessions = await _impartusSessionMap.future;
-
-          final List<LectureVideo> vidsList = (await Future.wait(
-            sections.map((lec) async {
-              final impartusVideos = await _fetchImpartusVideos(
-                sessionId: lec.impartusSession,
-                subjectId: lec.impartusSubject,
-              );
-
-              return impartusVideos
-                  .map(
-                    (v) => LectureVideo.fromData(
-                      section: lec,
-                      video: v,
-                      session: sessions[lec.impartusSession],
-                    ),
-                  )
-                  .toList();
-            }),
-          ))
-              .reduce((a, b) => a + b);
-
-          final profList = sections
-              .map(
-                (e) => (
-                  section: e,
-                  professor: e.professor,
-                  session:
-                      sessions[e.impartusSession] ?? ImpartusSession.unknown,
-                ),
-              )
-              .toList();
-
-          for (final v in vidsList) {
-            _videoMap.set(v.ttid, v.video);
-          }
-
-          return (
-            videos: vidsList,
-            professorSessionList: profList,
-          );
-        },
-        autoDispose: true,
-        debugLabel: 'service | lectures',
-      );
-    },
-    cache: true,
-  );
+    return result;
+  });
 
   Future<void> pinSubject(String department, String code) async {
     await _backend.post(
@@ -183,47 +167,25 @@ class MultipartusService {
     await pinnedSubjects.refresh();
   }
 
-  Future<ImpartusVideo> fetchLectureVideo({
-    required String department,
-    required String code,
-    required String ttid,
-  }) async {
-    // first check if we have the video in cache
-    final maybe = _videoMap.maybeGet(ttid);
-    if (maybe != null) return maybe;
-
-    // if not, fetch from video info
+  late final fetchImpartusVideo = AsyncCached((String ttid) async {
     final videoData = await _getVideoInfo(ttid);
     if (videoData != null) {
-      _videoMap.set(ttid, videoData);
       return videoData;
     }
 
-    // this should ideally never run but im leaving this here in case
-    // the video info endpoint fails (above)
-    return _videoMap.get(
-      ttid,
-      () => lectures((department: department, code: code)).future,
-    );
-  }
+    throw BackendError("No video found with ttid $ttid");
+  });
 
-  Future<Subject?> fetchSubject(String department, String code) async {
-    final id = (department: department, code: code);
+  late final fetchSubject = AsyncCached((SubjectId id) async {
+    final r =
+        await _backend.get('/impartus/subject/${id.departmentUrl}/${id.code}');
 
-    final maybe = _subjectMap[id];
-
-    if (maybe != null) return maybe;
-
-    final departmentUrl = department.replaceAll('/', ',');
-
-    final r = await _backend.get('/impartus/subject/$departmentUrl/$code');
-    if (r.data is! Map) return null;
+    requireDataType<Map>(r, "Subject data is not in the expected format");
 
     final s = Subject.fromJson(r.data);
-    _subjectMap[id] = s;
 
     return s;
-  }
+  });
 
   Future<List<Subject>> searchSubjects(String search) async {
     final r = await _backend.get(
@@ -315,24 +277,68 @@ class ImpartusSession {
   bool get isUnknown => year == null || sem == null;
 }
 
-typedef ProfessorSession = ({
-  String professor,
-  ImpartusSession session,
-  ImpartusSection section,
-});
-
 typedef LecturesResult = ({
   List<LectureVideo> videos,
-  List<ProfessorSession> professorSessionList,
 });
 
+/// Convert a list of subjects to a map of subjectId to subject
 Map<SubjectId, Subject> _subjectsToIdMap(Iterable<Subject> subjects) =>
     <SubjectId, Subject>{
-      for (final s in subjects) (department: s.department, code: s.code): s,
+      for (final s in subjects)
+        SubjectId(department: s.department, code: s.code): s,
     };
 
 enum MultipartusRegistrationState {
   registered,
   notRegistered,
   invalidToken,
+}
+
+class BackendError extends Error {
+  final Response? response;
+  final String message;
+
+  BackendError(this.message, [this.response]);
+
+  @override
+  String toString() => 'BackendError: $message';
+}
+
+void requireDataType<T>(Response r, String message) {
+  if (r.data is! T) {
+    throw BackendError(
+      message,
+      r,
+    );
+  }
+}
+
+List<T> requireListType<T>(Response r, String message) {
+  final data = r.data;
+  if (data is! List) {
+    throw BackendError(message, r);
+  }
+  try {
+    return data.cast<T>();
+  } on TypeError {
+    throw BackendError(message, r);
+  }
+}
+
+class SectionSession {
+  final ImpartusSession session;
+  final ImpartusSection section;
+
+  SectionSession({
+    required this.section,
+    required this.session,
+  })  : professor = section.professor,
+        lectureSection = section.section,
+        year = session.year,
+        sem = session.sem,
+        isUnknown = session.isUnknown;
+
+  final String professor, lectureSection;
+  final int? year, sem;
+  final bool isUnknown;
 }

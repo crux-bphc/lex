@@ -30,6 +30,8 @@ mixin _$ImpartusVideo {
   int get lectureNo => throw _privateConstructorUsedError;
   @JsonKey(fromJson: _dateTimeFromJson, name: "startTime")
   DateTime get createdAt => throw _privateConstructorUsedError;
+  int get subjectId => throw _privateConstructorUsedError;
+  int get sessionId => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -42,7 +44,9 @@ class _$ImpartusVideoImpl implements _ImpartusVideo {
       @JsonKey(name: "professorName") required this.professor,
       @JsonKey(name: "seqNo") required this.lectureNo,
       @JsonKey(fromJson: _dateTimeFromJson, name: "startTime")
-      required this.createdAt});
+      required this.createdAt,
+      required this.subjectId,
+      required this.sessionId});
 
   factory _$ImpartusVideoImpl.fromJson(Map<String, dynamic> json) =>
       _$$ImpartusVideoImplFromJson(json);
@@ -63,10 +67,14 @@ class _$ImpartusVideoImpl implements _ImpartusVideo {
   @override
   @JsonKey(fromJson: _dateTimeFromJson, name: "startTime")
   final DateTime createdAt;
+  @override
+  final int subjectId;
+  @override
+  final int sessionId;
 
   @override
   String toString() {
-    return 'ImpartusVideo(ttid: $ttid, videoId: $videoId, title: $title, professor: $professor, lectureNo: $lectureNo, createdAt: $createdAt)';
+    return 'ImpartusVideo(ttid: $ttid, videoId: $videoId, title: $title, professor: $professor, lectureNo: $lectureNo, createdAt: $createdAt, subjectId: $subjectId, sessionId: $sessionId)';
   }
 }
 
@@ -78,7 +86,9 @@ abstract class _ImpartusVideo implements ImpartusVideo {
       @JsonKey(name: "professorName") required final String professor,
       @JsonKey(name: "seqNo") required final int lectureNo,
       @JsonKey(fromJson: _dateTimeFromJson, name: "startTime")
-      required final DateTime createdAt}) = _$ImpartusVideoImpl;
+      required final DateTime createdAt,
+      required final int subjectId,
+      required final int sessionId}) = _$ImpartusVideoImpl;
 
   factory _ImpartusVideo.fromJson(Map<String, dynamic> json) =
       _$ImpartusVideoImpl.fromJson;
@@ -99,4 +109,8 @@ abstract class _ImpartusVideo implements ImpartusVideo {
   @override
   @JsonKey(fromJson: _dateTimeFromJson, name: "startTime")
   DateTime get createdAt;
+  @override
+  int get subjectId;
+  @override
+  int get sessionId;
 }
