@@ -3,8 +3,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:signals/signals_flutter.dart';
 
-class FilterDropdown<V> extends StatefulWidget {
-  const FilterDropdown({
+class SectionSessionFilter<V> extends StatefulWidget {
+  const SectionSessionFilter({
     super.key,
     required this.items,
     required this.onSelected,
@@ -18,16 +18,22 @@ class FilterDropdown<V> extends StatefulWidget {
   final double width;
 
   @override
-  State<FilterDropdown<V>> createState() => _FilterDropdownState<V>();
+  State<SectionSessionFilter<V>> createState() =>
+      _SectionSessionFilterState<V>();
 }
 
-class _FilterDropdownState<V> extends State<FilterDropdown<V>>
+class _SectionSessionFilterState<V> extends State<SectionSessionFilter<V>>
     with SignalsMixin {
   final _layerLink = LayerLink();
   final _overlayController = OverlayPortalController();
 
   void _onPressed() {
     _overlayController.toggle();
+  }
+
+  void _onPopupSelected(SectionSession selected) {
+    widget.onSelected(selected);
+    _overlayController.hide();
   }
 
   @override
@@ -49,12 +55,9 @@ class _FilterDropdownState<V> extends State<FilterDropdown<V>>
             consumeOutsideTaps: true,
             child: SizedBox(
               width: widget.width,
-              child: _FilterPopupOther(
+              child: _FilterPopup(
                 items: widget.items,
-                onSelected: (selected) {
-                  _overlayController.hide();
-                  widget.onSelected(selected);
-                },
+                onSelected: _onPopupSelected,
               ),
             ),
           ),
@@ -76,7 +79,7 @@ class _FilterDropdownState<V> extends State<FilterDropdown<V>>
               first: widget.selected.lectureSection,
               second: widget.selected.professor,
               third: _sessionToText(widget.selected.session),
-              middle: (context) => CompositedTransformTarget(
+              middleWidget: (context) => CompositedTransformTarget(
                 link: _layerLink,
                 child: SizedBox(
                   height: 36,
@@ -100,13 +103,13 @@ class _Item extends StatelessWidget {
     required this.first,
     required this.second,
     required this.third,
-    required this.middle,
+    required this.middleWidget,
     required this.padding,
     this.style,
   });
 
   final String first, second, third;
-  final WidgetBuilder middle;
+  final WidgetBuilder middleWidget;
   final TextStyle? style;
   final EdgeInsets padding;
 
@@ -137,7 +140,7 @@ class _Item extends StatelessWidget {
             ),
           ),
           // align with the divider
-          Builder(builder: middle),
+          Builder(builder: middleWidget),
           Expanded(
             child: Text(
               third,
@@ -150,8 +153,8 @@ class _Item extends StatelessWidget {
   }
 }
 
-class _FilterPopupOther extends StatelessWidget {
-  const _FilterPopupOther({required this.items, required this.onSelected});
+class _FilterPopup extends StatelessWidget {
+  const _FilterPopup({required this.items, required this.onSelected});
 
   final List<SectionSession> items;
   final void Function(SectionSession selected) onSelected;
@@ -160,7 +163,7 @@ class _FilterPopupOther extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       elevation: 4,
-      clipBehavior: Clip.antiAlias,
+      clipBehavior: Clip.hardEdge,
       color: Theme.of(context).colorScheme.surfaceContainerHigh,
       borderRadius: BorderRadius.circular(6),
       child: ConstrainedBox(
@@ -176,7 +179,7 @@ class _FilterPopupOther extends StatelessWidget {
                   first: items[index].lectureSection,
                   second: items[index].professor,
                   third: _sessionToText(items[index].session),
-                  middle: (context) => SizedBox(width: 40),
+                  middleWidget: (context) => SizedBox(width: 40),
                   padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                 ),
               ),
@@ -190,7 +193,7 @@ class _FilterPopupOther extends StatelessWidget {
         .slideY(
           duration: 140.ms,
           curve: Curves.easeOutCubic,
-          begin: -0.04,
+          begin: -0.08,
           end: 0,
         )
         .fadeIn(duration: 160.ms);

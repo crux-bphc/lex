@@ -7,15 +7,15 @@ import 'package:lex/modules/multipartus/models/subject.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/multipartus_title.dart';
 import 'package:lex/modules/multipartus/widgets/subject_tile.dart';
-import 'package:lex/modules/multipartus/widgets/thumbnail.dart';
+import 'package:lex/modules/multipartus/widgets/video_thumbnail.dart';
 import 'package:lex/providers/local_storage/local_storage.dart';
 import 'package:lex/providers/local_storage/watch_history.dart';
 import 'package:lex/utils/misc.dart';
 import 'package:lex/widgets/auto_tooltip_text.dart';
-import 'package:lex/widgets/bird.dart';
+import 'package:lex/widgets/error_bird.dart';
 import 'package:lex/widgets/delayed_progress_indicator.dart';
+import 'package:lex/widgets/error_bird_container.dart';
 import 'package:lex/widgets/floating_sidebar.dart';
-import 'package:lex/widgets/managed_future_builder.dart';
 import 'package:signals/signals_flutter.dart';
 
 const _loadingWidget = Center(child: DelayedProgressIndicator());
@@ -104,12 +104,21 @@ class _SubjectsState extends State<_Subjects> with SignalsMixin {
           child: Watch(
             (context) {
               if (isSearchMode()) {
-                return ManagedFutureBuilder(
+                return FutureBuilder(
                   future: GetIt.instance<MultipartusService>()
                       .searchSubjects(_searchText()),
-                  data: (subjects) {
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return _loadingWidget;
+                    }
+                    if (snapshot.hasError || !snapshot.hasData) {
+                      return ErrorBirdContainer(
+                        "There was a problem while searching",
+                      );
+                    }
+
                     return _SubjectGrid(
-                      subjects: subjects,
+                      subjects: snapshot.requireData,
                       onPressed: _handleSubjectPressed,
                       emptyText: "No subjects found",
                       eagerUpdate: true,
@@ -260,7 +269,7 @@ class _SubjectGridState extends State<_SubjectGrid> {
             itemBuilder: (context, i) => SubjectTile(
               onPressed: () => widget.onPressed(widget.subjects[i]),
               subject: widget.subjects[i],
-              eagerUpdate: widget.eagerUpdate,
+              shouldUpdatePinsEagerly: widget.eagerUpdate,
             ),
             itemCount: widget.subjects.length,
           ),
@@ -443,7 +452,7 @@ class _MiniVideoThumbnail extends StatelessWidget {
         borderRadius: BorderRadius.circular(4),
         color: Colors.black45,
       ),
-      clipBehavior: Clip.antiAlias,
+      clipBehavior: Clip.hardEdge,
       child: VideoThumbnail(
         ttid: ttid,
         showWatchProgress: true,

@@ -9,12 +9,15 @@ class SubjectTile extends StatefulWidget {
     super.key,
     required this.subject,
     required this.onPressed,
-    this.eagerUpdate = false,
+    this.shouldUpdatePinsEagerly = false,
   });
 
   final Subject subject;
   final void Function() onPressed;
-  final bool eagerUpdate;
+
+  /// Whether the widget should update the pin state eagerly (without waiting
+  /// for the backend to respond to the pin/unpin request).
+  final bool shouldUpdatePinsEagerly;
 
   @override
   State<SubjectTile> createState() => _SubjectTileState();
@@ -28,28 +31,7 @@ class _SubjectTileState extends State<SubjectTile> {
       final confirmUnpin = await showDialog<bool>(
         context: context,
         builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Unpin Subject'),
-            content: Text(
-              'Are you sure you want to unpin "${widget.subject.name}"?',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                style: TextButton.styleFrom(
-                  overlayColor: Theme.of(context).colorScheme.error,
-                ),
-                child: Text(
-                  'Unpin',
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
-                ),
-              ),
-            ],
-          );
+          return _UnpinDialog(name: widget.subject.name);
         },
       );
 
@@ -62,7 +44,7 @@ class _SubjectTileState extends State<SubjectTile> {
           .pinSubject(widget.subject.department, widget.subject.code);
     }
 
-    if (widget.eagerUpdate) {
+    if (widget.shouldUpdatePinsEagerly) {
       setState(() {
         isPinned = !isPinned;
       });
@@ -118,6 +100,38 @@ class _SubjectTileState extends State<SubjectTile> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _UnpinDialog extends StatelessWidget {
+  const _UnpinDialog({required this.name});
+
+  final String name;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Unpin Subject'),
+      content: Text(
+        'Are you sure you want to unpin "$name"?',
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          style: TextButton.styleFrom(
+            overlayColor: Theme.of(context).colorScheme.error,
+          ),
+          child: Text(
+            'Unpin',
+            style: TextStyle(color: Theme.of(context).colorScheme.error),
+          ),
+        ),
+      ],
     );
   }
 }

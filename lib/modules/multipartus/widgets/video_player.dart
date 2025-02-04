@@ -17,6 +17,7 @@ String _getVideoUrl(String baseUrl, String ttid) {
   return '$baseUrl/impartus/ttid/$ttid/m3u8';
 }
 
+/// Custom made video player with custom controls.
 class VideoPlayer extends StatefulWidget {
   const VideoPlayer({
     super.key,
@@ -163,6 +164,8 @@ class _VideoPlayerState extends State<VideoPlayer> {
   }
 }
 
+// Video controls
+
 VideoController getController(BuildContext context) =>
     VideoStateInheritedWidget.of(context).state.widget.controller;
 
@@ -285,6 +288,7 @@ class _SpeedButtonState extends State<_SpeedButton>
   late final controller = getController(context);
   late final _playbackRate =
       controller.player.stream.rate.toSyncSignal(controller.player.state.rate);
+
   double _bounceDirection = 1;
 
   void _handleIncreaseSpeed() {
@@ -348,6 +352,7 @@ class _SpeedButtonState extends State<_SpeedButton>
   void dispose() {
     _buttonController.dispose();
     _isHovering.dispose();
+
     super.dispose();
   }
 }

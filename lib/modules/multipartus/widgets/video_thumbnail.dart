@@ -40,7 +40,7 @@ class VideoThumbnail extends StatelessWidget {
 
   final Widget Function(BuildContext, Object, StackTrace?)? errorBuilder;
 
-  Widget _buildWithProgress(BuildContext context, Widget child) {
+  Widget _buildWithWatchProgress(BuildContext context, Widget child) {
     final positionFraction =
         GetIt.instance<LocalStorage>().watchHistory.getByTtid(ttid)?.fraction;
     if (positionFraction == null) {
@@ -55,7 +55,7 @@ class VideoThumbnail extends StatelessWidget {
           alignment: AlignmentDirectional.bottomStart,
           child: Container(
             height: progressBarHeight,
-            width: width! * positionFraction.clamp(0.16, 1),
+            width: width! * positionFraction.clamp(0.12, 1),
             color: Theme.of(context).colorScheme.primary,
           ),
         ),
@@ -102,7 +102,7 @@ class VideoThumbnail extends StatelessWidget {
     final child = _buildChild();
 
     if (showWatchProgress) {
-      return _buildWithProgress(context, child);
+      return _buildWithWatchProgress(context, child);
     }
 
     return child;

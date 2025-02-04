@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lex/utils/extensions.dart';
 import 'package:signals/signals_flutter.dart';
 
+/// Custom made seekbar with hover and drag support.
 class SeekBar extends StatefulWidget {
   const SeekBar({
     super.key,

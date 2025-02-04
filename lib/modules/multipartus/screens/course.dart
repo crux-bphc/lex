@@ -4,9 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:lex/modules/multipartus/models/subject.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/course_title_box.dart';
-import 'package:lex/modules/multipartus/widgets/filter_dropdown.dart';
+import 'package:lex/modules/multipartus/widgets/section_session_filter.dart';
 import 'package:lex/modules/multipartus/widgets/filterable_video_grid.dart';
-import 'package:lex/widgets/bird.dart';
+import 'package:lex/widgets/error_bird.dart';
 import 'package:lex/widgets/managed_future_builder.dart';
 import 'package:signals/signals_flutter.dart';
 
@@ -131,7 +131,7 @@ class _FilterSliver extends StatelessWidget {
   Widget build(BuildContext context) {
     return SliverToBoxAdapter(
       child: Center(
-        child: FilterDropdown(
+        child: SectionSessionFilter(
           items: sessionList,
           onSelected: onSelected,
           selected: selected,

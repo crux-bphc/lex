@@ -3,7 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lex/modules/multipartus/models/subject.dart';
 import 'package:lex/modules/multipartus/service.dart';
-import 'package:lex/modules/multipartus/widgets/video_tile.dart';
+import 'package:lex/modules/multipartus/widgets/video_button.dart';
 import 'package:lex/providers/local_storage/local_storage.dart';
 import 'package:lex/widgets/delayed_progress_indicator.dart';
 import 'package:lex/widgets/managed_future_builder.dart';
@@ -108,7 +108,7 @@ class _RecentlyWatched extends StatelessWidget {
             ),
             SizedBox(height: 6),
             Expanded(
-              child: VideoTile(
+              child: VideoButton(
                 onPressed: () => context.go(
                   '/multipartus/courses/${subject.departmentUrl}/${subject.code}/watch/${video.ttid}',
                 ),

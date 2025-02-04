@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lex/modules/multipartus/service.dart';
-import 'package:lex/modules/multipartus/widgets/video_tile.dart';
-import 'package:lex/widgets/bird.dart';
+import 'package:lex/modules/multipartus/widgets/video_button.dart';
+import 'package:lex/widgets/error_bird.dart';
 
 class VideoGrid extends StatelessWidget {
   const VideoGrid({
@@ -46,7 +46,7 @@ class _ImpartusVideoGrid extends StatelessWidget {
         maxCrossAxisExtent: 400,
       ),
       itemBuilder: (context, i) {
-        return VideoTile(
+        return VideoButton(
           video: videos[i].video,
           onPressed: () => onPressed(videos[i]),
         );

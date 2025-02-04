@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:lex/widgets/bird.dart';
 import 'package:lex/widgets/delayed_progress_indicator.dart';
+import 'package:lex/widgets/error_bird_container.dart';
 
 /// A future builder with default loading and error widgets.
 class ManagedFutureBuilder<T> extends StatelessWidget {
@@ -55,27 +55,6 @@ class ManagedFutureBuilder<T> extends StatelessWidget {
 
         return loading?.call() ?? _sliverify(DelayedProgressIndicator());
       },
-    );
-  }
-}
-
-class ErrorBirdContainer extends StatelessWidget {
-  const ErrorBirdContainer(this.error, {super.key});
-
-  final Object? error;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.errorContainer,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      padding: EdgeInsets.all(16),
-      child: ErrorBird(
-        message: error.toString(),
-        foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
-      ),
     );
   }
 }
