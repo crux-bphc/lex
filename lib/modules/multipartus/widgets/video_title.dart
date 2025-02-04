@@ -7,12 +7,12 @@ import 'package:lex/utils/misc.dart';
 class VideoTitle extends StatelessWidget {
   const VideoTitle({
     super.key,
-    required this.subjectCode,
-    required this.department,
     required this.ttid,
+    required this.subjectId,
   });
 
-  final String subjectCode, department, ttid;
+  final String ttid;
+  final SubjectId subjectId;
 
   @override
   Widget build(BuildContext context) {
@@ -28,15 +28,17 @@ class VideoTitle extends StatelessWidget {
               children: [
                 Expanded(
                   child: FutureBuilder(
-                    future: GetIt.instance<MultipartusService>().fetchSubject(
-                      SubjectId(department: department, code: subjectCode),
-                    ),
+                    future: GetIt.instance<MultipartusService>()
+                        .fetchSubject(subjectId),
                     builder: (context, snapshot) {
                       final subject = snapshot.data;
 
+                      final department = subjectId.department;
+                      final code = subjectId.code;
+
                       final name = subject?.name;
                       final append = name != null ? " - $name" : "";
-                      final text = "$department $subjectCode$append";
+                      final text = "$department $code$append";
 
                       return Text(
                         text,

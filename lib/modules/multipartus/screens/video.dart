@@ -86,8 +86,7 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
                 },
                 child: _LeftSide(
                   ttid: widget.ttid,
-                  subjectCode: widget.subjectId.code,
-                  department: widget.subjectId.department,
+                  subjectId: widget.subjectId,
                   startTimestamp: widget.startTimestamp,
                   // TODO: please god this needs to change
                   canNavigateNext: true,
@@ -129,15 +128,14 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
 
 class _LeftSide extends StatelessWidget {
   _LeftSide({
-    required this.subjectCode,
-    required this.department,
     required this.startTimestamp,
     required this.ttid,
     required this.canNavigateNext,
     required this.canNavigatePrevious,
+    required this.subjectId,
   });
 
-  final String subjectCode, department;
+  final SubjectId subjectId;
   final int? startTimestamp;
   final String ttid;
 
@@ -159,8 +157,8 @@ class _LeftSide extends StatelessWidget {
           ttid: ttid,
           position: position.inSeconds,
           fraction: fraction,
-          code: subjectCode,
-          departmentUrl: department.replaceAll('/', ','),
+          code: subjectId.code,
+          departmentUrl: subjectId.departmentUrl,
         );
   }
 
@@ -184,8 +182,7 @@ class _LeftSide extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: 16),
               child: VideoTitle(
-                department: department,
-                subjectCode: subjectCode,
+                subjectId: subjectId,
                 ttid: ttid,
               ),
             ),

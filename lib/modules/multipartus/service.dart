@@ -174,7 +174,11 @@ class MultipartusService {
     return result;
   });
 
-  late final fetchSubject = AsyncCached((SubjectId id) async {
+  Future<Subject> fetchSubject(SubjectId id) async {
+    // retrieve from cache
+    final maybe = _subjectMap[id];
+    if (maybe != null) return maybe;
+
     final r = await _backend.get('/impartus/subject/${id.asUrl}');
 
     backendAssertType<Map>(r, "Subject data is not in the expected format");
@@ -182,7 +186,7 @@ class MultipartusService {
     final s = Subject.fromJson(r.data);
 
     return s;
-  });
+  }
 
   Future<ImpartusVideo?> _getVideoInfo(String ttid) async {
     final r = await _backend.get('/impartus/ttid/$ttid/info');

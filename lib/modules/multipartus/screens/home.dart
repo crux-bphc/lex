@@ -43,18 +43,6 @@ class _MultipartusHomePageState extends State<MultipartusHomePage> {
       ),
     );
   }
-
-  @override
-  void deactivate() {
-    debugPrint("deactivated");
-    super.deactivate();
-  }
-
-  @override
-  void dispose() {
-    debugPrint("disposed");
-    super.dispose();
-  }
 }
 
 class _Main extends StatelessWidget {
@@ -141,9 +129,7 @@ class _SubjectsState extends State<_Subjects> with SignalsMixin {
                           begin: 0.01,
                           end: 0,
                         )
-                        .fadeIn(
-                          duration: 180.ms,
-                        );
+                        .fadeIn(duration: 180.ms);
                   },
                 );
               } else {
