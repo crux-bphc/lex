@@ -5,6 +5,8 @@ part 'impartus_video.g.dart';
 
 @freezed
 class ImpartusVideo with _$ImpartusVideo {
+  const ImpartusVideo._();
+
   const factory ImpartusVideo({
     required int ttid,
     required int videoId,
@@ -23,6 +25,12 @@ class ImpartusVideo with _$ImpartusVideo {
 
   factory ImpartusVideo.fromJson(Map<String, Object?> json) =>
       _$ImpartusVideoFromJson(json);
+
+  @override
+  operator ==(covariant ImpartusVideo other) => ttid == other.ttid;
+
+  @override
+  int get hashCode => ttid.hashCode;
 }
 
 DateTime _dateTimeFromJson(String text) {

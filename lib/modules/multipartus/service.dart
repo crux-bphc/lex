@@ -7,6 +7,7 @@ import 'package:lex/modules/multipartus/models/impartus_section.dart';
 import 'package:lex/modules/multipartus/models/impartus_video.dart';
 import 'package:lex/modules/multipartus/models/lecture_slide.dart';
 import 'package:lex/modules/multipartus/models/subject.dart';
+import 'package:lex/modules/multipartus/models/video_player_config.dart';
 import 'package:lex/utils/misc.dart';
 import 'package:signals/signals.dart';
 
@@ -173,6 +174,29 @@ class MultipartusService {
 
     return result;
   });
+
+  Future<VideoPlayerConfigData> getVideoPlayerConfig({
+    required String ttid,
+  }) async {
+    final vid = await fetchImpartusVideo(ttid);
+    final vids = await fetchImpartusVideos(
+      (
+        sessionId: vid.sessionId,
+        subjectId: vid.impartusSubjectId,
+      ),
+    );
+
+    final index = vids.indexWhere((e) => e.ttid.toString() == ttid);
+
+    // lectures are sorted in descending order of lecture number.
+    final nextVid = index >= 1 ? vids.elementAtOrNull((index - 1)) : null;
+    final prevVid = vids.elementAtOrNull((index + 1));
+
+    return VideoPlayerConfigData(
+      nextVideo: nextVid,
+      previousVideo: prevVid,
+    );
+  }
 
   Future<Subject> fetchSubject(SubjectId id) async {
     // retrieve from cache

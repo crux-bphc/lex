@@ -41,7 +41,7 @@ mixin _$ImpartusVideo {
 
 /// @nodoc
 @JsonSerializable(createToJson: false)
-class _$ImpartusVideoImpl implements _ImpartusVideo {
+class _$ImpartusVideoImpl extends _ImpartusVideo {
   const _$ImpartusVideoImpl(
       {required this.ttid,
       required this.videoId,
@@ -51,7 +51,8 @@ class _$ImpartusVideoImpl implements _ImpartusVideo {
       @JsonKey(fromJson: _dateTimeFromJson, name: "startTime")
       required this.createdAt,
       @JsonKey(name: "subjectId") required this.impartusSubjectId,
-      required this.sessionId});
+      required this.sessionId})
+      : super._();
 
   factory _$ImpartusVideoImpl.fromJson(Map<String, dynamic> json) =>
       _$$ImpartusVideoImplFromJson(json);
@@ -88,7 +89,7 @@ class _$ImpartusVideoImpl implements _ImpartusVideo {
   }
 }
 
-abstract class _ImpartusVideo implements ImpartusVideo {
+abstract class _ImpartusVideo extends ImpartusVideo {
   const factory _ImpartusVideo(
       {required final int ttid,
       required final int videoId,
@@ -99,6 +100,7 @@ abstract class _ImpartusVideo implements ImpartusVideo {
       required final DateTime createdAt,
       @JsonKey(name: "subjectId") required final int impartusSubjectId,
       required final int sessionId}) = _$ImpartusVideoImpl;
+  const _ImpartusVideo._() : super._();
 
   factory _ImpartusVideo.fromJson(Map<String, dynamic> json) =
       _$ImpartusVideoImpl.fromJson;

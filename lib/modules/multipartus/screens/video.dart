@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lex/modules/multipartus/models/impartus_video.dart';
 import 'package:lex/modules/multipartus/models/subject.dart';
+import 'package:lex/modules/multipartus/models/video_player_config.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/video_player.dart';
 import 'package:lex/modules/multipartus/widgets/video_title.dart';
@@ -28,28 +28,25 @@ class MultipartusVideoPage extends StatefulWidget {
 }
 
 class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
-  late Future<List<ImpartusVideo>> _lecturesFuture;
+  late Future<VideoPlayerConfigData> _configFuture;
 
-  Future<List<ImpartusVideo>> _fetchLectures() async {
-    final service = GetIt.instance<MultipartusService>();
-    final vid = await service.fetchImpartusVideo(widget.ttid);
-    final vids = await service.fetchImpartusVideos(
-      (
-        sessionId: vid.sessionId,
-        subjectId: vid.impartusSubjectId,
-      ),
-    );
-    return vids;
+  Future<VideoPlayerConfigData> _fetchConfig() async {
+    return GetIt.instance<MultipartusService>()
+        .getVideoPlayerConfig(ttid: widget.ttid);
   }
 
-  void _handle(int offset) async {
-    final lecs = await _lecturesFuture;
-    final index = lecs.indexWhere((e) => e.ttid.toString() == widget.ttid);
-    final newLec = lecs.elementAtOrNull((index - offset) % lecs.length);
-    final newTtid = newLec?.ttid;
+  void _handleNotification(NavigationType navType) async {
+    final config = await _configFuture;
 
-    if (newTtid != null && !mounted) return;
-    context.go('/multipartus/courses/${widget.subjectId.asUrl}/watch/$newTtid');
+    final newTtid = navType == NavigationType.next
+        ? config.nextVideo?.ttid
+        : config.previousVideo?.ttid;
+
+    if (mounted && newTtid != null) {
+      context.go(
+        '/multipartus/courses/${widget.subjectId.asUrl}/watch/$newTtid',
+      );
+    }
   }
 
   @override
@@ -58,7 +55,7 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
 
     if (oldWidget.ttid != widget.ttid) {
       setState(() {
-        _lecturesFuture = _fetchLectures();
+        _configFuture = _fetchConfig();
       });
     }
   }
@@ -67,7 +64,7 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
   void initState() {
     super.initState();
 
-    _lecturesFuture = _fetchLectures();
+    _configFuture = _fetchConfig();
   }
 
   @override
@@ -81,17 +78,25 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
               flex: 5,
               child: NotificationListener<VideoNavigateNotification>(
                 onNotification: (notification) {
-                  _handle(notification.navigationType.offset);
+                  _handleNotification(notification.navigationType);
 
+                  // the notification has been handled
                   return true;
                 },
-                child: _LeftSide(
-                  ttid: widget.ttid,
-                  subjectId: widget.subjectId,
-                  startTimestamp: widget.startTimestamp,
-                  // TODO: please god this needs to change
-                  canNavigateNext: true,
-                  canNavigatePrevious: true,
+                child: FutureBuilder(
+                  future: _configFuture,
+                  builder: (context, snapshot) {
+                    final data = snapshot.data;
+
+                    return VideoPlayerConfig(
+                      data: data ?? VideoPlayerConfigData(),
+                      child: _LeftSide(
+                        ttid: widget.ttid,
+                        subjectId: widget.subjectId,
+                        startTimestamp: widget.startTimestamp,
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
@@ -131,16 +136,12 @@ class _LeftSide extends StatelessWidget {
   _LeftSide({
     required this.startTimestamp,
     required this.ttid,
-    required this.canNavigateNext,
-    required this.canNavigatePrevious,
     required this.subjectId,
   });
 
   final SubjectId subjectId;
   final int? startTimestamp;
   final String ttid;
-
-  final bool canNavigateNext, canNavigatePrevious;
 
   late final _lastWatched =
       GetIt.instance<LocalStorage>().watchHistory.getByTtid(ttid);
@@ -177,8 +178,6 @@ class _LeftSide extends StatelessWidget {
                   Duration.zero,
               onPositionChanged: _updateWatchHistory,
               positionUpdateInterval: Duration(seconds: 2),
-              canNavigateNext: canNavigateNext,
-              canNavigatePrevious: canNavigatePrevious,
             ),
             Padding(
               padding: const EdgeInsets.only(top: 16),

@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:get_it/get_it.dart';
+import 'package:lex/modules/multipartus/models/video_player_config.dart';
 import 'package:lex/modules/multipartus/widgets/seekbar.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
 import 'package:lex/utils/extensions.dart';
@@ -25,8 +26,6 @@ class VideoPlayer extends StatefulWidget {
     required this.startTimestamp,
     this.onPositionChanged,
     this.positionUpdateInterval = const Duration(seconds: 3),
-    required this.canNavigateNext,
-    required this.canNavigatePrevious,
   });
 
   final String ttid;
@@ -34,8 +33,6 @@ class VideoPlayer extends StatefulWidget {
   final void Function(Duration position, double fractionComplete)?
       onPositionChanged;
   final Duration positionUpdateInterval;
-
-  final bool canNavigateNext, canNavigatePrevious;
 
   @override
   State<VideoPlayer> createState() => _VideoPlayerState();
@@ -123,8 +120,6 @@ class _VideoPlayerState extends State<VideoPlayer> {
         builder: (context, constraints) {
           final controls = buildDesktopControls(
             context,
-            canNavigateNext: widget.canNavigateNext,
-            canNavigatePrevious: widget.canNavigatePrevious,
           );
           return SizedBox(
             width: constraints.maxWidth,
@@ -170,10 +165,8 @@ VideoController getController(BuildContext context) =>
     VideoStateInheritedWidget.of(context).state.widget.controller;
 
 MaterialDesktopVideoControlsThemeData buildDesktopControls(
-  BuildContext context, {
-  required bool canNavigateNext,
-  required bool canNavigatePrevious,
-}) {
+  BuildContext context,
+) {
   return MaterialDesktopVideoControlsThemeData(
     seekBarPositionColor: Theme.of(context).colorScheme.primary,
     seekBarThumbColor: Theme.of(context).colorScheme.primary,
@@ -183,46 +176,56 @@ MaterialDesktopVideoControlsThemeData buildDesktopControls(
     buttonBarHeight: 110,
     seekBarMargin: EdgeInsets.zero,
     seekBarContainerHeight: 8,
-    bottomButtonBar: [
+    bottomButtonBar: const [
       Expanded(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             _ImpartusSeekBar(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (canNavigatePrevious)
-                  MaterialDesktopCustomButton(
-                    onPressed: () =>
-                        VideoNavigateNotification(NavigationType.previous)
-                            .dispatch(context),
-                    icon: Icon(LucideIcons.skip_back),
-                  ),
-                _PlayPauseButton(),
-                if (canNavigateNext)
-                  MaterialDesktopCustomButton(
-                    onPressed: () =>
-                        VideoNavigateNotification(NavigationType.next)
-                            .dispatch(context),
-                    icon: Icon(LucideIcons.skip_forward),
-                  ),
-                _VolumeButton(),
-                _ImpartusPositionIndicator(),
-                Spacer(),
-                _SpeedButton(),
-                _SwitchViewButton(),
-                if (kIsWeb) _ShareButton(),
-                // _PitchButton(),
-                _FullscreenButton(),
-              ],
-            ),
+            _VideoControlsRow(),
           ],
         ),
       ),
     ],
   );
+}
+
+class _VideoControlsRow extends StatelessWidget {
+  const _VideoControlsRow();
+
+  @override
+  Widget build(BuildContext context) {
+    final config =
+        VideoPlayerConfig.maybeOf(context) ?? VideoPlayerConfigData();
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        if (config.previousVideo != null)
+          MaterialDesktopCustomButton(
+            onPressed: () => VideoNavigateNotification(NavigationType.previous)
+                .dispatch(context),
+            icon: Icon(LucideIcons.skip_back),
+          ),
+        _PlayPauseButton(),
+        if (config.nextVideo != null)
+          MaterialDesktopCustomButton(
+            onPressed: () => VideoNavigateNotification(NavigationType.next)
+                .dispatch(context),
+            icon: Icon(LucideIcons.skip_forward),
+          ),
+        _VolumeButton(),
+        _ImpartusPositionIndicator(),
+        Spacer(),
+        _SpeedButton(),
+        _SwitchViewButton(),
+        if (kIsWeb) _ShareButton(),
+        // _PitchButton(),
+        _FullscreenButton(),
+      ],
+    );
+  }
 }
 
 // class _PitchButton extends StatelessWidget {
