@@ -150,8 +150,13 @@ class WatchHistory {
 }
 
 class WatchHistoryItem {
+  /// Unix timestamp of when the video was last watched
   final int timestamp;
+
+  /// The position in seconds where the video was last watched
   final int position;
+
+  /// The fraction of the video that was watched
   final double fraction;
   final String departmentUrl, code;
 

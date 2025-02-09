@@ -7,6 +7,7 @@ import 'package:lex/modules/multipartus/widgets/disclaimer_dialog.dart';
 import 'package:lex/modules/multipartus/widgets/multipartus_title.dart';
 import 'package:lex/providers/local_storage/local_storage.dart';
 import 'package:lex/widgets/delayed_progress_indicator.dart';
+import 'package:lex/widgets/error_bird_container.dart';
 import 'package:signals/signals_flutter.dart';
 
 /// Displays [child] when the user is registered to Multipartus, otherwise
@@ -22,7 +23,18 @@ class MultipartusLoginGate extends StatefulWidget {
 
 class _MultipartusLoginGateState extends State<MultipartusLoginGate> {
   Future<MultipartusRegistrationState> registrationState =
-      GetIt.instance<MultipartusService>().getRegistrationState();
+      GetIt.instance<MultipartusService>().fetchRegistrationState();
+
+  Future<bool> handleLogin(String password) async {
+    final service = GetIt.instance<MultipartusService>();
+    final result = await service.registerUser(password);
+    if (result) {
+      setState(
+        () => registrationState = service.fetchRegistrationState(),
+      );
+    }
+    return result;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +42,7 @@ class _MultipartusLoginGateState extends State<MultipartusLoginGate> {
       future: registrationState,
       builder: (context, snapshot) {
         final registrationState = snapshot.data;
+        final error = snapshot.error;
 
         return AnimatedSwitcher(
           duration: Durations.medium4,
@@ -43,20 +56,9 @@ class _MultipartusLoginGateState extends State<MultipartusLoginGate> {
                       children: [
                         MultipartusTitle(),
                         SizedBox(height: 16),
-                        SizedBox(
-                          height: 100,
-                          child: Center(
-                            child: registrationState == null
-                                ? DelayedProgressIndicator()
-                                : _Login(
-                                    onLogin: handleLogin,
-                                    showIncorrectPassword: registrationState ==
-                                        MultipartusRegistrationState
-                                            .invalidToken,
-                                  )
-                                    .animate()
-                                    .fadeIn(duration: Durations.short3),
-                          ),
+                        _buildSub(
+                          registrationState: registrationState,
+                          error: error,
                         ),
                       ],
                     ),
@@ -67,16 +69,28 @@ class _MultipartusLoginGateState extends State<MultipartusLoginGate> {
     );
   }
 
-  Future<bool> handleLogin(String password) async {
-    final result =
-        await GetIt.instance<MultipartusService>().registerUser(password);
-    if (result) {
-      setState(
-        () => registrationState =
-            GetIt.instance<MultipartusService>().getRegistrationState(),
+  Widget _buildSub({
+    MultipartusRegistrationState? registrationState,
+    Object? error,
+  }) {
+    if (error != null) {
+      return SizedBox(
+        height: 200,
+        child: ErrorBirdContainer(error),
       );
     }
-    return result;
+    return SizedBox(
+      height: 100,
+      child: Center(
+        child: registrationState == null
+            ? Container()
+            : _Login(
+                onLogin: handleLogin,
+                showIncorrectPassword: registrationState ==
+                    MultipartusRegistrationState.invalidToken,
+              ).animate().fadeIn(duration: Durations.short3),
+      ),
+    );
   }
 }
 
@@ -200,6 +214,7 @@ class _LoginState extends State<_Login> with SingleTickerProviderStateMixin {
                   controller: _animationController,
                   autoPlay: false,
                 )
+                // shake when the password is incorrect
                 .shakeX(duration: 500.ms, hz: 6, amount: 2);
           },
         ),

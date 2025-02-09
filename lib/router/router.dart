@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:lex/modules/multipartus/models/subject.dart';
 import 'package:lex/modules/multipartus/screens/course.dart';
 import 'package:lex/modules/multipartus/screens/home.dart';
 import 'package:lex/modules/multipartus/screens/video.dart';
@@ -95,8 +96,8 @@ final router = GoRouter(
                             .replaceAll(',', '/');
                         final code = state.pathParameters['code']!;
                         return MultipartusCoursePage(
-                          department: department,
-                          subjectCode: code,
+                          subjectId:
+                              SubjectId(department: department, code: code),
                         );
                       },
                       routes: [
@@ -110,8 +111,10 @@ final router = GoRouter(
                             final timestamp = state.uri.queryParameters['t'];
 
                             return MultipartusVideoPage(
-                              department: department,
-                              subjectCode: code,
+                              subjectId: SubjectId(
+                                department: department,
+                                code: code,
+                              ),
                               ttid: state.pathParameters['ttid']!,
                               startTimestamp: int.tryParse(timestamp ?? ''),
                             );
@@ -148,22 +151,14 @@ class BackButtonObserver extends NavigatorObserver {
   }
 
   @override
-  void didPush(Route route, Route? previousRoute) {
-    _updateSignal();
-  }
+  void didPush(Route route, Route? previousRoute) => _updateSignal();
 
   @override
-  void didReplace({Route? newRoute, Route? oldRoute}) {
-    _updateSignal();
-  }
+  void didReplace({Route? newRoute, Route? oldRoute}) => _updateSignal();
 
   @override
-  void didRemove(Route route, Route? previousRoute) {
-    _updateSignal();
-  }
+  void didRemove(Route route, Route? previousRoute) => _updateSignal();
 
   @override
-  void didPop(Route route, Route? previousRoute) {
-    _updateSignal();
-  }
+  void didPop(Route route, Route? previousRoute) => _updateSignal();
 }

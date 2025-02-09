@@ -2,17 +2,17 @@ import 'package:dio/dio.dart';
 import 'package:oidc/oidc.dart';
 
 class AuthUser {
-  final OidcUser _oidcUser;
-
   final Dio _client;
   Dio get bearerClient => _client;
 
-  String? get refreshToken => _oidcUser.token.refreshToken;
-  String? get idToken => _oidcUser.token.idToken;
-  String? get uid => _oidcUser.uid;
+  final String? refreshToken;
+  final String? idToken;
+  final String? uid;
 
   AuthUser.fromOidcUser(OidcUser user)
-      : _oidcUser = user,
+      : refreshToken = user.token.refreshToken,
+        idToken = user.token.idToken,
+        uid = user.uid,
         _client = Dio(
           BaseOptions(
             headers: {

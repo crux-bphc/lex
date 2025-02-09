@@ -28,6 +28,7 @@ class MultipartusTitle extends StatelessWidget {
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
         child,
         Text(

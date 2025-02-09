@@ -4,17 +4,17 @@ import 'package:go_router/go_router.dart';
 import 'package:lex/modules/multipartus/models/subject.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/course_title_box.dart';
+import 'package:lex/modules/multipartus/widgets/section_session_filter.dart';
 import 'package:lex/modules/multipartus/widgets/filterable_video_grid.dart';
-import 'package:lex/widgets/bird.dart';
-import 'package:lex/widgets/delayed_progress_indicator.dart';
+import 'package:lex/widgets/error_bird.dart';
+import 'package:lex/widgets/managed_future_builder.dart';
 import 'package:signals/signals_flutter.dart';
 
 class MultipartusCoursePage extends StatefulWidget {
   const MultipartusCoursePage({
     super.key,
-    required String department,
-    required String subjectCode,
-  }) : subjectId = (code: subjectCode, department: department);
+    required this.subjectId,
+  });
 
   final SubjectId subjectId;
 
@@ -32,14 +32,10 @@ class _MultipartusCoursePageState extends State<MultipartusCoursePage> {
         controller: scrollController,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: FutureBuilder(
-            future: GetIt.instance<MultipartusService>().fetchSubject(
-              widget.subjectId.department,
-              widget.subjectId.code,
-            ),
-            builder: (context, snapshot) {
-              final subject = snapshot.data;
-
+          child: ManagedFutureBuilder(
+            future: GetIt.instance<MultipartusService>()
+                .fetchSubject(widget.subjectId),
+            data: (subject) {
               return CustomScrollView(
                 scrollBehavior:
                     ScrollConfiguration.of(context).copyWith(scrollbars: false),
@@ -82,55 +78,87 @@ class _Content extends StatefulWidget {
 }
 
 class _ContentState extends State<_Content> {
-  late FutureSignal<LecturesResult> lectures = _getLectures();
+  late final selected = signal<SectionSession?>(null);
 
-  FutureSignal<LecturesResult> _getLectures() =>
-      GetIt.instance<MultipartusService>().lectures(
-        (
-          department: widget.subjectId.department,
-          code: widget.subjectId.code,
-        ),
-      );
-
-  @override
-  void didUpdateWidget(covariant _Content oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.subjectId != widget.subjectId) {
-      lectures.dispose();
-      lectures = _getLectures();
-    }
+  void _onPressed(BuildContext context, LectureVideo video) {
+    context.go(
+      "/multipartus/courses/${widget.subjectId.departmentUrl}"
+      "/${widget.subjectId.code}/watch/${video.ttid}",
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return lectures.watch(context).map(
-          error: (e, s) => SliverFillRemaining(
-            hasScrollBody: false,
-            child: ErrorBird(
-              message: "There was a problem while retrieving lectures",
-            ),
-          ),
-          loading: () => const SliverFillRemaining(
-            hasScrollBody: false,
-            child: Center(child: DelayedProgressIndicator()),
-          ),
-          data: (data) {
-            return FilterableVideoGrid(
-              professorSessionList: data.professorSessionList,
-              videos: data.videos,
-              onPressed: (video) => context.go(
-                '/multipartus/courses/${widget.subjectId.department.replaceAll('/', ',')}'
-                '/${widget.subjectId.code}/watch/${video.ttid}',
+    return ManagedFutureBuilder.sliver(
+      future: GetIt.instance<MultipartusService>()
+          .lectureSections(widget.subjectId),
+      data: (sections) {
+        if (sections.isEmpty) {
+          return ErrorBird(message: "No sections found for this subject");
+        }
+        return Watch(
+          (context) => SliverMainAxisGroup(
+            slivers: [
+              _FilterSliver(
+                sessionList: sections,
+                onSelected: (s) => selected.value = s,
+                selected: selected() ?? sections.first,
               ),
-            );
-          },
+              _VideoGridSliver(
+                selectedSession: selected() ?? sections.first,
+                onPressed: (v) => _onPressed(context, v),
+              ),
+            ],
+          ),
         );
+      },
+    );
   }
+}
 
-  // commenting this out allows lectures to be cached
-  // @override
-  // void dispose() {
-  //   lectures.dispose();
-  //   super.dispose();
-  // }
+class _FilterSliver extends StatelessWidget {
+  const _FilterSliver({
+    required this.sessionList,
+    required this.onSelected,
+    required this.selected,
+  });
+
+  final List<SectionSession> sessionList;
+  final void Function(SectionSession) onSelected;
+  final SectionSession selected;
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverToBoxAdapter(
+      child: Center(
+        child: SectionSessionFilter(
+          items: sessionList,
+          onSelected: onSelected,
+          selected: selected,
+        ),
+      ),
+    );
+  }
+}
+
+class _VideoGridSliver extends StatelessWidget {
+  const _VideoGridSliver({
+    required this.selectedSession,
+    required this.onPressed,
+  });
+
+  final SectionSession selectedSession;
+  final void Function(LectureVideo video) onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return ManagedFutureBuilder.sliver(
+      future: GetIt.instance<MultipartusService>()
+          .fetchLectureVideos(selectedSession.section),
+      data: (lecs) => VideoGrid(
+        videos: lecs,
+        onPressed: onPressed,
+      ),
+    );
+  }
 }

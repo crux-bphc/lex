@@ -1,23 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lex/modules/multipartus/models/subject.dart';
+import 'package:lex/modules/multipartus/models/video_player_config.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/video_player.dart';
 import 'package:lex/modules/multipartus/widgets/video_title.dart';
 import 'package:lex/providers/local_storage/local_storage.dart';
-import 'package:lex/widgets/delayed_progress_indicator.dart';
+import 'package:lex/widgets/error_bird.dart';
 import 'package:lex/widgets/floating_sidebar.dart';
+import 'package:lex/widgets/managed_future_builder.dart';
+import 'package:signals/signals_flutter.dart';
 
 class MultipartusVideoPage extends StatefulWidget {
   const MultipartusVideoPage({
     super.key,
     required this.ttid,
-    required this.subjectCode,
-    required this.department,
     this.startTimestamp,
+    required this.subjectId,
   });
 
-  final String subjectCode, department, ttid;
+  final SubjectId subjectId;
+  final String ttid;
   final int? startTimestamp;
 
   @override
@@ -25,20 +29,56 @@ class MultipartusVideoPage extends StatefulWidget {
 }
 
 class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
-  late Future<List<LectureVideo>> _lecturesFuture;
+  final config = VideoPlayerConfig();
+
+  Future<VideoPlayerConfigData> _fetchConfig() async {
+    final service = GetIt.instance<MultipartusService>();
+    final vids = await service.getAdjacentVideos(ttid: widget.ttid);
+
+    final playbackSpeed =
+        GetIt.instance<LocalStorage>().preferences.playbackSpeed();
+    final playbackVolume =
+        GetIt.instance<LocalStorage>().preferences.playbackVolume();
+
+    return VideoPlayerConfigData(
+      previousVideo: vids.$1,
+      nextVideo: vids.$2,
+      playbackSpeed: playbackSpeed,
+      playbackVolume: playbackVolume,
+    );
+  }
+
+  void _updateConfigSignal() async {
+    final result = await _fetchConfig();
+    config.value = result;
+  }
+
+  void _handleNotification(NavigationType navType) async {
+    final newTtid = navType == NavigationType.next
+        ? config().nextVideo?.ttid
+        : config().previousVideo?.ttid;
+
+    if (mounted && newTtid != null) {
+      context.go(
+        '/multipartus/courses/${widget.subjectId.asUrl}/watch/$newTtid',
+      );
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant MultipartusVideoPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.ttid != widget.ttid) {
+      _updateConfigSignal();
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    _lecturesFuture = _fetchLectures();
-  }
 
-  Future<List<LectureVideo>> _fetchLectures() async {
-    final service = GetIt.instance<MultipartusService>();
-    final result = await service.lectures(
-      (department: widget.department, code: widget.subjectCode),
-    ).future;
-    return result.videos;
+    _updateConfigSignal();
   }
 
   @override
@@ -50,45 +90,22 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
           children: [
             Expanded(
               flex: 5,
-              child: FutureBuilder<List<LectureVideo>>(
-                future: _lecturesFuture,
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return Center(child: DelayedProgressIndicator());
-                  }
+              child: NotificationListener<VideoNavigateNotification>(
+                onNotification: (notification) {
+                  _handleNotification(notification.navigationType);
 
-                  final lectures = snapshot.data!;
-
-                  int getCurrentIndex() =>
-                      lectures.indexWhere((e) => e.ttid == widget.ttid);
-
-                  // TODO: fetch lectures of only this section
-                  return NotificationListener<VideoNavigateNotification>(
-                    onNotification: (notification) {
-                      final index = (getCurrentIndex() -
-                              notification.navigationType.offset) %
-                          lectures.length;
-
-                      final newTtid = lectures[index].ttid;
-
-                      context.go(
-                        '/multipartus/courses/${widget.department.replaceAll('/', ',')}'
-                        '/${widget.subjectCode}/watch/$newTtid',
-                      );
-
-                      return true;
-                    },
-                    child: _LeftSide(
-                      ttid: widget.ttid,
-                      subjectCode: widget.subjectCode,
-                      department: widget.department,
-                      startTimestamp: widget.startTimestamp,
-                      // TODO: please god this needs to change
-                      canNavigateNext: true,
-                      canNavigatePrevious: true,
-                    ),
-                  );
+                  // the notification has been handled
+                  return true;
                 },
+                // pass the config signal to the subtree
+                child: SignalProvider(
+                  create: () => config,
+                  child: _LeftSide(
+                    ttid: widget.ttid,
+                    subjectId: widget.subjectId,
+                    startTimestamp: widget.startTimestamp,
+                  ),
+                ),
               ),
             ),
             const SizedBox(width: 20),
@@ -107,7 +124,7 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
                               .titleTextStyle!
                               .copyWith(letterSpacing: 1.5),
                         ),
-                        _DownloadSlidesButton(ttid: widget.ttid),
+                        // _DownloadSlidesButton(ttid: widget.ttid),
                       ],
                     ),
                     SizedBox(height: 10),
@@ -125,19 +142,14 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
 
 class _LeftSide extends StatelessWidget {
   _LeftSide({
-    required this.subjectCode,
-    required this.department,
     required this.startTimestamp,
     required this.ttid,
-    required this.canNavigateNext,
-    required this.canNavigatePrevious,
+    required this.subjectId,
   });
 
-  final String subjectCode, department;
+  final SubjectId subjectId;
   final int? startTimestamp;
   final String ttid;
-
-  final bool canNavigateNext, canNavigatePrevious;
 
   late final _lastWatched =
       GetIt.instance<LocalStorage>().watchHistory.getByTtid(ttid);
@@ -155,8 +167,8 @@ class _LeftSide extends StatelessWidget {
           ttid: ttid,
           position: position.inSeconds,
           fraction: fraction,
-          code: subjectCode,
-          departmentUrl: department.replaceAll('/', ','),
+          code: subjectId.code,
+          departmentUrl: subjectId.departmentUrl,
         );
   }
 
@@ -174,14 +186,11 @@ class _LeftSide extends StatelessWidget {
                   Duration.zero,
               onPositionChanged: _updateWatchHistory,
               positionUpdateInterval: Duration(seconds: 2),
-              canNavigateNext: canNavigateNext,
-              canNavigatePrevious: canNavigatePrevious,
             ),
             Padding(
               padding: const EdgeInsets.only(top: 16),
               child: VideoTitle(
-                department: department,
-                subjectCode: subjectCode,
+                subjectId: subjectId,
                 ttid: ttid,
               ),
             ),
@@ -230,23 +239,25 @@ class _SlidesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: GetIt.instance<MultipartusService>().slidesBro(ttid),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) return Center(child: DelayedProgressIndicator());
-
-        final items = snapshot.data!;
+    return ManagedFutureBuilder(
+      future: GetIt.instance<MultipartusService>().fetchSlides(ttid),
+      data: (slides) {
+        if (slides.isEmpty) {
+          return ErrorBird(
+            message: "We couldn't find slides for this lecture",
+          );
+        }
 
         return ListView.builder(
           itemBuilder: (context, index) => Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Image.network(
-              items[index].url,
+              slides[index].url,
               color: Colors.white.withValues(alpha: 0.88),
               colorBlendMode: BlendMode.modulate,
             ),
           ),
-          itemCount: snapshot.data!.length,
+          itemCount: slides.length,
         );
       },
     );

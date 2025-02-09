@@ -13,32 +13,6 @@ String formatDate(DateTime dt) {
   return _dateFormat.format(dt);
 }
 
-class DeferredValueMap<T, V> {
-  final Map<T, (V?, Completer<V>)> _completers = {};
-
-  void set(T key, V value) {
-    final c = _completers.putIfAbsent(key, () => (value, Completer<V>())).$2;
-    if (!c.isCompleted) {
-      c.complete(value);
-      _completers[key] = (value, c);
-    }
-  }
-
-  V? maybeGet(T key) {
-    return _completers[key]?.$1;
-  }
-
-  Future<V> get(T key, Function runner) async {
-    final c = _completers[key]?.$1;
-    if (c != null) return c;
-
-    _completers[key] = (null, Completer());
-    runner();
-
-    return _completers[key]!.$2.future;
-  }
-}
-
 void Function(T arg, {bool now}) debouncer<T>(
   void Function(T args) fn, {
   required Duration duration,
@@ -69,5 +43,17 @@ class CurvedRectTween extends Tween<Rect> {
       end,
       _curve.transform(t),
     )!;
+  }
+}
+
+class AsyncCached<I, O> {
+  final Future<O> Function(I) compute;
+
+  final _cache = <I, Future<O>>{};
+
+  AsyncCached(this.compute);
+
+  Future<O> call(I input) {
+    return _cache.putIfAbsent(input, () => compute(input));
   }
 }

@@ -6,8 +6,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:get_it/get_it.dart';
+import 'package:lex/modules/multipartus/models/video_player_config.dart';
+import 'package:lex/modules/multipartus/widgets/lecture_title.dart';
 import 'package:lex/modules/multipartus/widgets/seekbar.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
+import 'package:lex/providers/local_storage/local_storage.dart';
 import 'package:lex/utils/extensions.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
@@ -17,6 +20,7 @@ String _getVideoUrl(String baseUrl, String ttid) {
   return '$baseUrl/impartus/ttid/$ttid/m3u8';
 }
 
+/// Custom made video player with custom controls.
 class VideoPlayer extends StatefulWidget {
   const VideoPlayer({
     super.key,
@@ -24,8 +28,6 @@ class VideoPlayer extends StatefulWidget {
     required this.startTimestamp,
     this.onPositionChanged,
     this.positionUpdateInterval = const Duration(seconds: 3),
-    required this.canNavigateNext,
-    required this.canNavigatePrevious,
   });
 
   final String ttid;
@@ -33,8 +35,6 @@ class VideoPlayer extends StatefulWidget {
   final void Function(Duration position, double fractionComplete)?
       onPositionChanged;
   final Duration positionUpdateInterval;
-
-  final bool canNavigateNext, canNavigatePrevious;
 
   @override
   State<VideoPlayer> createState() => _VideoPlayerState();
@@ -45,6 +45,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
   late final VideoController controller;
 
   StreamSubscription<Duration>? _positionStream;
+  StreamSubscription<double>? _volumeStream, _rateStream;
   final _positionUpdateStopwatch = Stopwatch()..start();
 
   @override
@@ -55,6 +56,12 @@ class _VideoPlayerState extends State<VideoPlayer> {
       configuration: PlayerConfiguration(
         ready: () {
           player.seek(widget.startTimestamp);
+          player.setRate(
+            GetIt.instance<LocalStorage>().preferences.playbackSpeed.value,
+          );
+          player.setVolume(
+            GetIt.instance<LocalStorage>().preferences.playbackVolume.value,
+          );
         },
       ),
     );
@@ -67,6 +74,8 @@ class _VideoPlayerState extends State<VideoPlayer> {
   @override
   void dispose() {
     _positionStream?.cancel();
+    _volumeStream?.cancel();
+    _rateStream?.cancel();
     _positionUpdateStopwatch.stop();
 
     player.dispose();
@@ -112,6 +121,14 @@ class _VideoPlayerState extends State<VideoPlayer> {
         _positionUpdateStopwatch.reset();
       }
     });
+
+    _volumeStream = player.stream.volume.listen((v) {
+      GetIt.instance<LocalStorage>().preferences.playbackVolume.value = v;
+    });
+
+    _rateStream = player.stream.rate.listen((r) {
+      GetIt.instance<LocalStorage>().preferences.playbackSpeed.value = r;
+    });
   }
 
   @override
@@ -120,11 +137,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
       borderRadius: BorderRadius.circular(10),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final controls = buildDesktopControls(
-            context,
-            canNavigateNext: widget.canNavigateNext,
-            canNavigatePrevious: widget.canNavigatePrevious,
-          );
+          final controls = buildDesktopControls(context);
           return SizedBox(
             width: constraints.maxWidth,
             child: AspectRatio(
@@ -163,14 +176,19 @@ class _VideoPlayerState extends State<VideoPlayer> {
   }
 }
 
+// Video controls
+
 VideoController getController(BuildContext context) =>
     VideoStateInheritedWidget.of(context).state.widget.controller;
 
 MaterialDesktopVideoControlsThemeData buildDesktopControls(
-  BuildContext context, {
-  required bool canNavigateNext,
-  required bool canNavigatePrevious,
-}) {
+  BuildContext context,
+) {
+  // if we listen here the widgets that we need to update (nav buttons) will not
+  // update because theme data doesnt just rebuild like that
+  final config = SignalProvider.of<VideoPlayerConfig>(context, listen: false);
+  assert(config != null, "No VideoPlayerConfig signal found in tree");
+
   return MaterialDesktopVideoControlsThemeData(
     seekBarPositionColor: Theme.of(context).colorScheme.primary,
     seekBarThumbColor: Theme.of(context).colorScheme.primary,
@@ -187,39 +205,95 @@ MaterialDesktopVideoControlsThemeData buildDesktopControls(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             _ImpartusSeekBar(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (canNavigatePrevious)
-                  MaterialDesktopCustomButton(
-                    onPressed: () =>
-                        VideoNavigateNotification(NavigationType.previous)
-                            .dispatch(context),
-                    icon: Icon(LucideIcons.skip_back),
-                  ),
-                _PlayPauseButton(),
-                if (canNavigateNext)
-                  MaterialDesktopCustomButton(
-                    onPressed: () =>
-                        VideoNavigateNotification(NavigationType.next)
-                            .dispatch(context),
-                    icon: Icon(LucideIcons.skip_forward),
-                  ),
-                _VolumeButton(),
-                _ImpartusPositionIndicator(),
-                Spacer(),
-                _SpeedButton(),
-                _SwitchViewButton(),
-                if (kIsWeb) _ShareButton(),
-                // _PitchButton(),
-                _FullscreenButton(),
-              ],
+            // we listen to the config here
+            Watch(
+              (_) => _VideoControlsRow(
+                config: config!(),
+                onNavigate: (navType) =>
+                    VideoNavigateNotification(navType).dispatch(context),
+              ),
             ),
           ],
         ),
       ),
     ],
   );
+}
+
+class _VideoControlsRow extends StatelessWidget {
+  const _VideoControlsRow({required this.config, required this.onNavigate});
+
+  final VideoPlayerConfigData config;
+  final void Function(NavigationType navType) onNavigate;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        if (config.previousVideo != null)
+          _VideoNavigationButton(
+            lectureNo: config.previousVideo!.lectureNo.toString(),
+            title: config.previousVideo!.title,
+            icon: Icon(LucideIcons.skip_back),
+            onPressed: () => onNavigate(NavigationType.previous),
+          ),
+        _PlayPauseButton(),
+        if (config.nextVideo != null)
+          _VideoNavigationButton(
+            lectureNo: config.nextVideo!.lectureNo.toString(),
+            title: config.nextVideo!.title,
+            icon: Icon(LucideIcons.skip_forward),
+            onPressed: () => onNavigate(NavigationType.next),
+          ),
+        _VolumeButton(),
+        _ImpartusPositionIndicator(),
+        Spacer(),
+        _SpeedButton(),
+        _SwitchViewButton(),
+        if (kIsWeb) _ShareButton(),
+        // _PitchButton(),
+        _FullscreenButton(),
+      ],
+    );
+  }
+}
+
+class _VideoNavigationButton extends StatelessWidget {
+  const _VideoNavigationButton({
+    required this.lectureNo,
+    required this.title,
+    required this.onPressed,
+    required this.icon,
+  });
+
+  final String lectureNo, title;
+  final void Function() onPressed;
+  final Widget icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      richMessage: buildLectureTitleSpan(
+        lectureNo: lectureNo,
+        title: title,
+        fontSize: 14,
+        titleColor: Theme.of(context).colorScheme.surface,
+        lectureNoColor: Colors.white,
+        borderRadius: 8,
+      ),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: Theme.of(context).colorScheme.onSurface,
+      ),
+      waitDuration: Duration.zero,
+      padding: EdgeInsets.fromLTRB(6, 6, 8, 6),
+      child: MaterialDesktopCustomButton(
+        onPressed: onPressed,
+        icon: icon,
+      ),
+    );
+  }
 }
 
 // class _PitchButton extends StatelessWidget {
@@ -285,6 +359,7 @@ class _SpeedButtonState extends State<_SpeedButton>
   late final controller = getController(context);
   late final _playbackRate =
       controller.player.stream.rate.toSyncSignal(controller.player.state.rate);
+
   double _bounceDirection = 1;
 
   void _handleIncreaseSpeed() {
@@ -348,6 +423,7 @@ class _SpeedButtonState extends State<_SpeedButton>
   void dispose() {
     _buttonController.dispose();
     _isHovering.dispose();
+
     super.dispose();
   }
 }

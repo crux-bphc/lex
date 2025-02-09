@@ -3,18 +3,22 @@ import 'package:get_it/get_it.dart';
 import 'package:lex/modules/multipartus/models/subject.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/grid_button.dart';
+import 'package:lex/widgets/are_you_sure_dialog.dart';
 
 class SubjectTile extends StatefulWidget {
   const SubjectTile({
     super.key,
     required this.subject,
     required this.onPressed,
-    this.eagerUpdate = false,
+    this.shouldUpdatePinsEagerly = false,
   });
 
   final Subject subject;
   final void Function() onPressed;
-  final bool eagerUpdate;
+
+  /// Whether the widget should update the pin state eagerly (without waiting
+  /// for the backend to respond to the pin/unpin request).
+  final bool shouldUpdatePinsEagerly;
 
   @override
   State<SubjectTile> createState() => _SubjectTileState();
@@ -28,27 +32,11 @@ class _SubjectTileState extends State<SubjectTile> {
       final confirmUnpin = await showDialog<bool>(
         context: context,
         builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Unpin Subject'),
-            content: Text(
-              'Are you sure you want to unpin "${widget.subject.name}"?',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                style: TextButton.styleFrom(
-                  overlayColor: Theme.of(context).colorScheme.error,
-                ),
-                child: Text(
-                  'Unpin',
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
-                ),
-              ),
-            ],
+          return AreYouSureDialog(
+            confirmText: "Unpin",
+            content: 'Are you sure you want to unpin "${widget.subject.name}"?',
+            title: "Unpin subject",
+            confirmColor: Theme.of(context).colorScheme.error,
           );
         },
       );
@@ -62,7 +50,7 @@ class _SubjectTileState extends State<SubjectTile> {
           .pinSubject(widget.subject.department, widget.subject.code);
     }
 
-    if (widget.eagerUpdate) {
+    if (widget.shouldUpdatePinsEagerly) {
       setState(() {
         isPinned = !isPinned;
       });
