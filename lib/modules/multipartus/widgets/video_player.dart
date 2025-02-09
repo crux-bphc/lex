@@ -11,6 +11,7 @@ import 'package:lex/modules/multipartus/widgets/lecture_title.dart';
 import 'package:lex/modules/multipartus/widgets/seekbar.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
 import 'package:lex/providers/local_storage/local_storage.dart';
+import 'package:lex/theme.dart';
 import 'package:lex/utils/extensions.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
@@ -463,6 +464,11 @@ class _SpeedButtonState extends State<_SpeedButton>
               Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
         ),
         child: Slider(
+          value: _playbackRate(),
+          min: 0.25,
+          max: 3.0,
+          divisions: 11,
+          onChanged: _setRate,
         ),
       ),
     );
@@ -552,8 +558,6 @@ class _ShareButton extends StatelessWidget {
   }
 }
 
-class _ImpartusSeekBar extends StatefulWidget {
-  const _ImpartusSeekBar();
 Duration actualDuration(Duration totalDuration) =>
     totalDuration == Duration.zero
         ? const Duration(minutes: 59, seconds: 59)
@@ -571,6 +575,8 @@ double actualFraction(Duration position, Duration totalDuration) =>
     actualPosition(position, totalDuration).inMilliseconds /
     actualDuration(totalDuration).inMilliseconds;
 
+class _ImpartusSeekBar extends StatefulWidget {
+  const _ImpartusSeekBar();
 
   @override
   State<_ImpartusSeekBar> createState() => _ImpartusSeekBarState();
