@@ -7,8 +7,10 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lex/modules/multipartus/models/video_player_config.dart';
+import 'package:lex/modules/multipartus/widgets/lecture_title.dart';
 import 'package:lex/modules/multipartus/widgets/seekbar.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
+import 'package:lex/providers/local_storage/local_storage.dart';
 import 'package:lex/utils/extensions.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
@@ -43,6 +45,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
   late final VideoController controller;
 
   StreamSubscription<Duration>? _positionStream;
+  StreamSubscription<double>? _volumeStream, _rateStream;
   final _positionUpdateStopwatch = Stopwatch()..start();
 
   @override
@@ -53,6 +56,12 @@ class _VideoPlayerState extends State<VideoPlayer> {
       configuration: PlayerConfiguration(
         ready: () {
           player.seek(widget.startTimestamp);
+          player.setRate(
+            GetIt.instance<LocalStorage>().preferences.playbackSpeed.value,
+          );
+          player.setVolume(
+            GetIt.instance<LocalStorage>().preferences.playbackVolume.value,
+          );
         },
       ),
     );
@@ -65,6 +74,8 @@ class _VideoPlayerState extends State<VideoPlayer> {
   @override
   void dispose() {
     _positionStream?.cancel();
+    _volumeStream?.cancel();
+    _rateStream?.cancel();
     _positionUpdateStopwatch.stop();
 
     player.dispose();
@@ -110,6 +121,14 @@ class _VideoPlayerState extends State<VideoPlayer> {
         _positionUpdateStopwatch.reset();
       }
     });
+
+    _volumeStream = player.stream.volume.listen((v) {
+      GetIt.instance<LocalStorage>().preferences.playbackVolume.value = v;
+    });
+
+    _rateStream = player.stream.rate.listen((r) {
+      GetIt.instance<LocalStorage>().preferences.playbackSpeed.value = r;
+    });
   }
 
   @override
@@ -118,9 +137,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
       borderRadius: BorderRadius.circular(10),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final controls = buildDesktopControls(
-            context,
-          );
+          final controls = buildDesktopControls(context);
           return SizedBox(
             width: constraints.maxWidth,
             child: AspectRatio(
@@ -167,6 +184,11 @@ VideoController getController(BuildContext context) =>
 MaterialDesktopVideoControlsThemeData buildDesktopControls(
   BuildContext context,
 ) {
+  // if we listen here the widgets that we need to update (nav buttons) will not
+  // update because theme data doesnt just rebuild like that
+  final config = SignalProvider.of<VideoPlayerConfig>(context, listen: false);
+  assert(config != null, "No VideoPlayerConfig signal found in tree");
+
   return MaterialDesktopVideoControlsThemeData(
     seekBarPositionColor: Theme.of(context).colorScheme.primary,
     seekBarThumbColor: Theme.of(context).colorScheme.primary,
@@ -176,14 +198,21 @@ MaterialDesktopVideoControlsThemeData buildDesktopControls(
     buttonBarHeight: 110,
     seekBarMargin: EdgeInsets.zero,
     seekBarContainerHeight: 8,
-    bottomButtonBar: const [
+    bottomButtonBar: [
       Expanded(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             _ImpartusSeekBar(),
-            _VideoControlsRow(),
+            // we listen to the config here
+            Watch(
+              (_) => _VideoControlsRow(
+                config: config!(),
+                onNavigate: (navType) =>
+                    VideoNavigateNotification(navType).dispatch(context),
+              ),
+            ),
           ],
         ),
       ),
@@ -192,28 +221,30 @@ MaterialDesktopVideoControlsThemeData buildDesktopControls(
 }
 
 class _VideoControlsRow extends StatelessWidget {
-  const _VideoControlsRow();
+  const _VideoControlsRow({required this.config, required this.onNavigate});
+
+  final VideoPlayerConfigData config;
+  final void Function(NavigationType navType) onNavigate;
 
   @override
   Widget build(BuildContext context) {
-    final config =
-        VideoPlayerConfig.maybeOf(context) ?? VideoPlayerConfigData();
-
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         if (config.previousVideo != null)
-          MaterialDesktopCustomButton(
-            onPressed: () => VideoNavigateNotification(NavigationType.previous)
-                .dispatch(context),
+          _VideoNavigationButton(
+            lectureNo: config.previousVideo!.lectureNo.toString(),
+            title: config.previousVideo!.title,
             icon: Icon(LucideIcons.skip_back),
+            onPressed: () => onNavigate(NavigationType.previous),
           ),
         _PlayPauseButton(),
         if (config.nextVideo != null)
-          MaterialDesktopCustomButton(
-            onPressed: () => VideoNavigateNotification(NavigationType.next)
-                .dispatch(context),
+          _VideoNavigationButton(
+            lectureNo: config.nextVideo!.lectureNo.toString(),
+            title: config.nextVideo!.title,
             icon: Icon(LucideIcons.skip_forward),
+            onPressed: () => onNavigate(NavigationType.next),
           ),
         _VolumeButton(),
         _ImpartusPositionIndicator(),
@@ -224,6 +255,43 @@ class _VideoControlsRow extends StatelessWidget {
         // _PitchButton(),
         _FullscreenButton(),
       ],
+    );
+  }
+}
+
+class _VideoNavigationButton extends StatelessWidget {
+  const _VideoNavigationButton({
+    required this.lectureNo,
+    required this.title,
+    required this.onPressed,
+    required this.icon,
+  });
+
+  final String lectureNo, title;
+  final void Function() onPressed;
+  final Widget icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      richMessage: buildLectureTitleSpan(
+        lectureNo: lectureNo,
+        title: title,
+        fontSize: 14,
+        titleColor: Theme.of(context).colorScheme.surface,
+        lectureNoColor: Colors.white,
+        borderRadius: 8,
+      ),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: Theme.of(context).colorScheme.onSurface,
+      ),
+      waitDuration: Duration.zero,
+      padding: EdgeInsets.fromLTRB(6, 6, 8, 6),
+      child: MaterialDesktopCustomButton(
+        onPressed: onPressed,
+        icon: icon,
+      ),
     );
   }
 }

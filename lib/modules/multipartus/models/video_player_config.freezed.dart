@@ -18,21 +18,31 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$VideoPlayerConfigData {
   ImpartusVideo? get previousVideo => throw _privateConstructorUsedError;
   ImpartusVideo? get nextVideo => throw _privateConstructorUsedError;
+  double? get playbackSpeed => throw _privateConstructorUsedError;
+  double? get playbackVolume => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
 
 class _$VideoPlayerConfigDataImpl implements _VideoPlayerConfigData {
-  const _$VideoPlayerConfigDataImpl({this.previousVideo, this.nextVideo});
+  const _$VideoPlayerConfigDataImpl(
+      {this.previousVideo,
+      this.nextVideo,
+      this.playbackSpeed,
+      this.playbackVolume});
 
   @override
   final ImpartusVideo? previousVideo;
   @override
   final ImpartusVideo? nextVideo;
+  @override
+  final double? playbackSpeed;
+  @override
+  final double? playbackVolume;
 
   @override
   String toString() {
-    return 'VideoPlayerConfigData(previousVideo: $previousVideo, nextVideo: $nextVideo)';
+    return 'VideoPlayerConfigData(previousVideo: $previousVideo, nextVideo: $nextVideo, playbackSpeed: $playbackSpeed, playbackVolume: $playbackVolume)';
   }
 
   @override
@@ -43,20 +53,31 @@ class _$VideoPlayerConfigDataImpl implements _VideoPlayerConfigData {
             (identical(other.previousVideo, previousVideo) ||
                 other.previousVideo == previousVideo) &&
             (identical(other.nextVideo, nextVideo) ||
-                other.nextVideo == nextVideo));
+                other.nextVideo == nextVideo) &&
+            (identical(other.playbackSpeed, playbackSpeed) ||
+                other.playbackSpeed == playbackSpeed) &&
+            (identical(other.playbackVolume, playbackVolume) ||
+                other.playbackVolume == playbackVolume));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, previousVideo, nextVideo);
+  int get hashCode => Object.hash(
+      runtimeType, previousVideo, nextVideo, playbackSpeed, playbackVolume);
 }
 
 abstract class _VideoPlayerConfigData implements VideoPlayerConfigData {
   const factory _VideoPlayerConfigData(
       {final ImpartusVideo? previousVideo,
-      final ImpartusVideo? nextVideo}) = _$VideoPlayerConfigDataImpl;
+      final ImpartusVideo? nextVideo,
+      final double? playbackSpeed,
+      final double? playbackVolume}) = _$VideoPlayerConfigDataImpl;
 
   @override
   ImpartusVideo? get previousVideo;
   @override
   ImpartusVideo? get nextVideo;
+  @override
+  double? get playbackSpeed;
+  @override
+  double? get playbackVolume;
 }

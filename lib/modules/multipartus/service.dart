@@ -7,7 +7,6 @@ import 'package:lex/modules/multipartus/models/impartus_section.dart';
 import 'package:lex/modules/multipartus/models/impartus_video.dart';
 import 'package:lex/modules/multipartus/models/lecture_slide.dart';
 import 'package:lex/modules/multipartus/models/subject.dart';
-import 'package:lex/modules/multipartus/models/video_player_config.dart';
 import 'package:lex/utils/misc.dart';
 import 'package:signals/signals.dart';
 
@@ -175,7 +174,8 @@ class MultipartusService {
     return result;
   });
 
-  Future<VideoPlayerConfigData> getVideoPlayerConfig({
+  /// Get the previous and next videos for a given video ttid.
+  Future<(ImpartusVideo?, ImpartusVideo?)> getAdjacentVideos({
     required String ttid,
   }) async {
     final vid = await fetchImpartusVideo(ttid);
@@ -192,10 +192,7 @@ class MultipartusService {
     final nextVid = index >= 1 ? vids.elementAtOrNull((index - 1)) : null;
     final prevVid = vids.elementAtOrNull((index + 1));
 
-    return VideoPlayerConfigData(
-      nextVideo: nextVid,
-      previousVideo: prevVid,
-    );
+    return (prevVid, nextVid);
   }
 
   Future<Subject> fetchSubject(SubjectId id) async {

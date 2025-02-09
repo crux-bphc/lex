@@ -10,6 +10,7 @@ import 'package:lex/providers/local_storage/local_storage.dart';
 import 'package:lex/widgets/error_bird.dart';
 import 'package:lex/widgets/floating_sidebar.dart';
 import 'package:lex/widgets/managed_future_builder.dart';
+import 'package:signals/signals_flutter.dart';
 
 class MultipartusVideoPage extends StatefulWidget {
   const MultipartusVideoPage({
@@ -28,19 +29,34 @@ class MultipartusVideoPage extends StatefulWidget {
 }
 
 class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
-  late Future<VideoPlayerConfigData> _configFuture;
+  final config = VideoPlayerConfig();
 
   Future<VideoPlayerConfigData> _fetchConfig() async {
-    return GetIt.instance<MultipartusService>()
-        .getVideoPlayerConfig(ttid: widget.ttid);
+    final service = GetIt.instance<MultipartusService>();
+    final vids = await service.getAdjacentVideos(ttid: widget.ttid);
+
+    final playbackSpeed =
+        GetIt.instance<LocalStorage>().preferences.playbackSpeed();
+    final playbackVolume =
+        GetIt.instance<LocalStorage>().preferences.playbackVolume();
+
+    return VideoPlayerConfigData(
+      previousVideo: vids.$1,
+      nextVideo: vids.$2,
+      playbackSpeed: playbackSpeed,
+      playbackVolume: playbackVolume,
+    );
+  }
+
+  void _updateConfigSignal() async {
+    final result = await _fetchConfig();
+    config.value = result;
   }
 
   void _handleNotification(NavigationType navType) async {
-    final config = await _configFuture;
-
     final newTtid = navType == NavigationType.next
-        ? config.nextVideo?.ttid
-        : config.previousVideo?.ttid;
+        ? config().nextVideo?.ttid
+        : config().previousVideo?.ttid;
 
     if (mounted && newTtid != null) {
       context.go(
@@ -54,9 +70,7 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.ttid != widget.ttid) {
-      setState(() {
-        _configFuture = _fetchConfig();
-      });
+      _updateConfigSignal();
     }
   }
 
@@ -64,7 +78,7 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
   void initState() {
     super.initState();
 
-    _configFuture = _fetchConfig();
+    _updateConfigSignal();
   }
 
   @override
@@ -83,20 +97,14 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
                   // the notification has been handled
                   return true;
                 },
-                child: FutureBuilder(
-                  future: _configFuture,
-                  builder: (context, snapshot) {
-                    final data = snapshot.data;
-
-                    return VideoPlayerConfig(
-                      data: data ?? VideoPlayerConfigData(),
-                      child: _LeftSide(
-                        ttid: widget.ttid,
-                        subjectId: widget.subjectId,
-                        startTimestamp: widget.startTimestamp,
-                      ),
-                    );
-                  },
+                // pass the config signal to the subtree
+                child: SignalProvider(
+                  create: () => config,
+                  child: _LeftSide(
+                    ttid: widget.ttid,
+                    subjectId: widget.subjectId,
+                    startTimestamp: widget.startTimestamp,
+                  ),
                 ),
               ),
             ),

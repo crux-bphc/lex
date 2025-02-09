@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lex/modules/multipartus/models/subject.dart';
 import 'package:lex/modules/multipartus/service.dart';
+import 'package:lex/modules/multipartus/widgets/lecture_title.dart';
 import 'package:lex/utils/misc.dart';
 
 class VideoTitle extends StatelessWidget {
@@ -70,7 +71,7 @@ class VideoTitle extends StatelessWidget {
             ),
             const SizedBox(height: 3),
             if (data != null) ...[
-              _LectureTitle(
+              LectureTitle(
                 lectureNo: data.lectureNo.toString(),
                 title: data.title,
               ),
@@ -99,55 +100,6 @@ class _DateTitle extends StatelessWidget {
         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
         fontSize: 19,
       ),
-    );
-  }
-}
-
-class _LectureTitle extends StatelessWidget {
-  const _LectureTitle({
-    required this.lectureNo,
-    required this.title,
-  });
-
-  final String lectureNo, title;
-  final double fontSize = 32;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.baseline,
-      textBaseline: TextBaseline.alphabetic,
-      children: [
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          margin: EdgeInsets.only(right: 10),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Text(
-            lectureNo,
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.surface,
-              fontSize: fontSize,
-              height: 1,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        Expanded(
-          child: Text(
-            title,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.primary,
-              fontSize: fontSize,
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

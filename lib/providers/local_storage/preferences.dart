@@ -10,16 +10,16 @@ class Preferences {
   final List<EffectCleanup> _cleanups = [];
 
   void initialize() async {
-    _themeMode.value = _prefs.getString('theme_mode') ?? 'dark';
-
     _cleanups.addAll([
-      effect(() => _prefs.setString('theme_mode', _themeMode.value)),
+      effect(() => _prefs.setString('theme_mode', _themeMode())),
       effect(
         () => _prefs.setBool(
           'is_disclaimer_accepted',
-          isDisclaimerAccepted.value,
+          isDisclaimerAccepted(),
         ),
       ),
+      effect(() => _prefs.setDouble('playback_speed', playbackSpeed())),
+      effect(() => _prefs.setDouble('playback_volume', playbackVolume())),
     ]);
   }
 
@@ -34,6 +34,10 @@ class Preferences {
 
   late final isDisclaimerAccepted =
       signal(_prefs.getBool('is_disclaimer_accepted') ?? false);
+
+  late final playbackSpeed = signal(_prefs.getDouble('playback_speed') ?? 1.0);
+  late final playbackVolume =
+      signal(_prefs.getDouble('playback_volume') ?? 100.0);
 
   void dispose() {
     for (final cleanup in _cleanups) {
