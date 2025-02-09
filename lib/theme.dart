@@ -131,7 +131,11 @@ ThemeData buildTheme(ThemeMode mode) {
 
   final tooltipTheme = TooltipThemeData(
     preferBelow: false,
-    waitDuration: Durations.extralong2,
+    waitDuration: Durations.long2,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(8),
+      color: scheme.onSurface,
+    ),
   );
 
   final scrollbarTheme = ScrollbarThemeData(

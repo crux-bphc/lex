@@ -17,6 +17,8 @@ import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:signals/signals_flutter.dart';
 
+const _controlsIconSize = 24.0;
+
 String _getVideoUrl(String baseUrl, String ttid) {
   return '$baseUrl/impartus/ttid/$ttid/m3u8';
 }
@@ -196,7 +198,7 @@ MaterialDesktopVideoControlsThemeData buildDesktopControls(
     controlsHoverDuration: 5.seconds,
     hideMouseOnControlsRemoval: true,
     displaySeekBar: false,
-    buttonBarHeight: 110,
+    buttonBarHeight: 80,
     seekBarMargin: EdgeInsets.zero,
     seekBarContainerHeight: 8,
     bottomButtonBar: [
@@ -205,10 +207,10 @@ MaterialDesktopVideoControlsThemeData buildDesktopControls(
           data: buildTheme(ThemeMode.dark),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _ImpartusSeekBar(),
-              // we listen to the config here
+              // we listen to the conig here
               Watch(
                 (_) => _VideoControlsRow(
                   config: config!(),
@@ -233,7 +235,6 @@ class _VideoControlsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         if (config.previousVideo != null)
           _VideoNavigationButton(
@@ -294,6 +295,7 @@ class _VideoNavigationButton extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(6, 6, 8, 6),
       child: MaterialDesktopCustomButton(
         onPressed: onPressed,
+        iconSize: _controlsIconSize,
         icon: icon,
       ),
     );
@@ -316,15 +318,49 @@ class _VideoNavigationButton extends StatelessWidget {
 //   }
 // }
 
-class _VolumeButton extends StatelessWidget {
+class _VolumeButton extends StatefulWidget {
   const _VolumeButton();
 
   @override
+  State<_VolumeButton> createState() => _VolumeButtonState();
+}
+
+class _VolumeButtonState extends State<_VolumeButton> {
+  late final controller = getController(context);
+  late final _volumeSignal = controller.player.stream.volume
+      .toSyncSignal(controller.player.state.volume);
+
+  late double _oldVolume = controller.player.state.volume;
+
+  @override
   Widget build(BuildContext context) {
-    return MaterialDesktopVolumeButton(
-      volumeLowIcon: Icon(LucideIcons.volume_1),
-      volumeHighIcon: Icon(LucideIcons.volume_2),
-      volumeMuteIcon: Icon(LucideIcons.volume_x),
+    final volume = _volumeSignal.watch(context);
+
+    return _PeekaBooSlider(
+      value: volume,
+      min: 0,
+      max: 100,
+      sliderWidth: 80,
+      onChanged: (volume) => controller.player.setVolume(volume),
+      isButtonLeading: true,
+      button: MaterialDesktopCustomButton(
+        iconSize: _controlsIconSize,
+        icon: switch (volume) {
+          0 => Icon(LucideIcons.volume_off),
+          < 50 => Icon(LucideIcons.volume_1),
+          _ => Icon(LucideIcons.volume_2)
+        },
+        onPressed: () {
+          if (volume == 0) {
+            // unmuting
+            controller.player.setVolume(_oldVolume);
+          } else {
+            // muting
+            _oldVolume = volume;
+            controller.player.setVolume(0);
+          }
+        },
+      ),
     );
   }
 }
@@ -359,7 +395,6 @@ class _SpeedButtonState extends State<_SpeedButton>
     duration: Durations.short4,
   );
 
-  final _isHovering = signal(false);
   late final controller = getController(context);
   late final _playbackRate =
       controller.player.stream.rate.toSyncSignal(controller.player.state.rate);
@@ -388,87 +423,36 @@ class _SpeedButtonState extends State<_SpeedButton>
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => _isHovering.value = true,
-      onExit: (_) => _isHovering.value = false,
-      child: Row(
-        children: [
-          FittedBox(
-            child: Watch(
-              (context) => Row(
-                children: [
-                  Text(
-                    "${_playbackRate()}x",
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      height: 0,
-                    ),
-                  ),
-                  AnimatedSize(
-                    duration: Duration(milliseconds: 240),
-                    alignment: Alignment.centerLeft,
-                    curve: Curves.easeOutCubic,
-                    child: AnimatedSwitcher(
-                      duration: Durations.short4,
-                      reverseDuration: Durations.short2,
-                      child: _isHovering() ? _buildSlider(context) : SizedBox(),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          GestureDetector(
-            onSecondaryTap: _handleDecreaseSpeed,
-            child: MaterialDesktopCustomButton(
-              onPressed: _handleIncreaseSpeed,
-              icon: Tooltip(
-                message: "Playback speed",
-                child: Icon(LucideIcons.chevrons_right),
-              ).animate(controller: _buttonController, autoPlay: false).custom(
-                    builder: (context, value, child) => Transform(
-                      transform: Matrix4.translationValues(
-                        _bounceDirection * 12 * value * (1 - value),
-                        0,
-                        0,
-                      ),
-                      child: child,
-                    ),
-                    duration: 140.ms,
-                  ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+    final playbackRate = _playbackRate.watch(context);
 
-  Widget _buildSlider(BuildContext context) {
-    return Container(
-      key: ValueKey('slider'),
-      height: 22,
-      width: 120,
-      margin: EdgeInsets.only(left: 8),
-      child: SliderTheme(
-        data: SliderThemeData(
-          thumbShape: RoundSliderThumbShape(
-            enabledThumbRadius: 6,
-            disabledThumbRadius: 6,
-          ),
-          trackHeight: 1,
-          overlayShape: SliderComponentShape.noOverlay,
-          thumbColor: Theme.of(context).colorScheme.onSurface,
-          activeTrackColor: Theme.of(context).colorScheme.onSurface,
-          inactiveTrackColor:
-              Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
-        ),
-        child: Slider(
-          value: _playbackRate(),
-          min: 0.25,
-          max: 3.0,
-          divisions: 11,
-          onChanged: _setRate,
+    return _PeekaBooSlider(
+      min: 0.25,
+      max: 3.0,
+      divisions: 11,
+      onChanged: _setRate,
+      value: playbackRate,
+      valueFormatter: (value) => "${value}x",
+      showLabel: true,
+      isButtonLeading: false,
+      button: GestureDetector(
+        onSecondaryTap: _handleDecreaseSpeed,
+        child: MaterialDesktopCustomButton(
+          onPressed: _handleIncreaseSpeed,
+          iconSize: _controlsIconSize + 4,
+          icon: Tooltip(
+            message: "Playback speed",
+            child: Icon(LucideIcons.chevrons_right),
+          ).animate(controller: _buttonController, autoPlay: false).custom(
+                builder: (context, value, child) => Transform(
+                  transform: Matrix4.translationValues(
+                    _bounceDirection * 12 * value * (1 - value),
+                    0,
+                    0,
+                  ),
+                  child: child,
+                ),
+                duration: 140.ms,
+              ),
         ),
       ),
     );
@@ -477,7 +461,6 @@ class _SpeedButtonState extends State<_SpeedButton>
   @override
   void dispose() {
     _buttonController.dispose();
-    _isHovering.dispose();
 
     super.dispose();
   }
@@ -656,7 +639,10 @@ class _ImpartusPositionIndicatorState extends State<_ImpartusPositionIndicator>
   Widget build(BuildContext context) {
     return Text(
       "${position().value!.format()} / ${duration().value!.format()}",
-      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+      style: TextStyle(
+        color: Theme.of(context).colorScheme.onSurface,
+        height: 1,
+      ),
     );
   }
 }
@@ -675,4 +661,146 @@ enum NavigationType {
         NavigationType.next => 1,
         NavigationType.previous => -1,
       };
+}
+
+class _PeekaBooSlider extends StatefulWidget {
+  const _PeekaBooSlider({
+    required this.button,
+    required this.value,
+    required this.min,
+    required this.max,
+    required this.onChanged,
+    this.valueFormatter,
+    this.sliderWidth = 120,
+    this.divisions,
+    this.showLabel = false,
+    this.isButtonLeading = true,
+  }) : assert(
+          valueFormatter == null || showLabel,
+          "valueFormatter must not be null if showLabel is true",
+        );
+
+  final double value, min, max, sliderWidth;
+  final double spacing = 8;
+  final int? divisions;
+  final Widget button;
+  final String Function(double value)? valueFormatter;
+  final void Function(double value) onChanged;
+  final bool showLabel, isButtonLeading;
+
+  @override
+  State<_PeekaBooSlider> createState() => _PeekaBooSliderState();
+}
+
+class _PeekaBooSliderState extends State<_PeekaBooSlider> {
+  final _isHovering = signal(false);
+
+  @override
+  Widget build(BuildContext context) {
+    final first =
+        widget.isButtonLeading ? (widget.button) : _buildText(context);
+    final space = SizedBox(width: widget.spacing);
+    final last = widget.isButtonLeading ? _buildText(context) : (widget.button);
+
+    return MouseRegion(
+      onEnter: (_) => _isHovering.value = true,
+      onExit: (_) => _isHovering.value = false,
+      child: Row(
+        children: [
+          first,
+          if (!widget.isButtonLeading) space,
+          _buildMiddle(context),
+          if (widget.isButtonLeading) space,
+          last,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildText(BuildContext context) => widget.showLabel
+      ? Text(
+          widget.valueFormatter!(widget.value),
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
+            height: 1,
+          ),
+        )
+      : SizedBox();
+
+  Widget _buildMiddle(BuildContext context) => Watch(
+        (context) => AnimatedSize(
+          duration: Durations.short3,
+          alignment: widget.isButtonLeading
+              ? Alignment.centerRight
+              : Alignment.centerLeft,
+          curve: Curves.easeOutCubic,
+          child: AnimatedSwitcher(
+            duration: Durations.short4,
+            child: _isHovering()
+                ? _Slider(
+                    value: widget.value,
+                    min: widget.min,
+                    max: widget.max,
+                    spacing: widget.spacing,
+                    sliderWidth: widget.sliderWidth,
+                    onChanged: widget.onChanged,
+                    isButtonLeading: widget.isButtonLeading,
+                    divisions: widget.divisions,
+                  )
+                : SizedBox(),
+          ),
+        ),
+      );
+}
+
+class _Slider extends StatelessWidget {
+  const _Slider({
+    required this.value,
+    required this.min,
+    required this.max,
+    required this.spacing,
+    required this.sliderWidth,
+    this.divisions,
+    required this.onChanged,
+    required this.isButtonLeading,
+  });
+
+  final double value, min, max, spacing, sliderWidth;
+  final int? divisions;
+
+  final void Function(double value) onChanged;
+  final bool isButtonLeading;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 22,
+      width: sliderWidth,
+      margin: EdgeInsets.only(
+        left: isButtonLeading ? spacing : 0,
+        right: isButtonLeading ? 0 : spacing,
+      ),
+      child: SliderTheme(
+        data: SliderThemeData(
+          thumbShape: RoundSliderThumbShape(
+            enabledThumbRadius: 6,
+            disabledThumbRadius: 6,
+          ),
+          trackHeight: 1,
+          overlayShape: SliderComponentShape.noOverlay,
+          thumbColor: Theme.of(context).colorScheme.onSurface,
+          activeTrackColor: Theme.of(context).colorScheme.onSurface,
+          inactiveTrackColor:
+              Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+        ),
+        child: Slider(
+          value: value,
+          min: min,
+          max: max,
+          divisions: divisions,
+          onChanged: onChanged,
+        ),
+      ),
+    );
+  }
 }
