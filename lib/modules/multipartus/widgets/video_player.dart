@@ -200,20 +200,23 @@ MaterialDesktopVideoControlsThemeData buildDesktopControls(
     seekBarContainerHeight: 8,
     bottomButtonBar: [
       Expanded(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            _ImpartusSeekBar(),
-            // we listen to the config here
-            Watch(
-              (_) => _VideoControlsRow(
-                config: config!(),
-                onNavigate: (navType) =>
-                    VideoNavigateNotification(navType).dispatch(context),
+        child: Theme(
+          data: buildTheme(ThemeMode.dark),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              _ImpartusSeekBar(),
+              // we listen to the config here
+              Watch(
+                (_) => _VideoControlsRow(
+                  config: config!(),
+                  onNavigate: (navType) =>
+                      VideoNavigateNotification(navType).dispatch(context),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     ],
@@ -378,23 +381,44 @@ class _SpeedButtonState extends State<_SpeedButton>
     _buttonController.forward(from: 0);
   }
 
+  void _setRate(double rate) {
+    controller.player.setRate(rate);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Watch(
-          (context) => Text(
-            "${_playbackRate()}x",
-            style: TextStyle(height: 0),
-          )
-              .animate(target: _isHovering() ? 1 : 0)
-              .fadeIn(duration: Durations.short4),
-        ),
-        const SizedBox(width: 8),
-        MouseRegion(
-          onEnter: (_) => _isHovering.value = true,
-          onExit: (_) => _isHovering.value = false,
-          child: GestureDetector(
+    return MouseRegion(
+      onEnter: (_) => _isHovering.value = true,
+      onExit: (_) => _isHovering.value = false,
+      child: Row(
+        children: [
+          FittedBox(
+            child: Watch(
+              (context) => Row(
+                children: [
+                  Text(
+                    "${_playbackRate()}x",
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      height: 0,
+                    ),
+                  ),
+                  AnimatedSize(
+                    duration: Duration(milliseconds: 240),
+                    alignment: Alignment.centerLeft,
+                    curve: Curves.easeOutCubic,
+                    child: AnimatedSwitcher(
+                      duration: Durations.short4,
+                      reverseDuration: Durations.short2,
+                      child: _isHovering() ? _buildSlider(context) : SizedBox(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          GestureDetector(
             onSecondaryTap: _handleDecreaseSpeed,
             child: MaterialDesktopCustomButton(
               onPressed: _handleIncreaseSpeed,
@@ -414,8 +438,33 @@ class _SpeedButtonState extends State<_SpeedButton>
                   ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSlider(BuildContext context) {
+    return Container(
+      key: ValueKey('slider'),
+      height: 22,
+      width: 120,
+      margin: EdgeInsets.only(left: 8),
+      child: SliderTheme(
+        data: SliderThemeData(
+          thumbShape: RoundSliderThumbShape(
+            enabledThumbRadius: 6,
+            disabledThumbRadius: 6,
+          ),
+          trackHeight: 1,
+          overlayShape: SliderComponentShape.noOverlay,
+          thumbColor: Theme.of(context).colorScheme.onSurface,
+          activeTrackColor: Theme.of(context).colorScheme.onSurface,
+          inactiveTrackColor:
+              Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
         ),
-      ],
+        child: Slider(
+        ),
+      ),
     );
   }
 
@@ -505,11 +554,6 @@ class _ShareButton extends StatelessWidget {
 
 class _ImpartusSeekBar extends StatefulWidget {
   const _ImpartusSeekBar();
-
-  @override
-  State<_ImpartusSeekBar> createState() => _ImpartusSeekBarState();
-}
-
 Duration actualDuration(Duration totalDuration) =>
     totalDuration == Duration.zero
         ? const Duration(minutes: 59, seconds: 59)
@@ -526,6 +570,11 @@ Duration actualPosition(Duration position, Duration totalDuration) =>
 double actualFraction(Duration position, Duration totalDuration) =>
     actualPosition(position, totalDuration).inMilliseconds /
     actualDuration(totalDuration).inMilliseconds;
+
+
+  @override
+  State<_ImpartusSeekBar> createState() => _ImpartusSeekBarState();
+}
 
 class _ImpartusSeekBarState extends State<_ImpartusSeekBar> {
   late final controller = getController(context);
@@ -601,6 +650,7 @@ class _ImpartusPositionIndicatorState extends State<_ImpartusPositionIndicator>
   Widget build(BuildContext context) {
     return Text(
       "${position().value!.format()} / ${duration().value!.format()}",
+      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
     );
   }
 }

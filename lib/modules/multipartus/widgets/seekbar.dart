@@ -181,7 +181,12 @@ class _SeekBarState extends State<SeekBar> with SignalsMixin {
                     color: Colors.black38,
                   ),
                   padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  child: Text(widget.formatTimestamp(pointerFraction())),
+                  child: Text(
+                    widget.formatTimestamp(pointerFraction()),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
                 )
                     .animate(target: isHovering() || isDragging() ? 1 : 0)
                     .fade(duration: 100.ms),
