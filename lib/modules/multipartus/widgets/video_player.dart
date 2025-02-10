@@ -140,7 +140,6 @@ class _VideoPlayerState extends State<VideoPlayer> {
       borderRadius: BorderRadius.circular(10),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final controls = buildDesktopControls(context);
           return SizedBox(
             width: constraints.maxWidth,
             child: AspectRatio(
@@ -164,8 +163,14 @@ class _VideoPlayerState extends State<VideoPlayer> {
                           .apply(bodyColor: Colors.white),
                     ),
                     child: MaterialDesktopVideoControlsTheme(
-                      normal: controls,
-                      fullscreen: controls,
+                      normal: buildDesktopControls(
+                        context,
+                        isFullscreen: false,
+                      ),
+                      fullscreen: buildDesktopControls(
+                        context,
+                        isFullscreen: true,
+                      ),
                       child: Video(controller: controller),
                     ),
                   ),
@@ -185,8 +190,9 @@ VideoController getController(BuildContext context) =>
     VideoStateInheritedWidget.of(context).state.widget.controller;
 
 MaterialDesktopVideoControlsThemeData buildDesktopControls(
-  BuildContext context,
-) {
+  BuildContext context, {
+  required bool isFullscreen,
+}) {
   // if we listen here the widgets that we need to update (nav buttons) will not
   // update because theme data doesnt just rebuild like that
   final config = SignalProvider.of<VideoPlayerConfig>(context, listen: false);
@@ -201,6 +207,25 @@ MaterialDesktopVideoControlsThemeData buildDesktopControls(
     buttonBarHeight: 80,
     seekBarMargin: EdgeInsets.zero,
     seekBarContainerHeight: 8,
+    topButtonBar: [
+      if (isFullscreen)
+        Expanded(
+          child: Watch((context) {
+            final vid = config!().currentVideo;
+
+            if (vid == null) return SizedBox();
+
+            return LectureTitle(
+              lectureNo: vid.lectureNo.toString(),
+              title: vid.title,
+              titleColor: Theme.of(context).colorScheme.onSurface,
+              lectureNoColor: Colors.black,
+              showShadows: true,
+              maxLines: 1,
+            );
+          }),
+        ),
+    ],
     bottomButtonBar: [
       Expanded(
         child: Theme(
@@ -284,15 +309,15 @@ class _VideoNavigationButton extends StatelessWidget {
         title: title,
         fontSize: 14,
         titleColor: Theme.of(context).colorScheme.surface,
-        lectureNoColor: Colors.white,
+        lectureNoColor: Theme.of(context).colorScheme.onSurface,
         borderRadius: 8,
       ),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(10),
         color: Theme.of(context).colorScheme.onSurface,
       ),
       waitDuration: Duration.zero,
-      padding: EdgeInsets.fromLTRB(6, 6, 8, 6),
+      padding: EdgeInsets.fromLTRB(4, 4, 6, 4),
       child: MaterialDesktopCustomButton(
         onPressed: onPressed,
         iconSize: _controlsIconSize,

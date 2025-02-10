@@ -174,8 +174,9 @@ class MultipartusService {
     return result;
   });
 
-  /// Get the previous and next videos for a given video ttid.
-  Future<(ImpartusVideo?, ImpartusVideo?)> getAdjacentVideos({
+  /// Get the [previous, current, next] video for a given video ttid.
+  /// current video is guaranteed to be non-null.
+  Future<List<ImpartusVideo?>> getAdjacentVideos({
     required String ttid,
   }) async {
     final vid = await fetchImpartusVideo(ttid);
@@ -192,7 +193,7 @@ class MultipartusService {
     final nextVid = index >= 1 ? vids.elementAtOrNull((index - 1)) : null;
     final prevVid = vids.elementAtOrNull((index + 1));
 
-    return (prevVid, nextVid);
+    return [prevVid, vid, nextVid];
   }
 
   Future<Subject> fetchSubject(SubjectId id) async {

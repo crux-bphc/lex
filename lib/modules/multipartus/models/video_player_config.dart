@@ -9,6 +9,7 @@ class VideoPlayerConfigData with _$VideoPlayerConfigData {
   const factory VideoPlayerConfigData({
     ImpartusVideo? previousVideo,
     ImpartusVideo? nextVideo,
+    ImpartusVideo? currentVideo,
     double? playbackSpeed,
     double? playbackVolume,
   }) = _VideoPlayerConfigData;

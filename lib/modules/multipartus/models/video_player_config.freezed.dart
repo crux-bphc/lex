@@ -18,6 +18,7 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$VideoPlayerConfigData {
   ImpartusVideo? get previousVideo => throw _privateConstructorUsedError;
   ImpartusVideo? get nextVideo => throw _privateConstructorUsedError;
+  ImpartusVideo? get currentVideo => throw _privateConstructorUsedError;
   double? get playbackSpeed => throw _privateConstructorUsedError;
   double? get playbackVolume => throw _privateConstructorUsedError;
 }
@@ -28,6 +29,7 @@ class _$VideoPlayerConfigDataImpl implements _VideoPlayerConfigData {
   const _$VideoPlayerConfigDataImpl(
       {this.previousVideo,
       this.nextVideo,
+      this.currentVideo,
       this.playbackSpeed,
       this.playbackVolume});
 
@@ -36,13 +38,15 @@ class _$VideoPlayerConfigDataImpl implements _VideoPlayerConfigData {
   @override
   final ImpartusVideo? nextVideo;
   @override
+  final ImpartusVideo? currentVideo;
+  @override
   final double? playbackSpeed;
   @override
   final double? playbackVolume;
 
   @override
   String toString() {
-    return 'VideoPlayerConfigData(previousVideo: $previousVideo, nextVideo: $nextVideo, playbackSpeed: $playbackSpeed, playbackVolume: $playbackVolume)';
+    return 'VideoPlayerConfigData(previousVideo: $previousVideo, nextVideo: $nextVideo, currentVideo: $currentVideo, playbackSpeed: $playbackSpeed, playbackVolume: $playbackVolume)';
   }
 
   @override
@@ -54,6 +58,8 @@ class _$VideoPlayerConfigDataImpl implements _VideoPlayerConfigData {
                 other.previousVideo == previousVideo) &&
             (identical(other.nextVideo, nextVideo) ||
                 other.nextVideo == nextVideo) &&
+            (identical(other.currentVideo, currentVideo) ||
+                other.currentVideo == currentVideo) &&
             (identical(other.playbackSpeed, playbackSpeed) ||
                 other.playbackSpeed == playbackSpeed) &&
             (identical(other.playbackVolume, playbackVolume) ||
@@ -61,14 +67,15 @@ class _$VideoPlayerConfigDataImpl implements _VideoPlayerConfigData {
   }
 
   @override
-  int get hashCode => Object.hash(
-      runtimeType, previousVideo, nextVideo, playbackSpeed, playbackVolume);
+  int get hashCode => Object.hash(runtimeType, previousVideo, nextVideo,
+      currentVideo, playbackSpeed, playbackVolume);
 }
 
 abstract class _VideoPlayerConfigData implements VideoPlayerConfigData {
   const factory _VideoPlayerConfigData(
       {final ImpartusVideo? previousVideo,
       final ImpartusVideo? nextVideo,
+      final ImpartusVideo? currentVideo,
       final double? playbackSpeed,
       final double? playbackVolume}) = _$VideoPlayerConfigDataImpl;
 
@@ -76,6 +83,8 @@ abstract class _VideoPlayerConfigData implements VideoPlayerConfigData {
   ImpartusVideo? get previousVideo;
   @override
   ImpartusVideo? get nextVideo;
+  @override
+  ImpartusVideo? get currentVideo;
   @override
   double? get playbackSpeed;
   @override

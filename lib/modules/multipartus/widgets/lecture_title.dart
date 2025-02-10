@@ -7,15 +7,24 @@ class LectureTitle extends StatelessWidget {
     required this.title,
     this.lectureNoColor,
     this.titleColor,
+    this.maxLines = 2,
+    this.showShadows = false,
   });
 
   final String lectureNo, title;
   final Color? lectureNoColor;
   final Color? titleColor;
   final double fontSize = 32;
+  final bool showShadows;
+  final int? maxLines;
 
   @override
   Widget build(BuildContext context) {
+    final shadow = BoxShadow(
+      color: Colors.black.withValues(alpha: 0.7),
+      offset: Offset(1.4, 1.4),
+      blurRadius: 3,
+    );
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -27,6 +36,7 @@ class LectureTitle extends StatelessWidget {
           decoration: BoxDecoration(
             color: titleColor ?? Theme.of(context).colorScheme.primary,
             borderRadius: BorderRadius.circular(10),
+            boxShadow: [if (showShadows) shadow],
           ),
           child: Text(
             lectureNo,
@@ -41,11 +51,12 @@ class LectureTitle extends StatelessWidget {
         Expanded(
           child: Text(
             title,
-            maxLines: 2,
+            maxLines: maxLines,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
               color: titleColor ?? Theme.of(context).colorScheme.primary,
               fontSize: fontSize,
+              shadows: [if (showShadows) shadow],
             ),
           ),
         ),
