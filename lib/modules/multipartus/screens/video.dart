@@ -30,6 +30,7 @@ class MultipartusVideoPage extends StatefulWidget {
 
 class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
   final config = VideoPlayerConfig();
+  String? _selectedImage;
 
   Future<VideoPlayerConfigData> _fetchConfig() async {
     final service = GetIt.instance<MultipartusService>();
@@ -46,6 +47,18 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
       playbackSpeed: playbackSpeed,
       playbackVolume: playbackVolume,
     );
+  }
+
+  void _openImage(String url) {
+    setState(() {
+      _selectedImage = url;
+    });
+  }
+
+  void _closeImage() {
+    setState(() {
+      _selectedImage = null;
+    });
   }
 
   void _updateConfigSignal() async {
@@ -84,58 +97,83 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(30),
-        child: Row(
-          children: [
-            Expanded(
-              flex: 5,
-              child: NotificationListener<VideoNavigateNotification>(
-                onNotification: (notification) {
-                  _handleNotification(notification.navigationType);
+      body: Stack(children: [
+        Padding(
+          padding: const EdgeInsets.all(30),
+          child: Row(
+            children: [
+              Expanded(
+                flex: 5,
+                child: NotificationListener<VideoNavigateNotification>(
+                  onNotification: (notification) {
+                    _handleNotification(notification.navigationType);
 
-                  // the notification has been handled
-                  return true;
-                },
-                // pass the config signal to the subtree
-                child: SignalProvider(
-                  create: () => config,
-                  child: _LeftSide(
-                    ttid: widget.ttid,
-                    subjectId: widget.subjectId,
-                    startTimestamp: widget.startTimestamp,
+                    // the notification has been handled
+                    return true;
+                  },
+                  // pass the config signal to the subtree
+                  child: SignalProvider(
+                    create: () => config,
+                    child: _LeftSide(
+                      ttid: widget.ttid,
+                      subjectId: widget.subjectId,
+                      startTimestamp: widget.startTimestamp,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 20),
+              Expanded(
+                flex: 2,
+                child: FloatingSidebar(
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "SLIDES",
+                            style: Theme.of(context)
+                                .dialogTheme
+                                .titleTextStyle!
+                                .copyWith(letterSpacing: 1.5),
+                          ),
+                          // _DownloadSlidesButton(ttid: widget.ttid),
+                        ],
+                      ),
+                      SizedBox(height: 10),
+                      Expanded(
+                          child: _SlidesView(
+                              ttid: widget.ttid, onImageTap: _openImage)),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (_selectedImage != null)
+          GestureDetector(
+            onTap: _closeImage,
+            child: AnimatedContainer(
+              duration: Duration(milliseconds: 3000),
+              color: Colors.black.withValues(alpha: 0.7),
+              width: double.infinity,
+              height: double.infinity,
+              child: Center(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.network(
+                    _selectedImage!,
+                    width: MediaQuery.of(context).size.width * 0.9,
+                    height: MediaQuery.of(context).size.height * 0.9,
+                    fit: BoxFit.contain,
                   ),
                 ),
               ),
             ),
-            const SizedBox(width: 20),
-            Expanded(
-              flex: 2,
-              child: FloatingSidebar(
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "SLIDES",
-                          style: Theme.of(context)
-                              .dialogTheme
-                              .titleTextStyle!
-                              .copyWith(letterSpacing: 1.5),
-                        ),
-                        // _DownloadSlidesButton(ttid: widget.ttid),
-                      ],
-                    ),
-                    SizedBox(height: 10),
-                    Expanded(child: _SlidesView(ttid: widget.ttid)),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+      ]),
     );
   }
 }
@@ -233,9 +271,10 @@ class __DownloadSlidesButtonState extends State<_DownloadSlidesButton> {
 }
 
 class _SlidesView extends StatelessWidget {
-  const _SlidesView({required this.ttid});
+  const _SlidesView({required this.ttid, required this.onImageTap});
 
   final String ttid;
+  final void Function(String) onImageTap;
 
   @override
   Widget build(BuildContext context) {
@@ -249,12 +288,15 @@ class _SlidesView extends StatelessWidget {
         }
 
         return ListView.builder(
-          itemBuilder: (context, index) => Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Image.network(
-              slides[index].url,
-              color: Colors.white.withValues(alpha: 0.88),
-              colorBlendMode: BlendMode.modulate,
+          itemBuilder: (context, index) => GestureDetector(
+            onTap: () => onImageTap(slides[index].url),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Image.network(
+                slides[index].url,
+                color: Colors.white.withValues(alpha: 0.88),
+                colorBlendMode: BlendMode.modulate,
+              ),
             ),
           ),
           itemCount: slides.length,
