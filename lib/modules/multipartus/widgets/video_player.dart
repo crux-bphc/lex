@@ -15,6 +15,7 @@ import 'package:lex/theme.dart';
 import 'package:lex/utils/extensions.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
+import 'package:media_kit_video/media_kit_video_controls/src/controls/extensions/duration.dart';
 import 'package:signals/signals_flutter.dart';
 
 const _controlsIconSize = 24.0;
@@ -48,10 +49,13 @@ class VideoPlayer extends StatefulWidget {
 class _VideoPlayerState extends State<VideoPlayer> {
   late final Player player;
   late final VideoController controller;
+  final FocusNode _focusNode = FocusNode();
 
   StreamSubscription<Duration>? _positionStream;
   StreamSubscription<double>? _volumeStream, _rateStream;
   final _positionUpdateStopwatch = Stopwatch()..start();
+  Timer? _seekTimer;
+  static const _seekInterval = Duration(milliseconds: 200);
 
   @override
   void initState() {
@@ -62,14 +66,24 @@ class _VideoPlayerState extends State<VideoPlayer> {
     controller = VideoController(player);
 
     _setup();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _focusNode.requestFocus();
+    });
+
+    _focusNode.addListener(() => _maintainFocus(context));
   }
 
   @override
   void dispose() {
+    _seekTimer?.cancel();
     _positionStream?.cancel();
     _volumeStream?.cancel();
     _rateStream?.cancel();
     _positionUpdateStopwatch.stop();
+
+    _focusNode.removeListener(() => _maintainFocus(context));
+    _focusNode.dispose();
 
     player.dispose();
 
@@ -142,9 +156,110 @@ class _VideoPlayerState extends State<VideoPlayer> {
     });
   }
 
+  void _handleKeyEvent(KeyEvent event) {
+    if (event is KeyDownEvent) {
+      _handleKeyDown(event);
+    } else if (event is KeyUpEvent) {
+      _handleKeyUp(event);
+    }
+  }
+
+  bool _handleKeyDown(KeyEvent event) {
+    if (!mounted) return false;
+    // Only handle key down events
+    if (event is! KeyDownEvent) return false;
+    // Check if the Shift key is pressed
+    final isShiftPressed = HardwareKeyboard.instance.logicalKeysPressed
+            .contains(LogicalKeyboardKey.shiftLeft) ||
+        HardwareKeyboard.instance.logicalKeysPressed
+            .contains(LogicalKeyboardKey.shiftRight);
+
+    // Handle the key events
+    if (event.logicalKey == LogicalKeyboardKey.keyJ ||
+        event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+      _startContinuousSeek(Duration(seconds: -10));
+    }
+    if (event.logicalKey == LogicalKeyboardKey.keyL ||
+        event.logicalKey == LogicalKeyboardKey.arrowRight) {
+      _startContinuousSeek(Duration(seconds: 10));
+    }
+    if (isShiftPressed && event.logicalKey == LogicalKeyboardKey.keyP) {
+      VideoNavigateNotification(NavigationType.previous).dispatch(context);
+      return true;
+    }
+    if (isShiftPressed && event.logicalKey == LogicalKeyboardKey.keyN) {
+      VideoNavigateNotification(NavigationType.next).dispatch(context);
+      return true;
+    }
+    if (event.logicalKey == LogicalKeyboardKey.space) {
+      player.playOrPause();
+      return true;
+    }
+
+    // if (event.logicalKey == LogicalKeyboardKey.keyF) {
+    //   toggleFullscreen(context);
+    //   return true;
+    // }
+
+    if (isShiftPressed && event.logicalKey == LogicalKeyboardKey.greater) {
+      final currentRate = player.state.rate;
+      player.setRate(currentRate > 2.75 ? 0.25 : currentRate + 0.25);
+      return true;
+    }
+    if (isShiftPressed && event.logicalKey == LogicalKeyboardKey.less) {
+      final currentRate = player.state.rate;
+      player.setRate(currentRate < 0.5 ? 3.0 : currentRate - 0.25);
+      return true;
+    }
+    if (event.logicalKey == LogicalKeyboardKey.keyM) {
+      if (player.state.volume == 0) {
+        player.setVolume(100);
+      } else {
+        player.setVolume(0);
+      }
+      return true;
+    }
+    return false;
+  }
+
+  void _handleKeyUp(KeyUpEvent event) {
+    final key = event.logicalKey;
+    if (key == LogicalKeyboardKey.arrowLeft ||
+        key == LogicalKeyboardKey.keyJ ||
+        key == LogicalKeyboardKey.arrowRight ||
+        key == LogicalKeyboardKey.keyL) {
+      _stopContinuousSeek();
+    }
+  }
+
+  void _seek(Duration duration) {
+    final newPosition = player.state.position + duration;
+    player.seek(newPosition.clamp(Duration.zero, player.state.duration));
+  }
+
+  void _startContinuousSeek(Duration seekDuration) {
+    _seek(seekDuration);
+    _seekTimer?.cancel();
+    _seekTimer = Timer.periodic(_seekInterval, (_) => _seek(seekDuration));
+  }
+
+  void _stopContinuousSeek() {
+    _seekTimer?.cancel();
+    _seekTimer = null;
+  }
+
+  void _maintainFocus(BuildContext context) {
+    if (!_focusNode.hasFocus) {
+      _focusNode.requestFocus();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
+    return KeyboardListener(
+      focusNode: _focusNode,
+      onKeyEvent: _handleKeyEvent,
+      child: ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -211,6 +326,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
           );
         },
       ),
+    )
     );
   }
 }
