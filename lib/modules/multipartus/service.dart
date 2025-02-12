@@ -176,8 +176,9 @@ class MultipartusService {
 
   /// Get the [previous, current, next] video for a given video ttid.
   /// current video is guaranteed to be non-null.
-  Future<List<ImpartusVideo?>> getAdjacentVideos({
+  Future<AdjacentVideos> getAdjacentVideos({
     required String ttid,
+    int count = 1,
   }) async {
     final vid = await fetchImpartusVideo(ttid);
     final vids = await fetchImpartusVideos(
@@ -190,10 +191,14 @@ class MultipartusService {
     final index = vids.indexWhere((e) => e.ttid.toString() == ttid);
 
     // lectures are sorted in descending order of lecture number.
-    final nextVid = index >= 1 ? vids.elementAtOrNull((index - 1)) : null;
-    final prevVid = vids.elementAtOrNull((index + 1));
+    final nextVids = vids.sublist(index - count, index);
+    final prevVids = vids.sublist(index + 1, index + count + 1);
 
-    return [prevVid, vid, nextVid];
+    return (
+      previous: prevVids,
+      next: nextVids,
+      current: vid,
+    );
   }
 
   Future<Subject> fetchSubject(SubjectId id) async {
@@ -337,10 +342,6 @@ class ImpartusTimeSession {
   bool get isUnknown => year == null || sem == null;
 }
 
-typedef LecturesResult = ({
-  List<LectureVideo> videos,
-});
-
 /// Convert a list of subjects to a map of subjectId to subject
 Map<SubjectId, Subject> _subjectsToIdMap(Iterable<Subject> subjects) =>
     <SubjectId, Subject>{
@@ -387,3 +388,9 @@ class SectionSession {
   final int? year, sem;
   final bool isUnknown;
 }
+
+typedef AdjacentVideos = ({
+  ImpartusVideo current,
+  List<ImpartusVideo> previous,
+  List<ImpartusVideo> next,
+});

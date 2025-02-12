@@ -33,8 +33,10 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
 
   Future<VideoPlayerConfigData> _fetchConfig() async {
     final service = GetIt.instance<MultipartusService>();
-    final [prev, current, next] =
-        await service.getAdjacentVideos(ttid: widget.ttid);
+    final result = await service.getAdjacentVideos(
+      ttid: widget.ttid,
+      count: 1,
+    );
 
     final playbackSpeed =
         GetIt.instance<LocalStorage>().preferences.playbackSpeed();
@@ -42,9 +44,9 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
         GetIt.instance<LocalStorage>().preferences.playbackVolume();
 
     return VideoPlayerConfigData(
-      previousVideo: prev,
-      currentVideo: current!,
-      nextVideo: next,
+      previousVideo: result.previous.firstOrNull,
+      currentVideo: result.current,
+      nextVideo: result.next.firstOrNull,
       playbackSpeed: playbackSpeed,
       playbackVolume: playbackVolume,
     );
