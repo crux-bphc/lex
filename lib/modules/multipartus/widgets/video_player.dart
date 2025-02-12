@@ -212,7 +212,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
       return true;
     }
 
-    if (isShiftPressed && event.logicalKey == LogicalKeyboardKey.keyS) {
+    if (event.logicalKey == LogicalKeyboardKey.keyS) {
       _switchView();
       return true;
     }
