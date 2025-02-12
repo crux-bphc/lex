@@ -106,10 +106,14 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
     _applyConfig();
 
-    // play right after buffering stops
-    player.stream.buffering
-        .firstWhere((e) => e == false)
-        .then((_) => player.play());
+    // play right after we get the value of duration
+    player.stream.duration.first.then((_) async {
+      await player.seek(widget.startTimestamp);
+    });
+
+    player.stream.buffering.firstWhere((e) => e == false).then((_) {
+      player.play();
+    });
 
     // dont bother setting up listeners if there is no callback
     if (widget.onPositionChanged == null) return;
@@ -141,7 +145,6 @@ class _VideoPlayerState extends State<VideoPlayer> {
   /// Apply video config to the player, called by _setup whenever the video
   /// player changes
   void _applyConfig() {
-    player.seek(widget.startTimestamp);
     player.setRate(
       GetIt.instance<LocalStorage>().preferences.playbackSpeed.value,
     );

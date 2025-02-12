@@ -10,6 +10,7 @@ import 'package:lex/modules/multipartus/widgets/video_button.dart';
 import 'package:lex/modules/multipartus/widgets/video_player.dart';
 import 'package:lex/modules/multipartus/widgets/video_title.dart';
 import 'package:lex/providers/local_storage/local_storage.dart';
+import 'package:lex/providers/local_storage/watch_history.dart';
 import 'package:lex/widgets/error_bird.dart';
 import 'package:lex/widgets/floating_sidebar.dart';
 import 'package:lex/widgets/managed_future_builder.dart';
@@ -212,7 +213,9 @@ class _LeftSide extends StatefulWidget {
 class _LeftSideState extends State<_LeftSide> {
   final _scrollController = ScrollController(keepScrollOffset: false);
 
-  late final _lastWatched =
+  late WatchHistoryItem? _lastWatched = _getLastWatchedHistoryItem();
+
+  WatchHistoryItem? _getLastWatchedHistoryItem() =>
       GetIt.instance<LocalStorage>().watchHistory.getByTtid(widget.ttid);
 
   Duration? _getLastWatchedTimestamp() {
@@ -231,6 +234,15 @@ class _LeftSideState extends State<_LeftSide> {
           code: widget.subjectId.code,
           departmentUrl: widget.subjectId.departmentUrl,
         );
+  }
+
+  @override
+  void didUpdateWidget(covariant _LeftSide oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.ttid != widget.ttid) {
+      _lastWatched = _getLastWatchedHistoryItem();
+    }
   }
 
   @override
