@@ -51,29 +51,25 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
   void _openImage(String url) {
     showDialog(
       context: context,
-      barrierColor: Colors.black.withValues(alpha: 0.8),
+      barrierColor: Colors.black54,
       builder: (context) => GestureDetector(
         onTap: () => Navigator.of(context).pop(),
-        child: Container(
-          color: Colors.transparent,
-          alignment: Alignment.center,
-          child: Stack(
-            alignment: Alignment.center,
+        child: FractionallySizedBox(
+          heightFactor: 0.85,
+          widthFactor: 0.85,
+          child: Column(
             children: [
-              ClipRRect(
-                child: Image.network(
-                  url,
-                  width: MediaQuery.of(context).size.width * 0.9,
-                  height: MediaQuery.of(context).size.height * 0.9,
-                  fit: BoxFit.contain,
-                ),
-              ),
-              Positioned(
-                top: 10,
-                right: 10,
+              Align(
+                alignment: AlignmentDirectional.centerEnd,
                 child: IconButton(
                   icon: const Icon(Icons.close, color: Colors.white, size: 30),
                   onPressed: () => Navigator.of(context).pop(),
+                ),
+              ),
+              Expanded(
+                child: Image.network(
+                  url,
+                  fit: BoxFit.contain,
                 ),
               ),
             ],
@@ -119,62 +115,67 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(children: [
-        Padding(
-          padding: const EdgeInsets.all(30),
-          child: Row(
-            children: [
-              Expanded(
-                flex: 5,
-                child: NotificationListener<VideoNavigateNotification>(
-                  onNotification: (notification) {
-                    _handleNotification(notification.navigationType);
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(30),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 5,
+                  child: NotificationListener<VideoNavigateNotification>(
+                    onNotification: (notification) {
+                      _handleNotification(notification.navigationType);
 
-                    // the notification has been handled
-                    return true;
-                  },
-                  // pass the config signal to the subtree
-                  child: SignalProvider(
-                    create: () => config,
-                    child: _LeftSide(
-                      ttid: widget.ttid,
-                      subjectId: widget.subjectId,
-                      startTimestamp: widget.startTimestamp,
+                      // the notification has been handled
+                      return true;
+                    },
+                    // pass the config signal to the subtree
+                    child: SignalProvider(
+                      create: () => config,
+                      child: _LeftSide(
+                        ttid: widget.ttid,
+                        subjectId: widget.subjectId,
+                        startTimestamp: widget.startTimestamp,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 20),
-              Expanded(
-                flex: 2,
-                child: FloatingSidebar(
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "SLIDES",
-                            style: Theme.of(context)
-                                .dialogTheme
-                                .titleTextStyle!
-                                .copyWith(letterSpacing: 1.5),
-                          ),
-                          // _DownloadSlidesButton(ttid: widget.ttid),
-                        ],
-                      ),
-                      SizedBox(height: 10),
-                      Expanded(
+                const SizedBox(width: 20),
+                Expanded(
+                  flex: 2,
+                  child: FloatingSidebar(
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "SLIDES",
+                              style: Theme.of(context)
+                                  .dialogTheme
+                                  .titleTextStyle!
+                                  .copyWith(letterSpacing: 1.5),
+                            ),
+                            // _DownloadSlidesButton(ttid: widget.ttid),
+                          ],
+                        ),
+                        SizedBox(height: 10),
+                        Expanded(
                           child: _SlidesView(
-                              ttid: widget.ttid, onImageTap: _openImage)),
-                    ],
+                            ttid: widget.ttid,
+                            onImageTap: _openImage,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ]),
+        ],
+      ),
     );
   }
 }
@@ -289,10 +290,10 @@ class _SlidesView extends StatelessWidget {
         }
 
         return ListView.builder(
-          itemBuilder: (context, index) => GestureDetector(
-            onTap: () => onImageTap(slides[index].url),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
+          itemBuilder: (context, index) => Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: InkWell(
+              onTap: () => onImageTap(slides[index].url),
               child: Image.network(
                 slides[index].url,
                 color: Colors.white.withValues(alpha: 0.88),
