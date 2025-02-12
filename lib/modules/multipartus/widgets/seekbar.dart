@@ -33,6 +33,8 @@ class SeekBar extends StatefulWidget {
   final Stream<double> positionFraction, bufferFraction;
   final double initialPosition, initialBuffer;
 
+  /// Called when the user seeks the seekbar,
+  /// the value is fractional between 0 and 1
   final void Function(double percent) onSeek;
 
   final String Function(double positionFraction) formatTimestamp;

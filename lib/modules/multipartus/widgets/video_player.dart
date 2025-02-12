@@ -48,14 +48,12 @@ class VideoPlayer extends StatefulWidget {
 
 class _VideoPlayerState extends State<VideoPlayer> {
   late final Player player;
-  late final VideoController controller;
-  final FocusNode _focusNode = FocusNode();
+  late final MultiViewVideoController controller;
 
   StreamSubscription<Duration>? _positionStream;
   StreamSubscription<double>? _volumeStream, _rateStream;
+
   final _positionUpdateStopwatch = Stopwatch()..start();
-  Timer? _seekTimer;
-  static const _seekInterval = Duration(milliseconds: 200);
 
   @override
   void initState() {
@@ -63,27 +61,20 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
     player = Player();
 
-    controller = VideoController(player);
+    controller = MultiViewVideoController(
+      player: player,
+      videoWidgetKey: _videoKey,
+    );
 
     _setup();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _focusNode.requestFocus();
-    });
-
-    _focusNode.addListener(() => _maintainFocus(context));
   }
 
   @override
   void dispose() {
-    _seekTimer?.cancel();
     _positionStream?.cancel();
     _volumeStream?.cancel();
     _rateStream?.cancel();
     _positionUpdateStopwatch.stop();
-
-    _focusNode.removeListener(() => _maintainFocus(context));
-    _focusNode.dispose();
 
     player.dispose();
 
@@ -97,19 +88,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
     if (oldWidget.ttid != widget.ttid) _setup();
   }
 
-  void _applyConfig() {
-    player.seek(widget.startTimestamp);
-    player.setRate(
-      GetIt.instance<LocalStorage>().preferences.playbackSpeed.value,
-    );
-    player.setVolume(
-      GetIt.instance<LocalStorage>().preferences.playbackVolume.value,
-    );
-  }
-
   void _setup() async {
-    debugPrint("setuped");
-
     final client = GetIt.instance<AuthProvider>().dioClient;
     final idToken = Uri.encodeQueryComponent(
       GetIt.instance<AuthProvider>().currentUser.value!.idToken!,
@@ -127,19 +106,22 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
     _applyConfig();
 
+    // play right after buffering stops
     player.stream.buffering
         .firstWhere((e) => e == false)
         .then((_) => player.play());
 
+    // dont bother setting up listeners if there is no callback
     if (widget.onPositionChanged == null) return;
 
     _positionStream = player.stream.position.listen((position) {
+      // call onPositionChanged every `positionUpdateInterval`
       final shouldUpdate = mounted &&
           player.state.playing &&
           _positionUpdateStopwatch.elapsed > widget.positionUpdateInterval;
 
       if (shouldUpdate) {
-        final fraction = actualFraction(position, player.state.duration);
+        final fraction = controller.getViewAwareFraction(position);
 
         widget.onPositionChanged!.call(position, fraction);
 
@@ -156,193 +138,237 @@ class _VideoPlayerState extends State<VideoPlayer> {
     });
   }
 
-  void _handleKeyEvent(KeyEvent event) {
-    if (event is KeyDownEvent) {
-      _handleKeyDown(event);
-    } else if (event is KeyUpEvent) {
-      _handleKeyUp(event);
-    }
+  /// Apply video config to the player, called by _setup whenever the video
+  /// player changes
+  void _applyConfig() {
+    player.seek(widget.startTimestamp);
+    player.setRate(
+      GetIt.instance<LocalStorage>().preferences.playbackSpeed.value,
+    );
+    player.setVolume(
+      GetIt.instance<LocalStorage>().preferences.playbackVolume.value,
+    );
   }
 
-  bool _handleKeyDown(KeyEvent event) {
-    if (!mounted) return false;
-    // Only handle key down events
-    if (event is! KeyDownEvent) return false;
-    // Check if the Shift key is pressed
-    final isShiftPressed = HardwareKeyboard.instance.logicalKeysPressed
-            .contains(LogicalKeyboardKey.shiftLeft) ||
-        HardwareKeyboard.instance.logicalKeysPressed
-            .contains(LogicalKeyboardKey.shiftRight);
-
-    // Handle the key events
-    if (event.logicalKey == LogicalKeyboardKey.keyJ ||
-        event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-      _startContinuousSeek(Duration(seconds: -10));
-    }
-    if (event.logicalKey == LogicalKeyboardKey.keyL ||
-        event.logicalKey == LogicalKeyboardKey.arrowRight) {
-      _startContinuousSeek(Duration(seconds: 10));
-    }
-    if (isShiftPressed && event.logicalKey == LogicalKeyboardKey.keyP) {
-      VideoNavigateNotification(NavigationType.previous).dispatch(context);
-      return true;
-    }
-    if (isShiftPressed && event.logicalKey == LogicalKeyboardKey.keyN) {
-      VideoNavigateNotification(NavigationType.next).dispatch(context);
-      return true;
-    }
-    if (event.logicalKey == LogicalKeyboardKey.space) {
-      player.playOrPause();
-      return true;
-    }
-
-    // if (event.logicalKey == LogicalKeyboardKey.keyF) {
-    //   toggleFullscreen(context);
-    //   return true;
-    // }
-
-    if (isShiftPressed && event.logicalKey == LogicalKeyboardKey.greater) {
-      final currentRate = player.state.rate;
-      player.setRate(currentRate > 2.75 ? 0.25 : currentRate + 0.25);
-      return true;
-    }
-    if (isShiftPressed && event.logicalKey == LogicalKeyboardKey.less) {
-      final currentRate = player.state.rate;
-      player.setRate(currentRate < 0.5 ? 3.0 : currentRate - 0.25);
-      return true;
-    }
-
-    if (event.logicalKey == LogicalKeyboardKey.keyS) {
-      _switchView();
-      return true;
-    }
-
-    if (event.logicalKey == LogicalKeyboardKey.keyM) {
-      if (player.state.volume == 0) {
-        player.setVolume(100);
-      } else {
-        player.setVolume(0);
-      }
-      return true;
-    }
-    return false;
-  }
-
-  void _handleKeyUp(KeyUpEvent event) {
-    final key = event.logicalKey;
-    if (key == LogicalKeyboardKey.arrowLeft ||
-        key == LogicalKeyboardKey.keyJ ||
-        key == LogicalKeyboardKey.arrowRight ||
-        key == LogicalKeyboardKey.keyL) {
-      _stopContinuousSeek();
-    }
-  }
-
-  void _seek(Duration duration) {
-    final newPosition = player.state.position + duration;
-    player.seek(newPosition.clamp(Duration.zero, player.state.duration));
-  }
-
-  void _switchView() {
-    final total = player.state.duration.inMilliseconds;
-    final totalHalf = total ~/ 2;
-    final current = player.state.position.inMilliseconds;
-    final newPos =
-        (current > totalHalf ? current - totalHalf : current + totalHalf)
-            .clamp(0, total);
-
-    player.seek(Duration(milliseconds: newPos));
-  }
-
+  /// Start the continuous seek operation.
+  ///
+  /// Continuous seek happens when the user holds down any of the seek buttons
+  /// or repeatedly presses them for quickly seeking to a position. This method
+  /// is called on KeyDown and KeyRepeat events.
   void _startContinuousSeek(Duration seekDuration) {
-    _seek(seekDuration);
-    _seekTimer?.cancel();
-    _seekTimer = Timer.periodic(_seekInterval, (_) => _seek(seekDuration));
+    final effectiveSeek = seekDuration * player.state.rate;
+    controller.viewAwareContinuousSeekBy(effectiveSeek);
   }
 
-  void _stopContinuousSeek() {
-    _seekTimer?.cancel();
-    _seekTimer = null;
+  /// Stop the continuous seek operation after the video
+  /// player finishes loading.
+  ///
+  /// This method is called on KeyUp events.
+  void _stopContinuousSeek() async {
+    await player.stream.buffering.firstWhere((e) => e == false);
+    controller.stopContinuousSeek();
   }
 
-  void _maintainFocus(BuildContext context) {
-    if (!_focusNode.hasFocus) {
-      _focusNode.requestFocus();
-    }
+  MaterialDesktopVideoControlsThemeData buildDesktopControls(
+    BuildContext context, {
+    required bool isFullscreen,
+  }) {
+    // if we listen here the widgets that we need to update (nav buttons) will not
+    // update because theme data doesnt just rebuild like that
+    final config = SignalProvider.of<VideoPlayerConfig>(context, listen: false);
+    assert(config != null, "No VideoPlayerConfig signal found in tree");
+
+    return MaterialDesktopVideoControlsThemeData(
+      seekBarPositionColor: Theme.of(context).colorScheme.primary,
+      seekBarThumbColor: Theme.of(context).colorScheme.primary,
+      controlsHoverDuration: 5.seconds,
+      hideMouseOnControlsRemoval: true,
+      displaySeekBar: false,
+      buttonBarHeight: 80,
+      seekBarMargin: EdgeInsets.zero,
+      seekBarContainerHeight: 8,
+      keyboardShortcuts: {
+        // left arrow - backward
+        KeyEventShortcutActivator<KeyDownEvent>(LogicalKeyboardKey.arrowLeft):
+            () => _startContinuousSeek(Duration(seconds: -10)),
+        KeyEventShortcutActivator<KeyRepeatEvent>(LogicalKeyboardKey.arrowLeft):
+            () => _startContinuousSeek(Duration(seconds: -10)),
+        KeyEventShortcutActivator<KeyUpEvent>(LogicalKeyboardKey.arrowLeft):
+            () => _stopContinuousSeek(),
+
+        // right arrow - forward
+        KeyEventShortcutActivator<KeyDownEvent>(LogicalKeyboardKey.arrowRight):
+            () => _startContinuousSeek(Duration(seconds: 10)),
+        KeyEventShortcutActivator<KeyRepeatEvent>(
+          LogicalKeyboardKey.arrowRight,
+        ): () => _startContinuousSeek(Duration(seconds: 10)),
+        KeyEventShortcutActivator<KeyUpEvent>(LogicalKeyboardKey.arrowRight):
+            _stopContinuousSeek,
+
+        // J key - backward
+        KeyEventShortcutActivator<KeyDownEvent>(LogicalKeyboardKey.keyJ): () =>
+            _startContinuousSeek(Duration(seconds: -10)),
+        KeyEventShortcutActivator<KeyRepeatEvent>(LogicalKeyboardKey.keyJ):
+            () => _startContinuousSeek(Duration(seconds: -10)),
+        KeyEventShortcutActivator<KeyUpEvent>(LogicalKeyboardKey.keyJ):
+            _stopContinuousSeek,
+
+        // L key - forward
+        KeyEventShortcutActivator<KeyDownEvent>(LogicalKeyboardKey.keyL): () =>
+            _startContinuousSeek(Duration(seconds: 10)),
+        KeyEventShortcutActivator<KeyRepeatEvent>(LogicalKeyboardKey.keyL):
+            () => _startContinuousSeek(Duration(seconds: 10)),
+        KeyEventShortcutActivator<KeyUpEvent>(LogicalKeyboardKey.keyL):
+            _stopContinuousSeek,
+
+        // space key - play or pause
+        KeyEventShortcutActivator<KeyDownEvent>(LogicalKeyboardKey.space):
+            player.playOrPause,
+
+        // S key - switch views
+        KeyEventShortcutActivator<KeyDownEvent>(LogicalKeyboardKey.keyS):
+            controller.switchViews,
+
+        // M key - mute
+        KeyEventShortcutActivator<KeyDownEvent>(LogicalKeyboardKey.keyM):
+            controller.toggleMute,
+
+        // Fullscreen
+        KeyEventShortcutActivator<KeyDownEvent>(LogicalKeyboardKey.keyF):
+            controller.toggleFullscreen,
+        KeyEventShortcutActivator<KeyDownEvent>(LogicalKeyboardKey.escape):
+            controller.exitFullscreen,
+
+        // Shift + P - previous video
+        KeyEventShortcutActivator<KeyDownEvent>(
+          LogicalKeyboardKey.keyP,
+          shift: true,
+        ): () => VideoNavigateNotification(NavigationType.previous)
+            .dispatch(context),
+
+        // Shift + N - next video
+        KeyEventShortcutActivator<KeyDownEvent>(
+          LogicalKeyboardKey.keyN,
+          shift: true,
+        ): () =>
+            VideoNavigateNotification(NavigationType.next).dispatch(context),
+
+        // Shift + . - increase speed
+        KeyEventShortcutActivator<KeyDownEvent>(
+          LogicalKeyboardKey.greater,
+        ): controller.increaseRate,
+
+        // Shift + , - decrease speed
+        KeyEventShortcutActivator<KeyDownEvent>(
+          LogicalKeyboardKey.less,
+        ): controller.decreaseRate,
+
+        // Down arrow - decrease volume
+        KeyEventShortcutActivator<KeyDownEvent>(LogicalKeyboardKey.arrowDown):
+            controller.decreaseVolume,
+
+        // Up arrow - increase volume
+        KeyEventShortcutActivator<KeyDownEvent>(LogicalKeyboardKey.arrowUp):
+            controller.increaseVolume,
+      },
+      topButtonBar: [
+        if (isFullscreen)
+          Expanded(
+            child: Watch((context) {
+              final vid = config!().currentVideo;
+
+              if (vid == null) return SizedBox();
+
+              return LectureTitle(
+                lectureNo: vid.lectureNo.toString(),
+                title: vid.title,
+                titleColor: Theme.of(context).colorScheme.onSurface,
+                lectureNoColor: Colors.black,
+                showShadows: true,
+                maxLines: 1,
+              );
+            }),
+          ),
+      ],
+      bottomButtonBar: [
+        Expanded(
+          child: Theme(
+            data: buildTheme(ThemeMode.dark),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _ImpartusSeekBar(),
+                // we listen to the config here
+                Watch(
+                  (_) => _VideoControlsRow(
+                    config: config!(),
+                    onNavigate: (navType) =>
+                        VideoNavigateNotification(navType).dispatch(context),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return KeyboardListener(
-      focusNode: _focusNode,
-      onKeyEvent: _handleKeyEvent,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SizedBox(
-              width: constraints.maxWidth,
-              child: AspectRatio(
-                aspectRatio: 1280 / 720,
-                child: Stack(
-                  children: [
-                    // Hero(
-                    //   tag: widget.ttid,
-                    //   createRectTween: (begin, end) =>
-                    //       CurvedRectTween(begin: begin!, end: end!),
-                    //   child: VideoThumbnail(
-                    //     ttid: widget.ttid,
-                    //     fit: BoxFit.cover,
-                    //     width: double.infinity,
-                    //   ),
-                    // ),
-                    Theme(
-                      data: Theme.of(context).copyWith(
-                        textTheme: Theme.of(context)
-                            .textTheme
-                            .apply(bodyColor: Colors.white),
-                      ),
-                      child: MaterialDesktopVideoControlsTheme(
-                        normal: buildDesktopControls(
-                          context,
-                          isFullscreen: false,
-                        ),
-                        fullscreen: buildDesktopControls(
-                          context,
-                          isFullscreen: true,
-                        ),
-                        child: Video(
-                          key: _videoKey,
-                          controller: controller,
-                          onEnterFullscreen: () async {
-                            final shouldPlay = player.state.playing;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return SizedBox(
+            width: constraints.maxWidth,
+            child: AspectRatio(
+              aspectRatio: 1280 / 720,
+              child: Theme(
+                data: Theme.of(context).copyWith(
+                  textTheme: Theme.of(context)
+                      .textTheme
+                      .apply(bodyColor: Colors.white),
+                ),
+                child: MaterialDesktopVideoControlsTheme(
+                  normal: buildDesktopControls(
+                    context,
+                    isFullscreen: false,
+                  ),
+                  fullscreen: buildDesktopControls(
+                    context,
+                    isFullscreen: true,
+                  ),
+                  child: Video(
+                    key: _videoKey,
+                    controller: controller,
+                    onEnterFullscreen: () async {
+                      final shouldPlay = player.state.playing;
 
-                            // great library, I have to call this myself
-                            await defaultEnterNativeFullscreen();
+                      // great library, I have to call this myself
+                      await defaultEnterNativeFullscreen();
 
-                            if (shouldPlay) player.play();
-                          },
-                          onExitFullscreen: () async {
-                            final shouldPlay = player.state.playing;
+                      if (shouldPlay) player.play();
+                    },
+                    onExitFullscreen: () async {
+                      final shouldPlay = player.state.playing;
 
-                            await defaultExitNativeFullscreen();
+                      await defaultExitNativeFullscreen();
 
-                            if (shouldPlay) {
-                              Future.delayed(
-                                Duration(milliseconds: 500),
-                                player.play,
-                              );
-                            }
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
+                      if (shouldPlay) {
+                        Future.delayed(
+                          Duration(milliseconds: 500),
+                          player.play,
+                        );
+                      }
+                    },
+                  ),
                 ),
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -350,70 +376,9 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
 // Video controls
 
-VideoController getController(BuildContext context) =>
-    VideoStateInheritedWidget.of(context).state.widget.controller;
-
-MaterialDesktopVideoControlsThemeData buildDesktopControls(
-  BuildContext context, {
-  required bool isFullscreen,
-}) {
-  // if we listen here the widgets that we need to update (nav buttons) will not
-  // update because theme data doesnt just rebuild like that
-  final config = SignalProvider.of<VideoPlayerConfig>(context, listen: false);
-  assert(config != null, "No VideoPlayerConfig signal found in tree");
-
-  return MaterialDesktopVideoControlsThemeData(
-    seekBarPositionColor: Theme.of(context).colorScheme.primary,
-    seekBarThumbColor: Theme.of(context).colorScheme.primary,
-    controlsHoverDuration: 5.seconds,
-    hideMouseOnControlsRemoval: true,
-    displaySeekBar: false,
-    buttonBarHeight: 80,
-    seekBarMargin: EdgeInsets.zero,
-    seekBarContainerHeight: 8,
-    topButtonBar: [
-      if (isFullscreen)
-        Expanded(
-          child: Watch((context) {
-            final vid = config!().currentVideo;
-
-            if (vid == null) return SizedBox();
-
-            return LectureTitle(
-              lectureNo: vid.lectureNo.toString(),
-              title: vid.title,
-              titleColor: Theme.of(context).colorScheme.onSurface,
-              lectureNoColor: Colors.black,
-              showShadows: true,
-              maxLines: 1,
-            );
-          }),
-        ),
-    ],
-    bottomButtonBar: [
-      Expanded(
-        child: Theme(
-          data: buildTheme(ThemeMode.dark),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _ImpartusSeekBar(),
-              // we listen to the conig here
-              Watch(
-                (_) => _VideoControlsRow(
-                  config: config!(),
-                  onNavigate: (navType) =>
-                      VideoNavigateNotification(navType).dispatch(context),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    ],
-  );
-}
+MultiViewVideoController getController(BuildContext context) =>
+    VideoStateInheritedWidget.of(context).state.widget.controller
+        as MultiViewVideoController;
 
 class _VideoControlsRow extends StatelessWidget {
   const _VideoControlsRow({required this.config, required this.onNavigate});
@@ -425,6 +390,7 @@ class _VideoControlsRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
+        // show if there is a previous video
         if (config.previousVideo != null)
           _VideoNavigationButton(
             lectureNo: config.previousVideo!.lectureNo.toString(),
@@ -432,7 +398,10 @@ class _VideoControlsRow extends StatelessWidget {
             icon: Icon(LucideIcons.skip_back),
             onPressed: () => onNavigate(NavigationType.previous),
           ),
+
         _PlayPauseButton(),
+
+        // show if there is a next video
         if (config.nextVideo != null)
           _VideoNavigationButton(
             lectureNo: config.nextVideo!.lectureNo.toString(),
@@ -440,13 +409,19 @@ class _VideoControlsRow extends StatelessWidget {
             icon: Icon(LucideIcons.skip_forward),
             onPressed: () => onNavigate(NavigationType.next),
           ),
+
         _VolumeButton(),
-        _ImpartusPositionIndicator(),
+
+        _PositionIndicator(),
+
         Spacer(),
+
         _SpeedButton(),
+
         _SwitchViewButton(),
+
         if (kIsWeb) _ShareButton(),
-        // _PitchButton(),
+
         _FullscreenButton(),
       ],
     );
@@ -468,7 +443,7 @@ class _VideoNavigationButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Tooltip(
-      richMessage: buildLectureTitleSpan(
+      richMessage: LectureTitle.buildSpan(
         lectureNo: lectureNo,
         title: title,
         fontSize: 14,
@@ -500,22 +475,6 @@ class _VideoNavigationButton extends StatelessWidget {
   }
 }
 
-// class _PitchButton extends StatelessWidget {
-//   const _PitchButton();
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final controller = getController(context);
-//     return MaterialDesktopCustomButton(
-//       onPressed: () {
-//         controller.player
-//             .setPitch(controller.player.state.pitch == 1.0 ? 1.6 : 1.0);
-//       },
-//       icon: Icon(LucideIcons.audio_waveform),
-//     );
-//   }
-// }
-
 class _VolumeButton extends StatefulWidget {
   const _VolumeButton();
 
@@ -528,8 +487,6 @@ class _VolumeButtonState extends State<_VolumeButton> {
   late final _volumeSignal = controller.player.stream.volume
       .toSyncSignal(controller.player.state.volume);
 
-  late double _oldVolume = controller.player.state.volume;
-
   @override
   Widget build(BuildContext context) {
     final volume = _volumeSignal.watch(context);
@@ -539,25 +496,25 @@ class _VolumeButtonState extends State<_VolumeButton> {
       min: 0,
       max: 100,
       sliderWidth: 80,
-      onChanged: (volume) => controller.player.setVolume(volume),
+      onChanged: controller.player.setVolume,
       isButtonLeading: true,
       button: MaterialDesktopCustomButton(
         iconSize: _controlsIconSize,
         icon: switch (volume) {
-          0 => Icon(LucideIcons.volume_off),
-          < 50 => Icon(LucideIcons.volume_1),
-          _ => Icon(LucideIcons.volume_2)
+          0 => Tooltip(
+              message: "Unmute (M)",
+              child: Icon(LucideIcons.volume_off),
+            ),
+          < 50 => Tooltip(
+              message: "Mute (M)",
+              child: Icon(LucideIcons.volume_1),
+            ),
+          _ => Tooltip(
+              message: "Mute (M)",
+              child: Icon(LucideIcons.volume_2),
+            )
         },
-        onPressed: () {
-          if (volume == 0) {
-            // unmuting
-            controller.player.setVolume(_oldVolume != 0 ? _oldVolume : 100);
-          } else {
-            // muting
-            _oldVolume = volume;
-            controller.player.setVolume(0);
-          }
-        },
+        onPressed: controller.toggleMute,
       ),
     );
   }
@@ -570,7 +527,8 @@ class _FullscreenButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialFullscreenButton(
       icon: Tooltip(
-        message: isFullscreen(context) ? 'Exit full screen' : 'Full screen',
+        message:
+            isFullscreen(context) ? 'Exit full screen (F)' : 'Full screen (F)',
         child: Icon(
           isFullscreen(context) ? LucideIcons.minimize : LucideIcons.maximize,
         ),
@@ -600,17 +558,15 @@ class _SpeedButtonState extends State<_SpeedButton>
   double _bounceDirection = 1;
 
   void _handleIncreaseSpeed() {
-    controller.player.setRate(
-      _playbackRate() > 2.75 ? 0.25 : _playbackRate() + 0.25,
-    );
+    controller.increaseRate();
+
     _bounceDirection = 1;
     _buttonController.forward(from: 0);
   }
 
   void _handleDecreaseSpeed() {
-    controller.player.setRate(
-      _playbackRate() < 0.5 ? 3.0 : _playbackRate() - 0.25,
-    );
+    controller.decreaseRate();
+
     _bounceDirection = -1;
     _buttonController.forward(from: 0);
   }
@@ -670,19 +626,13 @@ class _SwitchViewButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = getController(context);
+
     return MaterialCustomButton(
       onPressed: () {
-        final total = controller.player.state.duration.inMilliseconds;
-        final totalHalf = total ~/ 2;
-        final current = controller.player.state.position.inMilliseconds;
-        final newPos =
-            (current > totalHalf ? current - totalHalf : current + totalHalf)
-                .clamp(0, total);
-
-        controller.player.seek(Duration(milliseconds: newPos));
+        controller.switchViews();
       },
       icon: Tooltip(
-        message: 'Switch view',
+        message: 'Switch view (S)',
         child: Icon(LucideIcons.columns_2),
       ),
     );
@@ -739,22 +689,10 @@ class _ShareButton extends StatelessWidget {
   }
 }
 
-Duration actualDuration(Duration totalDuration) =>
+Duration getViewAwareDuration(Duration totalDuration) =>
     totalDuration == Duration.zero
         ? const Duration(minutes: 59, seconds: 59)
         : totalDuration * 0.5;
-
-bool isView2(Duration position, Duration totalDuration) =>
-    position > actualDuration(totalDuration);
-
-Duration actualPosition(Duration position, Duration totalDuration) =>
-    isView2(position, totalDuration)
-        ? position - actualDuration(totalDuration)
-        : position;
-
-double actualFraction(Duration position, Duration totalDuration) =>
-    actualPosition(position, totalDuration).inMilliseconds /
-    actualDuration(totalDuration).inMilliseconds;
 
 class _ImpartusSeekBar extends StatefulWidget {
   const _ImpartusSeekBar();
@@ -779,56 +717,45 @@ class _ImpartusSeekBarState extends State<_ImpartusSeekBar> {
       barColor: _theme(context)?.seekBarColor,
       thumbColor: _theme(context)?.seekBarThumbColor,
       positionColor: _theme(context)?.seekBarPositionColor,
-      bufferFraction: controller.player.stream.buffer.map(
-        (e) => actualFraction(e, totalDuration).clampNaN(0, 1),
-      ),
-      positionFraction: controller.player.stream.position.map(
-        (e) => actualFraction(e, totalDuration).clampNaN(0, 1),
-      ),
-      initialBuffer:
-          actualFraction(controller.player.state.buffer, totalDuration)
-              .clampNaN(0, 1),
-      initialPosition:
-          actualFraction(controller.player.state.position, totalDuration)
-              .clampNaN(0, 1),
+      bufferFraction: controller.viewAwareBufferFractionStream,
+      positionFraction: controller.viewAwarePositionFractionStream,
+      initialBuffer: controller
+          .getViewAwareFraction(controller.player.state.buffer)
+          .clampNaN(0, 1),
+      initialPosition: controller
+          .getViewAwareFraction(controller.player.state.position)
+          .clampNaN(0, 1),
       formatTimestamp: (positionFraction) {
-        final pos = actualDuration(totalDuration) * positionFraction;
+        final pos = getViewAwareDuration(totalDuration) * positionFraction;
         return pos.format();
       },
       onSeek: (p) {
-        final actual = actualDuration(totalDuration);
-        controller.player.seek(
-          isView2(controller.player.state.position, totalDuration)
-              ? actual + actual * p
-              : actual * p,
-        );
+        controller.viewAwareFractionalSeek(p);
       },
     );
   }
 }
 
-class _ImpartusPositionIndicator extends StatefulWidget {
-  const _ImpartusPositionIndicator();
+class _PositionIndicator extends StatefulWidget {
+  const _PositionIndicator();
 
   @override
-  State<_ImpartusPositionIndicator> createState() =>
-      _ImpartusPositionIndicatorState();
+  State<_PositionIndicator> createState() => _PositionIndicatorState();
 }
 
-class _ImpartusPositionIndicatorState extends State<_ImpartusPositionIndicator>
+class _PositionIndicatorState extends State<_PositionIndicator>
     with SignalsMixin {
   late final controller = getController(context);
 
   late final position = createStreamSignal(
-    () => controller.player.stream.position
-        .map((e) => actualPosition(e, totalDuration)),
+    () => controller.viewAwarePositionStream,
     initialValue:
-        actualPosition(controller.player.state.position, totalDuration),
+        controller.getViewAwarePosition(controller.player.state.position),
   );
 
   late final duration = createStreamSignal(
-    () => controller.player.stream.duration.map(actualDuration),
-    initialValue: actualDuration(totalDuration),
+    () => controller.viewAwareDurationStream,
+    initialValue: getViewAwareDuration(totalDuration),
   );
 
   Duration get totalDuration => controller.player.state.duration;
@@ -861,6 +788,8 @@ enum NavigationType {
       };
 }
 
+/// A widget that with a button and a slider.
+/// The slider is hidden unless hovered upon.
 class _PeekaBooSlider extends StatefulWidget {
   const _PeekaBooSlider({
     required this.button,
@@ -891,7 +820,7 @@ class _PeekaBooSlider extends StatefulWidget {
 }
 
 class _PeekaBooSliderState extends State<_PeekaBooSlider> {
-  final _isHovering = signal(false);
+  late final _isHovering = signal(false);
 
   @override
   Widget build(BuildContext context) {
@@ -931,11 +860,12 @@ class _PeekaBooSliderState extends State<_PeekaBooSlider> {
           alignment: widget.isButtonLeading
               ? Alignment.centerRight
               : Alignment.centerLeft,
-          curve: Curves.easeOutCubic,
+          curve: Curves.easeInOutQuad,
           child: AnimatedSwitcher(
-            duration: Durations.short4,
+            duration: Durations.short3,
             child: _isHovering()
                 ? _Slider(
+                    key: ValueKey(widget.max),
                     value: widget.value,
                     min: widget.min,
                     max: widget.max,
@@ -953,6 +883,7 @@ class _PeekaBooSliderState extends State<_PeekaBooSlider> {
 
 class _Slider extends StatelessWidget {
   const _Slider({
+    super.key,
     required this.value,
     required this.min,
     required this.max,
@@ -1000,5 +931,171 @@ class _Slider extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class KeyEventShortcutActivator<T> extends ShortcutActivator {
+  final LogicalKeyboardKey trigger;
+  final bool shift;
+
+  KeyEventShortcutActivator(
+    this.trigger, {
+    this.shift = false,
+  });
+
+  @override
+  bool accepts(KeyEvent event, HardwareKeyboard state) {
+    if (event is! T) return false;
+
+    if (event.logicalKey == trigger) {
+      return state.isShiftPressed || !shift;
+    }
+    return event.logicalKey == trigger;
+  }
+
+  @override
+  String debugDescribeKeys() {
+    final result = [
+      if (shift) 'Shift',
+      trigger.debugName ?? trigger.toStringShort(),
+    ];
+    return result.join(' + ');
+  }
+}
+
+class MultiViewVideoController extends VideoController {
+  final GlobalKey<VideoState> videoWidgetKey;
+
+  MultiViewVideoController({
+    required Player player,
+    required this.videoWidgetKey,
+  }) : super(player) {
+    player.stream.position.listen((event) {
+      if (_continuousSeekPosition == null) {
+        _positionStreamController.add(getViewAwarePosition(event));
+      }
+    });
+  }
+
+  late double _beforeMutingVolume = player.state.volume;
+
+  Duration? _continuousSeekPosition;
+
+  Duration get totalDuration => player.state.duration;
+
+  late final viewAwareBufferFractionStream = player.stream.buffer.map(
+    (e) => getViewAwareFraction(e).clampNaN(0, 1),
+  );
+
+  late final viewAwareDurationStream =
+      player.stream.duration.map(getViewAwareDuration);
+
+  final _positionStreamController = StreamController<Duration>.broadcast();
+
+  late final viewAwarePositionFractionStream = _positionStreamController.stream
+      .map((e) => getViewAwareFraction(e).clampNaN(0, 1));
+
+  late final viewAwarePositionStream = _positionStreamController.stream;
+
+  bool isView2(Duration position) =>
+      position > getViewAwareDuration(totalDuration);
+
+  Duration getViewAwarePosition(Duration position) => isView2(position)
+      ? position - getViewAwareDuration(totalDuration)
+      : position;
+
+  double getViewAwareFraction(Duration position) =>
+      getViewAwarePosition(position).inMilliseconds /
+      getViewAwareDuration(totalDuration).inMilliseconds;
+
+  void switchViews() {
+    final total = player.state.duration.inMilliseconds;
+    final totalHalf = total ~/ 2;
+    final current = player.state.position.inMilliseconds;
+    final newPos =
+        (current > totalHalf ? current - totalHalf : current + totalHalf)
+            .clamp(0, total);
+
+    player.seek(Duration(milliseconds: newPos));
+  }
+
+  void viewAwareFractionalSeek(double positionFraction) {
+    final actual = getViewAwareDuration(totalDuration);
+
+    player.seek(
+      isView2(player.state.position)
+          ? actual + actual * positionFraction
+          : actual * positionFraction,
+    );
+  }
+
+  void viewAwareContinuousSeekBy(Duration duration) {
+    _continuousSeekPosition ??= getViewAwarePosition(player.state.position);
+
+    _continuousSeekPosition = (_continuousSeekPosition! + duration)
+        .clamp(Duration.zero, getViewAwareDuration(totalDuration));
+
+    player.seek(
+      isView2(player.state.position)
+          ? getViewAwareDuration(totalDuration) + _continuousSeekPosition!
+          : _continuousSeekPosition!,
+    );
+
+    _positionStreamController.add(_continuousSeekPosition!);
+  }
+
+  void stopContinuousSeek() {
+    if (_continuousSeekPosition != null) {
+      player.seek(
+        isView2(player.state.position)
+            ? getViewAwareDuration(totalDuration) + _continuousSeekPosition!
+            : _continuousSeekPosition!,
+      );
+    }
+
+    _continuousSeekPosition = null;
+  }
+
+  void increaseRate({double by = 0.25, double clamp = 3.0}) {
+    player.setRate((player.state.rate + by).clamp(0.25, clamp));
+  }
+
+  void decreaseRate({double by = 0.25, double clamp = 3.0}) {
+    player.setRate((player.state.rate - by).clamp(0.25, clamp));
+  }
+
+  void toggleMute() {
+    if (player.state.volume == 0) {
+      player.setVolume(_beforeMutingVolume == 0 ? 100 : _beforeMutingVolume);
+    } else {
+      _beforeMutingVolume = player.state.volume;
+      player.setVolume(0);
+    }
+  }
+
+  void exitFullscreen() {
+    defaultExitNativeFullscreen();
+    videoWidgetKey.currentState?.exitFullscreen();
+  }
+
+  void enterFullscreen() {
+    defaultEnterNativeFullscreen();
+    videoWidgetKey.currentState?.enterFullscreen();
+  }
+
+  void toggleFullscreen() {
+    if (videoWidgetKey.currentState?.isFullscreen() ?? false) {
+      exitFullscreen();
+    } else {
+      enterFullscreen();
+    }
+  }
+
+  void increaseVolume() {
+    player.setVolume((player.state.volume + 10).clamp(0, 100));
+  }
+
+  void decreaseVolume() {
+    player.setVolume((player.state.volume - 10).clamp(0, 100));
   }
 }
