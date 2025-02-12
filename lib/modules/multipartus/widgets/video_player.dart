@@ -378,7 +378,7 @@ class _VolumeButtonState extends State<_VolumeButton> {
         onPressed: () {
           if (volume == 0) {
             // unmuting
-            controller.player.setVolume(_oldVolume);
+            controller.player.setVolume(_oldVolume != 0 ? _oldVolume : 100);
           } else {
             // muting
             _oldVolume = volume;
