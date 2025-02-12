@@ -25,10 +25,12 @@ class _MultipartusLoginGateState extends State<MultipartusLoginGate> {
   Future<MultipartusRegistrationState> registrationState =
       GetIt.instance<MultipartusService>().fetchRegistrationState();
 
-  Future<bool> handleLogin(String password) async {
+  Future<(bool, String)> handleLogin(String password) async {
     final service = GetIt.instance<MultipartusService>();
+
     final result = await service.registerUser(password);
-    if (result) {
+
+    if (result.$1) {
       setState(
         () => registrationState = service.fetchRegistrationState(),
       );
@@ -80,16 +82,14 @@ class _MultipartusLoginGateState extends State<MultipartusLoginGate> {
       );
     }
     return SizedBox(
-      height: 100,
-      child: Center(
-        child: registrationState == null
-            ? Container()
-            : _Login(
-                onLogin: handleLogin,
-                showIncorrectPassword: registrationState ==
-                    MultipartusRegistrationState.invalidToken,
-              ).animate().fadeIn(duration: Durations.short3),
-      ),
+      height: 120,
+      child: registrationState == null
+          ? Container()
+          : _Login(
+              onLogin: handleLogin,
+              showIncorrectPassword: registrationState ==
+                  MultipartusRegistrationState.invalidToken,
+            ).animate().fadeIn(duration: Durations.short3),
     );
   }
 }
@@ -101,7 +101,7 @@ class _Login extends StatefulWidget {
   });
 
   // Returns true if the login was successful and false if not.
-  final Future<bool> Function(String password) onLogin;
+  final Future<(bool, String)> Function(String password) onLogin;
   final bool showIncorrectPassword;
 
   @override
@@ -114,6 +114,8 @@ class _LoginState extends State<_Login> with SingleTickerProviderStateMixin {
 
   final _isRegistering = signal(false);
   final _isTextEmpty = signal(true);
+  final _hidePassword = signal(true);
+  final _backendError = signal<String?>(null);
   late final _showIncorrectPassword = signal(widget.showIncorrectPassword);
 
   late final _didReadDisclaimer =
@@ -151,7 +153,13 @@ class _LoginState extends State<_Login> with SingleTickerProviderStateMixin {
   void _handleSubmit(String text) async {
     _isRegistering.value = true;
 
-    _showIncorrectPassword.value = !(await widget.onLogin(text));
+    // wow look its go
+    final (result, err) = await widget.onLogin(text);
+
+    _showIncorrectPassword.value = !result;
+    if (!result) {
+      _backendError.value = err;
+    }
 
     if (_showIncorrectPassword.value) {
       _passwordController.clear();
@@ -177,31 +185,36 @@ class _LoginState extends State<_Login> with SingleTickerProviderStateMixin {
               focusNode: _focusNode,
               decoration: InputDecoration(
                 hintText: "Impartus Password",
-                error: isIncorrect ? SizedBox() : null,
-                // used to center the text in the text field
-                prefixIcon: isIncorrect ? SizedBox() : null,
-                suffixIcon: isIncorrect
-                    ? Tooltip(
-                        message:
-                            "Incorrect password. Please use your most updated Impartus password.",
-                        waitDuration: Duration.zero,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.error,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        textStyle: TextStyle(
-                          color: Theme.of(context).colorScheme.onError,
-                        ),
-                        child: Icon(
-                          LucideIcons.circle_alert,
-                          color: Theme.of(context).colorScheme.error,
-                          size: 20,
-                        ),
-                      )
+                errorText: isIncorrect
+                    ? "Incorrect password. Please use your most updated Impartus password."
                     : null,
+                // used to center the text in the text field
+                suffixIcon: IconButton(
+                  onPressed: () => _hidePassword.value = !_hidePassword.value,
+                  icon: Icon(LucideIcons.eye),
+                ),
+                prefixIcon: Visibility(
+                  visible: isIncorrect && _backendError() != null,
+                  child: Tooltip(
+                    message: _backendError() ?? '',
+                    waitDuration: Duration.zero,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.error,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    textStyle: TextStyle(
+                      color: Theme.of(context).colorScheme.onError,
+                    ),
+                    child: Icon(
+                      LucideIcons.circle_alert,
+                      color: Theme.of(context).colorScheme.error,
+                      size: 20,
+                    ),
+                  ),
+                ),
               ),
               textAlign: TextAlign.center,
-              obscureText: true,
+              obscureText: _hidePassword(),
               autofocus: false,
               onSubmitted: (text) {
                 if (_didReadDisclaimer.value) {

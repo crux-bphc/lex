@@ -73,6 +73,8 @@ class MultipartusService {
       "Multipartus registration data is not in the expected format",
     );
 
+    return MultipartusRegistrationState.notRegistered;
+
     final registered = r.data['registered'] ?? false;
     final valid = r.data['valid'] ?? false;
 
@@ -85,7 +87,7 @@ class MultipartusService {
     return MultipartusRegistrationState.notRegistered;
   }
 
-  Future<bool> registerUser(String impartusPassword) async {
+  Future<(bool, String)> registerUser(String impartusPassword) async {
     final r = await _backend.post(
       '/impartus/user',
       data: {
@@ -93,7 +95,7 @@ class MultipartusService {
       },
     );
 
-    return r.statusCode == 200;
+    return (false, r.data.toString());
   }
 
   late final lectureSections = AsyncCached((SubjectId id) async {
