@@ -358,7 +358,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
                       if (shouldPlay) {
                         Future.delayed(
-                          Duration(milliseconds: 500),
+                          Duration(milliseconds: 200),
                           player.play,
                         );
                       }
@@ -463,8 +463,7 @@ class _VideoNavigationButton extends StatelessWidget {
               (_videoKey.currentState?.isFullscreen() ?? false);
 
           if (kIsWeb && isFullscreen) {
-            await defaultExitNativeFullscreen();
-            await _videoKey.currentState?.exitFullscreen();
+            getController(context).exitFullscreen();
           }
           onPressed();
         },
