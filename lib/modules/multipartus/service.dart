@@ -190,9 +190,12 @@ class MultipartusService {
 
     final index = vids.indexWhere((e) => e.ttid.toString() == ttid);
 
+    final start = (index - count).clamp(0, index);
+    final end = (index + count + 1).clamp(index, vids.length);
+
     // lectures are sorted in descending order of lecture number.
-    final nextVids = vids.sublist(index - count, index);
-    final prevVids = vids.sublist(index + 1, index + count + 1);
+    final nextVids = vids.sublist(start, index);
+    final prevVids = vids.sublist(index + 1, end);
 
     return (
       previous: prevVids,

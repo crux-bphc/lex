@@ -94,8 +94,6 @@ class _VideoPlayerState extends State<VideoPlayer> {
   }
 
   void _setup() async {
-    debugPrint("setuped");
-
     final client = GetIt.instance<AuthProvider>().dioClient;
     final idToken = Uri.encodeQueryComponent(
       GetIt.instance<AuthProvider>().currentUser.value!.idToken!,
