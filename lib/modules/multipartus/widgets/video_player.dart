@@ -188,7 +188,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
                           // great library, I have to call this myself
                           await defaultEnterNativeFullscreen();
 
-                          if (shouldPlay) return player.play();
+                          if (shouldPlay) player.play();
                         },
                         onExitFullscreen: () async {
                           final shouldPlay = player.state.playing;
@@ -351,7 +351,11 @@ class _VideoNavigationButton extends StatelessWidget {
       padding: EdgeInsets.fromLTRB(4, 4, 6, 4),
       child: MaterialDesktopCustomButton(
         onPressed: () async {
-          if (_videoKey.currentState?.isFullscreen() ?? false) {
+          late final isFullscreen =
+              (_videoKey.currentState?.isFullscreen() ?? false);
+
+          if (kIsWeb && isFullscreen) {
+            await defaultExitNativeFullscreen();
             await _videoKey.currentState?.exitFullscreen();
           }
           onPressed();
