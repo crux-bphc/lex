@@ -47,14 +47,14 @@ class CurvedRectTween extends Tween<Rect> {
   }
 }
 
-class AsyncCached<I, O> {
-  final Future<O> Function(I) compute;
+class AsyncCached<K, V> {
+  final Future<V> Function(K) compute;
 
-  final _cache = <I, Future<O>>{};
+  final _cache = <K, Future<V>>{};
 
   AsyncCached(this.compute);
 
-  Future<O> call(I input) {
+  Future<V> call(K input) {
     return _cache.putIfAbsent(input, () => compute(input));
   }
 }
