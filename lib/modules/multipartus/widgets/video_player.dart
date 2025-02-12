@@ -23,6 +23,8 @@ String _getVideoUrl(String baseUrl, String ttid) {
   return '$baseUrl/impartus/ttid/$ttid/m3u8';
 }
 
+final _videoKey = GlobalKey<VideoState>();
+
 /// Custom made video player with custom controls.
 class VideoPlayer extends StatefulWidget {
   const VideoPlayer({
@@ -55,19 +57,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
   void initState() {
     super.initState();
 
-    player = Player(
-      configuration: PlayerConfiguration(
-        ready: () {
-          player.seek(widget.startTimestamp);
-          player.setRate(
-            GetIt.instance<LocalStorage>().preferences.playbackSpeed.value,
-          );
-          player.setVolume(
-            GetIt.instance<LocalStorage>().preferences.playbackVolume.value,
-          );
-        },
-      ),
-    );
+    player = Player();
 
     controller = VideoController(player);
 
@@ -93,7 +83,19 @@ class _VideoPlayerState extends State<VideoPlayer> {
     if (oldWidget.ttid != widget.ttid) _setup();
   }
 
+  void _applyConfig() {
+    player.seek(widget.startTimestamp);
+    player.setRate(
+      GetIt.instance<LocalStorage>().preferences.playbackSpeed.value,
+    );
+    player.setVolume(
+      GetIt.instance<LocalStorage>().preferences.playbackVolume.value,
+    );
+  }
+
   void _setup() async {
+    debugPrint("setuped");
+
     final client = GetIt.instance<AuthProvider>().dioClient;
     final idToken = Uri.encodeQueryComponent(
       GetIt.instance<AuthProvider>().currentUser.value!.idToken!,
@@ -108,6 +110,12 @@ class _VideoPlayerState extends State<VideoPlayer> {
         },
       ),
     );
+
+    _applyConfig();
+
+    player.stream.buffering
+        .firstWhere((e) => e == false)
+        .then((_) => player.play());
 
     if (widget.onPositionChanged == null) return;
 
@@ -171,7 +179,30 @@ class _VideoPlayerState extends State<VideoPlayer> {
                         context,
                         isFullscreen: true,
                       ),
-                      child: Video(controller: controller),
+                      child: Video(
+                        key: _videoKey,
+                        controller: controller,
+                        onEnterFullscreen: () async {
+                          final shouldPlay = player.state.playing;
+
+                          // great library, I have to call this myself
+                          await defaultEnterNativeFullscreen();
+
+                          if (shouldPlay) return player.play();
+                        },
+                        onExitFullscreen: () async {
+                          final shouldPlay = player.state.playing;
+
+                          await defaultExitNativeFullscreen();
+
+                          if (shouldPlay) {
+                            Future.delayed(
+                              Duration(milliseconds: 500),
+                              player.play,
+                            );
+                          }
+                        },
+                      ),
                     ),
                   ),
                 ],
@@ -319,7 +350,12 @@ class _VideoNavigationButton extends StatelessWidget {
       waitDuration: Duration.zero,
       padding: EdgeInsets.fromLTRB(4, 4, 6, 4),
       child: MaterialDesktopCustomButton(
-        onPressed: onPressed,
+        onPressed: () async {
+          if (_videoKey.currentState?.isFullscreen() ?? false) {
+            await _videoKey.currentState?.exitFullscreen();
+          }
+          onPressed();
+        },
         iconSize: _controlsIconSize,
         icon: icon,
       ),
