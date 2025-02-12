@@ -30,7 +30,6 @@ class MultipartusVideoPage extends StatefulWidget {
 
 class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
   final config = VideoPlayerConfig();
-  String? _selectedImage;
 
   Future<VideoPlayerConfigData> _fetchConfig() async {
     final service = GetIt.instance<MultipartusService>();
@@ -50,15 +49,38 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
   }
 
   void _openImage(String url) {
-    setState(() {
-      _selectedImage = url;
-    });
-  }
-
-  void _closeImage() {
-    setState(() {
-      _selectedImage = null;
-    });
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.8),
+      builder: (context) => GestureDetector(
+        onTap: () => Navigator.of(context).pop(),
+        child: Container(
+          color: Colors.transparent,
+          alignment: Alignment.center,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              ClipRRect(
+                child: Image.network(
+                  url,
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  height: MediaQuery.of(context).size.height * 0.9,
+                  fit: BoxFit.contain,
+                ),
+              ),
+              Positioned(
+                top: 10,
+                right: 10,
+                child: IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white, size: 30),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   void _updateConfigSignal() async {
@@ -152,27 +174,6 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
             ],
           ),
         ),
-        if (_selectedImage != null)
-          GestureDetector(
-            onTap: _closeImage,
-            child: AnimatedContainer(
-              duration: Duration(milliseconds: 3000),
-              color: Colors.black.withValues(alpha: 0.7),
-              width: double.infinity,
-              height: double.infinity,
-              child: Center(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.network(
-                    _selectedImage!,
-                    width: MediaQuery.of(context).size.width * 0.9,
-                    height: MediaQuery.of(context).size.height * 0.9,
-                    fit: BoxFit.contain,
-                  ),
-                ),
-              ),
-            ),
-          ),
       ]),
     );
   }
