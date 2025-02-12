@@ -81,7 +81,7 @@ class _SubjectTileState extends State<SubjectTile> {
               IconButton(
                 onPressed: _handleTogglePin,
                 icon: Icon(
-                  isPinned ? Icons.favorite : Icons.favorite_border,
+                  isPinned ? Icons.push_pin : Icons.push_pin_outlined,
                   size: 22,
                   color: Theme.of(context).colorScheme.primary,
                 ),

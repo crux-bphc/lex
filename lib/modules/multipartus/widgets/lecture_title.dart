@@ -63,43 +63,43 @@ class LectureTitle extends StatelessWidget {
       ],
     );
   }
-}
 
-InlineSpan buildLectureTitleSpan({
-  required String lectureNo,
-  required String title,
-  required Color lectureNoColor,
-  required Color titleColor,
-  double? fontSize,
-  double? borderRadius,
-}) {
-  return TextSpan(
-    children: [
-      WidgetSpan(
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-          margin: EdgeInsets.only(right: 6),
-          decoration: BoxDecoration(
-            color: titleColor,
-            borderRadius: BorderRadius.circular(borderRadius ?? 10),
+  static InlineSpan buildSpan({
+    required String lectureNo,
+    required String title,
+    required Color lectureNoColor,
+    required Color titleColor,
+    double? fontSize,
+    double? borderRadius,
+  }) {
+    return TextSpan(
+      children: [
+        WidgetSpan(
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+            margin: EdgeInsets.only(right: 6),
+            decoration: BoxDecoration(
+              color: titleColor,
+              borderRadius: BorderRadius.circular(borderRadius ?? 10),
+            ),
+            child: Text(lectureNo),
           ),
-          child: Text(lectureNo),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: fontSize,
+          ),
+          alignment: PlaceholderAlignment.baseline,
+          baseline: TextBaseline.alphabetic,
         ),
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: fontSize,
+        TextSpan(
+          text: title,
+          style: TextStyle(
+            fontSize: fontSize,
+            color: titleColor,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        alignment: PlaceholderAlignment.baseline,
-        baseline: TextBaseline.alphabetic,
-      ),
-      TextSpan(
-        text: title,
-        style: TextStyle(
-          fontSize: fontSize,
-          color: titleColor,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    ],
-  );
+      ],
+    );
+  }
 }
