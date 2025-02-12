@@ -7,7 +7,8 @@ final _dateFormat = DateFormat.yMMMd().add_jm();
 final _timeFormat = DateFormat.jm();
 
 String formatDate(DateTime dt) {
-  if (DateTime.now().difference(dt).inDays < 1) {
+  if (DateTime.now().difference(dt).inDays < 1 &&
+      dt.day == DateTime.now().day) {
     return "Today ${_timeFormat.format(dt)}";
   }
   return _dateFormat.format(dt);
