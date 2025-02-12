@@ -246,15 +246,13 @@ class _VideoPlayerState extends State<VideoPlayer> {
         KeyEventShortcutActivator<KeyDownEvent>(
           LogicalKeyboardKey.keyP,
           shift: true,
-        ): () => VideoNavigateNotification(NavigationType.previous)
-            .dispatch(context),
+        ): () => controller.navigateVideo(context, NavigationType.previous),
 
         // Shift + N - next video
         KeyEventShortcutActivator<KeyDownEvent>(
           LogicalKeyboardKey.keyN,
           shift: true,
-        ): () =>
-            VideoNavigateNotification(NavigationType.next).dispatch(context),
+        ): () => controller.navigateVideo(context, NavigationType.next),
 
         // Shift + . - increase speed
         KeyEventShortcutActivator<KeyDownEvent>(
@@ -305,10 +303,9 @@ class _VideoPlayerState extends State<VideoPlayer> {
                 // we listen to the config here
                 Watch(
                   (_) => _VideoControlsRow(
-                    config: config!(),
-                    onNavigate: (navType) =>
-                        VideoNavigateNotification(navType).dispatch(context),
-                  ),
+                      config: config!(),
+                      onNavigate: (navType) =>
+                          controller.navigateVideo(context, navType)),
                 ),
               ],
             ),
@@ -461,15 +458,7 @@ class _VideoNavigationButton extends StatelessWidget {
       waitDuration: Duration.zero,
       padding: EdgeInsets.fromLTRB(4, 4, 6, 4),
       child: MaterialDesktopCustomButton(
-        onPressed: () async {
-          late final isFullscreen =
-              (_videoKey.currentState?.isFullscreen() ?? false);
-
-          if (kIsWeb && isFullscreen) {
-            getController(context).exitFullscreen();
-          }
-          onPressed();
-        },
+        onPressed: onPressed,
         iconSize: _controlsIconSize,
         icon: icon,
       ),
@@ -1099,5 +1088,15 @@ class MultiViewVideoController extends VideoController {
 
   void decreaseVolume() {
     player.setVolume((player.state.volume - 10).clamp(0, 100));
+  }
+
+  void navigateVideo(BuildContext context, NavigationType type) {
+    late final isFullscreen = (_videoKey.currentState?.isFullscreen() ?? false);
+
+    if (kIsWeb && isFullscreen) {
+      exitFullscreen();
+    }
+
+    VideoNavigateNotification(type).dispatch(context);
   }
 }
