@@ -211,6 +211,12 @@ class _VideoPlayerState extends State<VideoPlayer> {
       player.setRate(currentRate < 0.5 ? 3.0 : currentRate - 0.25);
       return true;
     }
+
+    if (isShiftPressed && event.logicalKey == LogicalKeyboardKey.keyS) {
+      _switchView();
+      return true;
+    }
+
     if (event.logicalKey == LogicalKeyboardKey.keyM) {
       if (player.state.volume == 0) {
         player.setVolume(100);
@@ -237,6 +243,17 @@ class _VideoPlayerState extends State<VideoPlayer> {
     player.seek(newPosition.clamp(Duration.zero, player.state.duration));
   }
 
+  void _switchView() {
+    final total = player.state.duration.inMilliseconds;
+    final totalHalf = total ~/ 2;
+    final current = player.state.position.inMilliseconds;
+    final newPos =
+        (current > totalHalf ? current - totalHalf : current + totalHalf)
+            .clamp(0, total);
+
+    player.seek(Duration(milliseconds: newPos));
+  }
+
   void _startContinuousSeek(Duration seekDuration) {
     _seek(seekDuration);
     _seekTimer?.cancel();
@@ -260,73 +277,73 @@ class _VideoPlayerState extends State<VideoPlayer> {
       focusNode: _focusNode,
       onKeyEvent: _handleKeyEvent,
       child: ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          return SizedBox(
-            width: constraints.maxWidth,
-            child: AspectRatio(
-              aspectRatio: 1280 / 720,
-              child: Stack(
-                children: [
-                  // Hero(
-                  //   tag: widget.ttid,
-                  //   createRectTween: (begin, end) =>
-                  //       CurvedRectTween(begin: begin!, end: end!),
-                  //   child: VideoThumbnail(
-                  //     ttid: widget.ttid,
-                  //     fit: BoxFit.cover,
-                  //     width: double.infinity,
-                  //   ),
-                  // ),
-                  Theme(
-                    data: Theme.of(context).copyWith(
-                      textTheme: Theme.of(context)
-                          .textTheme
-                          .apply(bodyColor: Colors.white),
+        borderRadius: BorderRadius.circular(10),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SizedBox(
+              width: constraints.maxWidth,
+              child: AspectRatio(
+                aspectRatio: 1280 / 720,
+                child: Stack(
+                  children: [
+                    // Hero(
+                    //   tag: widget.ttid,
+                    //   createRectTween: (begin, end) =>
+                    //       CurvedRectTween(begin: begin!, end: end!),
+                    //   child: VideoThumbnail(
+                    //     ttid: widget.ttid,
+                    //     fit: BoxFit.cover,
+                    //     width: double.infinity,
+                    //   ),
+                    // ),
+                    Theme(
+                      data: Theme.of(context).copyWith(
+                        textTheme: Theme.of(context)
+                            .textTheme
+                            .apply(bodyColor: Colors.white),
+                      ),
+                      child: MaterialDesktopVideoControlsTheme(
+                        normal: buildDesktopControls(
+                          context,
+                          isFullscreen: false,
+                        ),
+                        fullscreen: buildDesktopControls(
+                          context,
+                          isFullscreen: true,
+                        ),
+                        child: Video(
+                          key: _videoKey,
+                          controller: controller,
+                          onEnterFullscreen: () async {
+                            final shouldPlay = player.state.playing;
+
+                            // great library, I have to call this myself
+                            await defaultEnterNativeFullscreen();
+
+                            if (shouldPlay) player.play();
+                          },
+                          onExitFullscreen: () async {
+                            final shouldPlay = player.state.playing;
+
+                            await defaultExitNativeFullscreen();
+
+                            if (shouldPlay) {
+                              Future.delayed(
+                                Duration(milliseconds: 500),
+                                player.play,
+                              );
+                            }
+                          },
+                        ),
+                      ),
                     ),
-                    child: MaterialDesktopVideoControlsTheme(
-                      normal: buildDesktopControls(
-                        context,
-                        isFullscreen: false,
-                      ),
-                      fullscreen: buildDesktopControls(
-                        context,
-                        isFullscreen: true,
-                      ),
-                      child: Video(
-                        key: _videoKey,
-                        controller: controller,
-                        onEnterFullscreen: () async {
-                          final shouldPlay = player.state.playing;
-
-                          // great library, I have to call this myself
-                          await defaultEnterNativeFullscreen();
-
-                          if (shouldPlay) player.play();
-                        },
-                        onExitFullscreen: () async {
-                          final shouldPlay = player.state.playing;
-
-                          await defaultExitNativeFullscreen();
-
-                          if (shouldPlay) {
-                            Future.delayed(
-                              Duration(milliseconds: 500),
-                              player.play,
-                            );
-                          }
-                        },
-                      ),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
-    )
     );
   }
 }
