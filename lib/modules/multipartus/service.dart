@@ -73,8 +73,6 @@ class MultipartusService {
       "Multipartus registration data is not in the expected format",
     );
 
-    return MultipartusRegistrationState.notRegistered;
-
     final registered = r.data['registered'] ?? false;
     final valid = r.data['valid'] ?? false;
 
@@ -95,7 +93,7 @@ class MultipartusService {
       },
     );
 
-    return (false, r.data.toString());
+    return (r.statusCode == 200, r.data.toString());
   }
 
   late final lectureSections = AsyncCached((SubjectId id) async {
