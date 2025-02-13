@@ -236,6 +236,37 @@ class _LeftSideState extends State<_LeftSide> {
         );
   }
 
+  void _showShortcutsDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Keyboard Shortcuts"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const [
+            Text(">  Space - Play/Pause"),
+            Text(">  J / Left Arrow - Rewind 10s"),
+            Text(">  L / Right Arrow - Forward 10s"),
+            Text(">  Shift + P - Previous Video"),
+            Text(">  Shift + N - Next Video"),
+            Text(">  Shift + . - Increase Speed"),
+            Text(">  Shift + , - Decrease Speed"),
+            Text(">  M - Mute/Unmute"),
+            Text(">  S - Switch Views"),
+            Text(">  F - Toggle Fullscreen"),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text("Close"),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void didUpdateWidget(covariant _LeftSide oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -278,6 +309,10 @@ class _LeftSideState extends State<_LeftSide> {
                   builder: (context, __) => Row(
                     spacing: 4,
                     children: [
+                      IconButton(
+                        onPressed: _showShortcutsDialog,
+                        icon: Icon(LucideIcons.info),
+                      ),
                       _ScrollButton(
                         onPressed: () => _scrollController.position.moveTo(
                           _scrollController.position.pixels - 500,
