@@ -19,9 +19,10 @@ import 'package:media_kit_video/media_kit_video_controls/src/controls/extensions
 import 'package:signals/signals_flutter.dart';
 
 const _controlsIconSize = 24.0;
+const _baseUrl = String.fromEnvironment("LEX_BACKEND_URL");
 
-String _getVideoUrl(String baseUrl, String ttid) {
-  return '$baseUrl/impartus/ttid/$ttid/m3u8';
+String _getVideoUrl(String ttid) {
+  return '$_baseUrl/impartus/ttid/$ttid/m3u8';
 }
 
 final _videoKey = GlobalKey<VideoState>();
@@ -89,15 +90,13 @@ class _VideoPlayerState extends State<VideoPlayer> {
   }
 
   void _setup() async {
-    final client = GetIt.instance<AuthProvider>().dioClient;
     final idToken = Uri.encodeQueryComponent(
       GetIt.instance<AuthProvider>().currentUser.value!.idToken!,
     );
-    final baseUrl = client.options.baseUrl;
 
     await player.open(
       Media(
-        _getVideoUrl(baseUrl, widget.ttid),
+        _getVideoUrl(widget.ttid),
         httpHeaders: {
           'Authorization': 'Bearer $idToken',
         },
