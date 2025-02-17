@@ -365,7 +365,13 @@ class BackendError extends Error {
   BackendError(this.message, [this.object]);
 
   @override
-  String toString() => 'BackendError: $message';
+  String toString() {
+    if (object is Map<String, dynamic>) {
+      final map = object as Map<String, dynamic>;
+      return 'BackendError: ${map['message']}';
+    }
+    return 'BackendError: $message';
+  }
 }
 
 void backendAssertType<T>(Object obj, String message) {
