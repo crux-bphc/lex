@@ -305,6 +305,14 @@ class MultipartusService {
 
     return true;
   }
+
+  Future<bool> isImpartusDown(String ttid) async {
+    final result = await _backend.get('/impartus/ttid/$ttid/m3u8');
+
+    if (result is! Map<String, dynamic>) return true;
+
+    return (result as Map<String, dynamic>)["cause"] == "impartus";
+  }
 }
 
 class LectureVideo {

@@ -7,13 +7,16 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lex/modules/multipartus/models/video_player_config.dart';
+import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/lecture_title.dart';
 import 'package:lex/modules/multipartus/widgets/video_player/controller.dart';
 import 'package:lex/modules/multipartus/widgets/video_player/utils.dart';
 import 'package:lex/modules/multipartus/widgets/video_player/widgets.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
+import 'package:lex/providers/error.dart';
 import 'package:lex/providers/local_storage/local_storage.dart';
 import 'package:lex/theme.dart';
+import 'package:lex/utils/shortcut.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:signals/signals_flutter.dart';
@@ -111,6 +114,19 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
     player.stream.buffering.firstWhere((e) => e == false).then((_) {
       player.play();
+    });
+
+    player.stream.error.listen((e) async {
+      if (e.toLowerCase().contains('failed to open') &&
+          player.state.buffering) {
+        final isDown = await GetIt.instance<MultipartusService>()
+            .isImpartusDown(widget.ttid);
+        if (isDown) {
+          GetIt.instance<ErrorService>().reportError(
+            "Impartus servers may be down. Please try again later.",
+          );
+        }
+      }
     });
 
     // dont bother setting up listeners if there is no callback
