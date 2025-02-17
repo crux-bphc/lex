@@ -92,6 +92,15 @@ class _VideoPlayerState extends State<VideoPlayer> {
   }
 
   void _setup() async {
+    final isDown =
+        await GetIt.instance<MultipartusService>().isImpartusDown(widget.ttid);
+    if (isDown) {
+      GetIt.instance<ErrorService>().reportError(
+        "Impartus servers may be down. Please try again later.",
+      );
+      return;
+    }
+
     final idToken = Uri.encodeQueryComponent(
       GetIt.instance<AuthProvider>().currentUser.value!.idToken!,
     );
@@ -114,19 +123,6 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
     player.stream.buffering.firstWhere((e) => e == false).then((_) {
       player.play();
-    });
-
-    player.stream.error.listen((e) async {
-      if (e.toLowerCase().contains('failed to open') &&
-          player.state.buffering) {
-        final isDown = await GetIt.instance<MultipartusService>()
-            .isImpartusDown(widget.ttid);
-        if (isDown) {
-          GetIt.instance<ErrorService>().reportError(
-            "Impartus servers may be down. Please try again later.",
-          );
-        }
-      }
     });
 
     // dont bother setting up listeners if there is no callback

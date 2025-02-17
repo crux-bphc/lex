@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:get_it/get_it.dart';
@@ -74,6 +75,7 @@ class _SubjectsState extends State<_Subjects> with SignalsMixin {
   final ScrollController scrollController = ScrollController();
 
   final _searchText = signal('');
+  final _textController = TextEditingController();
 
   late final isSearchMode = createComputed(() => _searchText().isNotEmpty);
 
@@ -90,80 +92,95 @@ class _SubjectsState extends State<_Subjects> with SignalsMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(right: 25),
-          child: _SearchBar(
-            onUpdate: (t) => _debouncedTextUpdater(t, now: t.isEmpty),
-            onSubmit: (t) => _debouncedTextUpdater(t, now: true),
-          ),
-        ),
-        const SizedBox(height: 20),
-        Expanded(
-          child: Watch(
-            (context) {
-              if (isSearchMode()) {
-                return FutureBuilder(
-                  future: GetIt.instance<MultipartusService>()
-                      .searchSubjects(_searchText()),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return _loadingWidget;
-                    }
-                    if (snapshot.hasError || !snapshot.hasData) {
-                      return ErrorBirdContainer(
-                        "There was a problem while searching",
-                      );
-                    }
+    return CallbackShortcuts(
+      bindings: {
+        SingleActivator(LogicalKeyboardKey.escape): () {
+          if (_textController.text.isNotEmpty) {
+            _textController.clear();
+            _debouncedTextUpdater('', now: true);
+          }
+        },
+      },
+      // get focus if the user clicks outside the searchbar
+      child: FocusScope(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(right: 25),
+              child: _SearchBar(
+                controller: _textController,
+                onUpdate: (t) => _debouncedTextUpdater(t, now: t.isEmpty),
+                onSubmit: (t) => _debouncedTextUpdater(t, now: true),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Expanded(
+              child: Watch(
+                (context) {
+                  if (isSearchMode()) {
+                    return FutureBuilder(
+                      future: GetIt.instance<MultipartusService>()
+                          .searchSubjects(_searchText()),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return _loadingWidget;
+                        }
+                        if (snapshot.hasError || !snapshot.hasData) {
+                          return ErrorBirdContainer(
+                            "There was a problem while searching",
+                          );
+                        }
 
-                    return _SubjectGrid(
-                      subjects: snapshot.requireData,
-                      onPressed: _handleSubjectPressed,
-                      emptyText: "No subjects found",
-                      eagerUpdate: true,
-                    )
-                        .animate()
-                        .slideY(
-                          duration: 200.ms,
-                          curve: Curves.easeOutCubic,
-                          begin: 0.01,
-                          end: 0,
+                        return _SubjectGrid(
+                          subjects: snapshot.requireData,
+                          onPressed: _handleSubjectPressed,
+                          emptyText: "No subjects found",
+                          eagerUpdate: true,
                         )
-                        .fadeIn(duration: 180.ms);
-                  },
-                );
-              } else {
-                return Watch((context) {
-                  final subjects =
-                      GetIt.instance<MultipartusService>().pinnedSubjects();
-                  return subjects.map(
-                    data: (data) => _SubjectGrid(
-                      subjects: data.values.toList(),
-                      onPressed: _handleSubjectPressed,
-                      eagerUpdate: false,
-                    ),
-                    error: (e, _) {
-                      if (e is BackendError) {
-                        return ErrorBird(
-                          message: e.message,
-                        );
-                      }
+                            .animate()
+                            .slideY(
+                              duration: 200.ms,
+                              curve: Curves.easeOutCubic,
+                              begin: 0.01,
+                              end: 0,
+                            )
+                            .fadeIn(duration: 180.ms);
+                      },
+                    );
+                  } else {
+                    return Watch((context) {
+                      final subjects =
+                          GetIt.instance<MultipartusService>().pinnedSubjects();
+                      return subjects.map(
+                        data: (data) => _SubjectGrid(
+                          subjects: data.values.toList(),
+                          onPressed: _handleSubjectPressed,
+                          eagerUpdate: false,
+                        ),
+                        error: (e, _) {
+                          if (e is BackendError) {
+                            return ErrorBird(
+                              message: e.message,
+                            );
+                          }
 
-                      return ErrorBird(
-                        message:
-                            "There was a problem while retrieving your pinned subjects",
+                          return ErrorBird(
+                            message:
+                                "There was a problem while retrieving your pinned subjects",
+                          );
+                        },
+                        loading: () => _loadingWidget,
                       );
-                    },
-                    loading: () => _loadingWidget,
-                  );
-                });
-              }
-            },
-          ),
+                    });
+                  }
+                },
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -176,16 +193,20 @@ class _SubjectsState extends State<_Subjects> with SignalsMixin {
 }
 
 class _SearchBar extends StatefulWidget {
-  const _SearchBar({required this.onUpdate, required this.onSubmit});
+  const _SearchBar({
+    required this.onUpdate,
+    required this.onSubmit,
+    required this.controller,
+  });
 
   final void Function(String text) onUpdate, onSubmit;
+  final TextEditingController controller;
 
   @override
   State<_SearchBar> createState() => _SearchBarState();
 }
 
 class _SearchBarState extends State<_SearchBar> {
-  final _controller = TextEditingController();
   final _focusNode = FocusNode();
 
   @override
@@ -193,22 +214,24 @@ class _SearchBarState extends State<_SearchBar> {
     return SearchBar(
       autoFocus: true,
       hintText: "Search for any course",
-      controller: _controller,
+      controller: widget.controller,
       onChanged: (t) => widget.onUpdate(t.trim()),
       onSubmitted: (t) => widget.onSubmit(t.trim()),
       focusNode: _focusNode,
       trailing: [
         IconButton(
           icon: Icon(
-            _controller.text.isNotEmpty ? LucideIcons.x : LucideIcons.search,
+            widget.controller.text.isNotEmpty
+                ? LucideIcons.x
+                : LucideIcons.search,
             size: 20,
           ),
           onPressed: () {
-            if (_controller.text.isNotEmpty) {
-              _controller.clear();
+            if (widget.controller.text.isNotEmpty) {
+              widget.controller.clear();
               widget.onUpdate('');
             } else {
-              widget.onSubmit(_controller.text);
+              widget.onSubmit(widget.controller.text);
             }
           },
           visualDensity: VisualDensity.compact,
@@ -219,7 +242,7 @@ class _SearchBarState extends State<_SearchBar> {
 
   @override
   void dispose() {
-    _controller.dispose();
+    // _controller.dispose();
     super.dispose();
   }
 }
