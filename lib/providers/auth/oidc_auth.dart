@@ -94,7 +94,7 @@ String _getRedirectUri() {
   }
 
   if (Platform.isWindows || Platform.isLinux) {
-    return "http://localhost:0";
+    return "http://localhost:0/redirect";
   }
 
   return "";
