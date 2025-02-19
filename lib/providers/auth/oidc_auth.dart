@@ -2,8 +2,10 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:get_it/get_it.dart';
 import 'package:lex/providers/auth/auth_provider.dart';
 import 'package:lex/providers/auth/auth_user.dart';
+import 'package:lex/providers/error.dart';
 import 'package:oidc/oidc.dart';
 import 'package:oidc_default_store/oidc_default_store.dart';
 import 'package:signals/signals.dart';
@@ -32,7 +34,7 @@ class OidcAuthProvider extends AuthProvider {
   final dioClient = Dio(
     BaseOptions(
       baseUrl: _baseUrl,
-      validateStatus: (status) => true,
+      validateStatus: (status) => status != null && status < 500,
     ),
   );
 
@@ -60,6 +62,16 @@ class OidcAuthProvider extends AuthProvider {
     await _authManager.init();
 
     dioClient.interceptors.add(DioAuthInterceptor(authProvider: this));
+    dioClient.interceptors.add(
+      InterceptorsWrapper(
+        onError: (error, handler) {
+          final message = error.response?.statusMessage;
+          GetIt.instance<ErrorService>()
+              .reportError("There was a problem with the Lex server: $message");
+          handler.next(error);
+        },
+      ),
+    );
 
     // if this, for some reason, is null we can't logout
     assert(_authManager.discoveryDocument.endSessionEndpoint != null);
