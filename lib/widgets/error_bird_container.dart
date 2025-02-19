@@ -14,9 +14,11 @@ class ErrorBirdContainer extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       padding: EdgeInsets.all(16),
-      child: ErrorBird(
-        message: error.toString(),
-        foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
+      child: SingleChildScrollView(
+        child: ErrorBird(
+          message: error.toString(),
+          foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
+        ),
       ),
     );
   }

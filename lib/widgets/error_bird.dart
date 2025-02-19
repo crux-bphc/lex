@@ -7,11 +7,13 @@ class ErrorBird extends StatelessWidget {
     this.message,
     this.size = 100,
     this.foregroundColor,
+    this.textAlign,
   });
 
   final String? message;
   final double size;
   final Color? foregroundColor;
+  final TextAlign? textAlign;
 
   @override
   Widget build(BuildContext context) {
@@ -27,13 +29,14 @@ class ErrorBird extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           if (message != null)
-            Text(
+            SelectableText(
               message!,
               style: TextStyle(
                 color: foregroundColor,
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
               ),
+              textAlign: textAlign,
             ),
         ],
       ),
