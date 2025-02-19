@@ -528,6 +528,7 @@ class _SlidesView extends StatelessWidget {
         if (slides.isEmpty) {
           return ErrorBird(
             message: "We couldn't find slides for this lecture",
+            textAlign: TextAlign.center,
           );
         }
 
