@@ -16,17 +16,6 @@ class MobileScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        actions: [
-          const ThemeSwitcher(),
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              context.push('/settings');
-            },
-          ),
-        ],
-      ),
       body: SafeArea(child: body),
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: onDestinationSelected,

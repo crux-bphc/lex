@@ -56,7 +56,10 @@ class _MultipartusLoginGateState extends State<MultipartusLoginGate> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        MultipartusTitle(),
+                        MultipartusTitle(
+                          isMultiline: true,
+                          fontSize: 60,
+                        ),
                         SizedBox(height: 16),
                         _buildSub(
                           registrationState: registrationState,

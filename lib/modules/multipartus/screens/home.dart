@@ -38,7 +38,7 @@ class _MultipartusHomePageState extends State<MultipartusHomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            MultipartusTitle(),
+            MultipartusTitle(fontSize: 34),
             SizedBox(height: 20),
             Expanded(child: _Main()),
           ],
