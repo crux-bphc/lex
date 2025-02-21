@@ -64,4 +64,12 @@ class PlatformIsMobile extends InheritedWidget {
 
     return platformType!;
   }
+
+  static T resolve<T>(
+    BuildContext context, {
+    required T mobile,
+    required T desktop,
+  }) {
+    return of(context) ? mobile : desktop;
+  }
 }
