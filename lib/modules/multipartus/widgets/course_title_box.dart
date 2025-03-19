@@ -58,15 +58,7 @@ class CourseTitleBox extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 30),
-                  Expanded(
-                    child: Align(
-                      alignment: AlignmentDirectional.centerEnd,
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(maxWidth: 500),
-                        child: _RecentlyWatched(subject: subject!),
-                      ),
-                    ),
-                  ),
+                  _RecentlyWatched(subject: subject!),
                 ],
               ),
       ),
@@ -90,35 +82,42 @@ class _RecentlyWatched extends StatelessWidget {
     if (_lastWatched == null) {
       return const SizedBox();
     }
-
-    return ManagedFutureBuilder(
-      future: GetIt.instance<MultipartusService>()
-          .fetchImpartusVideo(_lastWatched!.$1),
-      data: (video) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "RECENTLY WATCHED",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-            SizedBox(height: 6),
-            Expanded(
-              child: VideoButton(
-                onPressed: () => context.go(
-                  '/multipartus/courses/${subject.departmentUrl}/${subject.code}/watch/${video.ttid}',
-                ),
-                video: video,
-              ),
-            ),
-          ],
-        );
-      },
-      loading: () => const SizedBox(),
+    return Expanded(
+      child: Align(
+        alignment: AlignmentDirectional.centerEnd,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: 500),
+          child: ManagedFutureBuilder(
+            future: GetIt.instance<MultipartusService>()
+                .fetchImpartusVideo(_lastWatched!.$1),
+            data: (video) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "RECENTLY WATCHED",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  SizedBox(height: 6),
+                  Expanded(
+                    child: VideoButton(
+                      onPressed: () => context.go(
+                        '/multipartus/courses/${subject.departmentUrl}/${subject.code}/watch/${video.ttid}',
+                      ),
+                      video: video,
+                    ),
+                  ),
+                ],
+              );
+            },
+            loading: () => const SizedBox(),
+          ),
+        ),
+      ),
     );
   }
 }
