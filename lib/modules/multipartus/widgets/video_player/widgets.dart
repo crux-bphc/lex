@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:lex/modules/multipartus/widgets/lecture_title.dart';
+import 'package:lex/modules/multipartus/widgets/peekaboo.dart';
 import 'package:lex/modules/multipartus/widgets/seekbar.dart';
 import 'package:lex/modules/multipartus/widgets/video_player/utils.dart';
 import 'package:lex/utils/extensions.dart';
@@ -410,28 +411,24 @@ class _PeekaBooSliderState extends State<_PeekaBooSlider> {
       : SizedBox();
 
   Widget _buildMiddle(BuildContext context) => Watch(
-        (context) => AnimatedSize(
-          duration: Durations.short3,
+        (context) => PeekaBoo(
           alignment: widget.isButtonLeading
               ? Alignment.centerRight
               : Alignment.centerLeft,
           curve: Curves.easeInOutQuad,
-          child: AnimatedSwitcher(
-            duration: Durations.short3,
-            child: _isHovering()
-                ? _Slider(
-                    key: ValueKey((widget.max, widget.min)),
-                    value: widget.value,
-                    min: widget.min,
-                    max: widget.max,
-                    spacing: widget.spacing,
-                    sliderWidth: widget.sliderWidth,
-                    onChanged: widget.onChanged,
-                    isButtonLeading: widget.isButtonLeading,
-                    divisions: widget.divisions,
-                  )
-                : SizedBox(),
-          ),
+          child: _isHovering()
+              ? _Slider(
+                  key: ValueKey((widget.max, widget.min)),
+                  value: widget.value,
+                  min: widget.min,
+                  max: widget.max,
+                  spacing: widget.spacing,
+                  sliderWidth: widget.sliderWidth,
+                  onChanged: widget.onChanged,
+                  isButtonLeading: widget.isButtonLeading,
+                  divisions: widget.divisions,
+                )
+              : null,
         ),
       );
 }

@@ -9,6 +9,7 @@ import 'package:get_it/get_it.dart';
 import 'package:lex/modules/multipartus/models/video_player_config.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/lecture_title.dart';
+import 'package:lex/modules/multipartus/widgets/peekaboo.dart';
 import 'package:lex/modules/multipartus/widgets/video_player/controller.dart';
 import 'package:lex/modules/multipartus/widgets/video_player/utils.dart';
 import 'package:lex/modules/multipartus/widgets/video_player/widgets.dart';
@@ -418,7 +419,8 @@ class _VideoControlsRow extends StatelessWidget {
     return Row(
       children: [
         // show if there is a previous video
-        _PeekaBoo(
+        PeekaBoo(
+          alignment: Alignment.centerLeft,
           child: (config.previousVideo != null)
               ? VideoNavigationButton(
                   lectureNo: config.previousVideo!.lectureNo.toString(),
@@ -432,7 +434,8 @@ class _VideoControlsRow extends StatelessWidget {
         PlayPauseButton(),
 
         // show if there is a next video
-        _PeekaBoo(
+        PeekaBoo(
+          alignment: Alignment.centerRight,
           child: config.nextVideo != null
               ? VideoNavigationButton(
                   lectureNo: config.nextVideo!.lectureNo.toString(),
@@ -451,27 +454,15 @@ class _VideoControlsRow extends StatelessWidget {
 
         SpeedButton(),
 
-        _PeekaBoo(child: config.availableViews > 1 ? SwitchViewButton() : null),
+        PeekaBoo(
+          alignment: Alignment.centerLeft,
+          child: config.availableViews > 1 ? SwitchViewButton() : null,
+        ),
 
         if (kIsWeb) ShareButton(),
 
         FullscreenButton(),
       ],
-    );
-  }
-}
-
-class _PeekaBoo extends StatelessWidget {
-  const _PeekaBoo({this.child});
-
-  final Widget? child;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedSize(
-      duration: Durations.short4,
-      curve: Curves.easeOutQuad,
-      child: child != null ? child! : SizedBox(),
     );
   }
 }
