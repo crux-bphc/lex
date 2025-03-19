@@ -67,7 +67,11 @@ ThemeData buildTheme(ThemeMode mode) {
         WidgetStatePropertyAll(textTheme.bodyMedium?.copyWith(height: 1)),
     backgroundColor: const WidgetStatePropertyAll(Colors.transparent),
     padding: const WidgetStatePropertyAll(EdgeInsets.fromLTRB(14, 7, 14, 8)),
-    side: WidgetStatePropertyAll(BorderSide(width: 1, color: scheme.onSurface)),
+    side: WidgetStateBorderSide.fromMap({
+      WidgetState.focused: BorderSide(color: scheme.onSurface, width: 1),
+      WidgetState.pressed: BorderSide(color: scheme.onSurface, width: 1),
+      WidgetState.any: BorderSide(color: scheme.outline, width: 1),
+    }),
     shape: WidgetStatePropertyAll(
       RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
     ),

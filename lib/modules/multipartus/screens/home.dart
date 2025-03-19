@@ -74,6 +74,8 @@ class _Subjects extends StatefulWidget {
 class _SubjectsState extends State<_Subjects> with SignalsMixin {
   final ScrollController scrollController = ScrollController();
 
+  final FocusNode _searchBarFocusNode = FocusNode();
+
   final _searchText = signal('');
   final _textController = TextEditingController();
 
@@ -100,6 +102,9 @@ class _SubjectsState extends State<_Subjects> with SignalsMixin {
             _debouncedTextUpdater('', now: true);
           }
         },
+        SingleActivator(LogicalKeyboardKey.slash): () {
+          _searchBarFocusNode.requestFocus();
+        },
       },
       // get focus if the user clicks outside the searchbar
       child: FocusScope(
@@ -110,6 +115,7 @@ class _SubjectsState extends State<_Subjects> with SignalsMixin {
               padding: const EdgeInsets.only(right: 25),
               child: _SearchBar(
                 controller: _textController,
+                focusNode: _searchBarFocusNode,
                 onUpdate: (t) => _debouncedTextUpdater(t, now: t.isEmpty),
                 onSubmit: (t) => _debouncedTextUpdater(t, now: true),
               ),
@@ -197,18 +203,18 @@ class _SearchBar extends StatefulWidget {
     required this.onUpdate,
     required this.onSubmit,
     required this.controller,
+    this.focusNode,
   });
 
   final void Function(String text) onUpdate, onSubmit;
   final TextEditingController controller;
+  final FocusNode? focusNode;
 
   @override
   State<_SearchBar> createState() => _SearchBarState();
 }
 
 class _SearchBarState extends State<_SearchBar> {
-  final _focusNode = FocusNode();
-
   @override
   Widget build(BuildContext context) {
     return SearchBar(
@@ -217,7 +223,7 @@ class _SearchBarState extends State<_SearchBar> {
       controller: widget.controller,
       onChanged: (t) => widget.onUpdate(t.trim()),
       onSubmitted: (t) => widget.onSubmit(t.trim()),
-      focusNode: _focusNode,
+      focusNode: widget.focusNode,
       trailing: [
         IconButton(
           icon: Icon(
