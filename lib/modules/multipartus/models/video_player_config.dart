@@ -12,6 +12,7 @@ class VideoPlayerConfigData with _$VideoPlayerConfigData {
     ImpartusVideo? currentVideo,
     double? playbackSpeed,
     double? playbackVolume,
+    @Default(1) int availableViews,
   }) = _VideoPlayerConfigData;
 }
 

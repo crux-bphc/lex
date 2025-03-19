@@ -296,7 +296,8 @@ class ImpartusSeekBarState extends State<ImpartusSeekBar> {
           .getViewAwareFraction(controller.player.state.position)
           .clampNaN(0, 1),
       formatTimestamp: (positionFraction) {
-        final pos = getViewAwareDuration(totalDuration) * positionFraction;
+        final pos =
+            controller.getViewAwareDuration(totalDuration) * positionFraction;
         return pos.format();
       },
       onSeek: (p) {
@@ -325,7 +326,7 @@ class PositionIndicatorState extends State<PositionIndicator>
 
   late final duration = createStreamSignal(
     () => controller.viewAwareDurationStream,
-    initialValue: getViewAwareDuration(totalDuration),
+    initialValue: controller.getViewAwareDuration(totalDuration),
   );
 
   Duration get totalDuration => controller.player.state.duration;
@@ -419,7 +420,7 @@ class _PeekaBooSliderState extends State<_PeekaBooSlider> {
             duration: Durations.short3,
             child: _isHovering()
                 ? _Slider(
-                    key: ValueKey(widget.max),
+                    key: ValueKey((widget.max, widget.min)),
                     value: widget.value,
                     min: widget.min,
                     max: widget.max,
@@ -469,6 +470,7 @@ class _Slider extends StatelessWidget {
             enabledThumbRadius: 6,
             disabledThumbRadius: 6,
           ),
+          padding: EdgeInsets.symmetric(horizontal: 4),
           trackHeight: 1,
           overlayShape: SliderComponentShape.noOverlay,
           thumbColor: Theme.of(context).colorScheme.onSurface,

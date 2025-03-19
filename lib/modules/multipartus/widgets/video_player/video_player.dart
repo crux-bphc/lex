@@ -16,6 +16,7 @@ import 'package:lex/providers/auth/auth_provider.dart';
 import 'package:lex/providers/error.dart';
 import 'package:lex/providers/local_storage/local_storage.dart';
 import 'package:lex/theme.dart';
+import 'package:lex/utils/extensions.dart';
 import 'package:lex/utils/shortcut.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
@@ -58,6 +59,8 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
   final _positionUpdateStopwatch = Stopwatch()..start();
 
+  EffectCleanup? _cleanup;
+
   @override
   void initState() {
     super.initState();
@@ -74,6 +77,8 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
   @override
   void dispose() {
+    _cleanup?.call();
+
     _positionStream?.cancel();
     _volumeStream?.cancel();
     _rateStream?.cancel();
@@ -114,6 +119,15 @@ class _VideoPlayerState extends State<VideoPlayer> {
       ),
     );
 
+    if (!mounted) return;
+    final views = SignalProvider.of<VideoPlayerConfig>(context, listen: false)
+        ?.select((v) => v().availableViews);
+    assert(views != null, "No VideoPlayerConfig signal found in tree");
+
+    _cleanup = effect(() {
+      controller.hasTwoViews = views!() == 2;
+    });
+
     _applyConfig();
 
     // play right after we get the value of duration
@@ -123,6 +137,14 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
     player.stream.buffering.firstWhere((e) => e == false).then((_) {
       player.play();
+    });
+
+    _volumeStream = player.stream.volume.listen((v) {
+      GetIt.instance<LocalStorage>().preferences.playbackVolume.value = v;
+    });
+
+    _rateStream = player.stream.rate.listen((r) {
+      GetIt.instance<LocalStorage>().preferences.playbackSpeed.value = r;
     });
 
     // dont bother setting up listeners if there is no callback
@@ -135,20 +157,13 @@ class _VideoPlayerState extends State<VideoPlayer> {
           _positionUpdateStopwatch.elapsed > widget.positionUpdateInterval;
 
       if (shouldUpdate) {
-        final fraction = controller.getViewAwareFraction(position);
+        final fraction =
+            controller.getViewAwareFraction(position).clampNaN(0, 1);
 
         widget.onPositionChanged!.call(position, fraction);
 
         _positionUpdateStopwatch.reset();
       }
-    });
-
-    _volumeStream = player.stream.volume.listen((v) {
-      GetIt.instance<LocalStorage>().preferences.playbackVolume.value = v;
-    });
-
-    _rateStream = player.stream.rate.listen((r) {
-      GetIt.instance<LocalStorage>().preferences.playbackSpeed.value = r;
     });
   }
 
@@ -203,18 +218,18 @@ class _VideoPlayerState extends State<VideoPlayer> {
       keyboardShortcuts: {
         // left arrow - backward
         KeyEventShortcutActivator<KeyDownEvent>(LogicalKeyboardKey.arrowLeft):
-            () => _startContinuousSeek(Duration(seconds: -10)),
+            () => _startContinuousSeek(Duration(seconds: -5)),
         KeyEventShortcutActivator<KeyRepeatEvent>(LogicalKeyboardKey.arrowLeft):
-            () => _startContinuousSeek(Duration(seconds: -10)),
+            () => _startContinuousSeek(Duration(seconds: -5)),
         KeyEventShortcutActivator<KeyUpEvent>(LogicalKeyboardKey.arrowLeft):
             () => _stopContinuousSeek(),
 
         // right arrow - forward
         KeyEventShortcutActivator<KeyDownEvent>(LogicalKeyboardKey.arrowRight):
-            () => _startContinuousSeek(Duration(seconds: 10)),
+            () => _startContinuousSeek(Duration(seconds: 5)),
         KeyEventShortcutActivator<KeyRepeatEvent>(
           LogicalKeyboardKey.arrowRight,
-        ): () => _startContinuousSeek(Duration(seconds: 10)),
+        ): () => _startContinuousSeek(Duration(seconds: 5)),
         KeyEventShortcutActivator<KeyUpEvent>(LogicalKeyboardKey.arrowRight):
             _stopContinuousSeek,
 
@@ -425,7 +440,7 @@ class _VideoControlsRow extends StatelessWidget {
 
         SpeedButton(),
 
-        SwitchViewButton(),
+        if (config.availableViews > 1) SwitchViewButton(),
 
         if (kIsWeb) ShareButton(),
 
