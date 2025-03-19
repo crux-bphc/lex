@@ -57,7 +57,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
   StreamSubscription<Duration>? _positionStream;
   StreamSubscription<double>? _volumeStream, _rateStream;
 
-  final _positionUpdateStopwatch = Stopwatch()..start();
+  late final Stopwatch _positionUpdateStopwatch;
 
   EffectCleanup? _cleanup;
 
@@ -77,14 +77,14 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
   @override
   void dispose() {
+    player.dispose();
+
     _cleanup?.call();
 
     _positionStream?.cancel();
     _volumeStream?.cancel();
     _rateStream?.cancel();
     _positionUpdateStopwatch.stop();
-
-    player.dispose();
 
     super.dispose();
   }
@@ -119,6 +119,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
       ),
     );
 
+    // double video view check
     if (!mounted) return;
     final views = SignalProvider.of<VideoPlayerConfig>(context, listen: false)
         ?.select((v) => v().availableViews);
@@ -135,10 +136,12 @@ class _VideoPlayerState extends State<VideoPlayer> {
       await player.seek(widget.startTimestamp);
     });
 
+    // play after buffering is done
     player.stream.buffering.firstWhere((e) => e == false).then((_) {
       player.play();
     });
 
+    // store volume and rate in preferences
     _volumeStream = player.stream.volume.listen((v) {
       GetIt.instance<LocalStorage>().preferences.playbackVolume.value = v;
     });
@@ -149,6 +152,8 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
     // dont bother setting up listeners if there is no callback
     if (widget.onPositionChanged == null) return;
+
+    _positionUpdateStopwatch = Stopwatch()..start();
 
     _positionStream = player.stream.position.listen((position) {
       // call onPositionChanged every `positionUpdateInterval`
@@ -413,24 +418,30 @@ class _VideoControlsRow extends StatelessWidget {
     return Row(
       children: [
         // show if there is a previous video
-        if (config.previousVideo != null)
-          VideoNavigationButton(
-            lectureNo: config.previousVideo!.lectureNo.toString(),
-            title: config.previousVideo!.title,
-            icon: Icon(LucideIcons.skip_back),
-            onPressed: () => onNavigate(NavigationType.previous),
-          ),
+        _PeekaBoo(
+          child: (config.previousVideo != null)
+              ? VideoNavigationButton(
+                  lectureNo: config.previousVideo!.lectureNo.toString(),
+                  title: config.previousVideo!.title,
+                  icon: Icon(LucideIcons.skip_back),
+                  onPressed: () => onNavigate(NavigationType.previous),
+                )
+              : null,
+        ),
 
         PlayPauseButton(),
 
         // show if there is a next video
-        if (config.nextVideo != null)
-          VideoNavigationButton(
-            lectureNo: config.nextVideo!.lectureNo.toString(),
-            title: config.nextVideo!.title,
-            icon: Icon(LucideIcons.skip_forward),
-            onPressed: () => onNavigate(NavigationType.next),
-          ),
+        _PeekaBoo(
+          child: config.nextVideo != null
+              ? VideoNavigationButton(
+                  lectureNo: config.nextVideo!.lectureNo.toString(),
+                  title: config.nextVideo!.title,
+                  icon: Icon(LucideIcons.skip_forward),
+                  onPressed: () => onNavigate(NavigationType.next),
+                )
+              : null,
+        ),
 
         VolumeButton(),
 
@@ -440,12 +451,27 @@ class _VideoControlsRow extends StatelessWidget {
 
         SpeedButton(),
 
-        if (config.availableViews > 1) SwitchViewButton(),
+        _PeekaBoo(child: config.availableViews > 1 ? SwitchViewButton() : null),
 
         if (kIsWeb) ShareButton(),
 
         FullscreenButton(),
       ],
+    );
+  }
+}
+
+class _PeekaBoo extends StatelessWidget {
+  const _PeekaBoo({this.child});
+
+  final Widget? child;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSize(
+      duration: Durations.short4,
+      curve: Curves.easeOutQuad,
+      child: child != null ? child! : SizedBox(),
     );
   }
 }
