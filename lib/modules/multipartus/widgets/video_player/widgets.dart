@@ -166,7 +166,7 @@ class SpeedButtonState extends State<SpeedButton>
         onSecondaryTap: _handleDecreaseSpeed,
         child: MaterialDesktopCustomButton(
           onPressed: _handleIncreaseSpeed,
-          iconSize: controlsIconSize + 4,
+          iconSize: controlsIconSize,
           icon: Tooltip(
             message: "Playback speed",
             child: Icon(LucideIcons.chevrons_right),
@@ -245,8 +245,8 @@ class SwitchViewButton extends StatelessWidget {
           );
 
     return AnimatedContainer(
-      height: 20,
-      width: 12,
+      height: 19,
+      width: 11,
       duration: Durations.short2,
       decoration: BoxDecoration(
         color: isActive ? color : null,
