@@ -58,7 +58,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
   StreamSubscription<Duration>? _positionStream;
   StreamSubscription<double>? _volumeStream, _rateStream;
 
-  late final Stopwatch _positionUpdateStopwatch;
+  Stopwatch? _positionUpdateStopwatch;
 
   EffectCleanup? _cleanup;
 
@@ -78,14 +78,16 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
   @override
   void dispose() {
-    player.dispose();
+    _positionUpdateStopwatch?.stop();
+    _positionStream?.cancel();
+    _rateStream?.cancel();
+    _volumeStream?.cancel();
 
     _cleanup?.call();
 
-    _positionStream?.cancel();
-    _volumeStream?.cancel();
-    _rateStream?.cancel();
-    _positionUpdateStopwatch.stop();
+    controller.dispose();
+
+    player.dispose();
 
     super.dispose();
   }
@@ -135,12 +137,14 @@ class _VideoPlayerState extends State<VideoPlayer> {
     // play right after we get the value of duration
     player.stream.duration.first.then((_) async {
       await player.seek(widget.startTimestamp);
-    });
+    }).catchError((_) {});
+    // ^ ignore bad state errors
 
     // play after buffering is done
     player.stream.buffering.firstWhere((e) => e == false).then((_) {
       player.play();
-    });
+    }).catchError((_) {});
+    // ^ ignore bad state errors
 
     // store volume and rate in preferences
     _volumeStream = player.stream.volume.listen((v) {
@@ -160,7 +164,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
       // call onPositionChanged every `positionUpdateInterval`
       final shouldUpdate = mounted &&
           player.state.playing &&
-          _positionUpdateStopwatch.elapsed > widget.positionUpdateInterval;
+          _positionUpdateStopwatch!.elapsed > widget.positionUpdateInterval;
 
       if (shouldUpdate) {
         final fraction =
@@ -168,7 +172,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
         widget.onPositionChanged!.call(position, fraction);
 
-        _positionUpdateStopwatch.reset();
+        _positionUpdateStopwatch!.reset();
       }
     });
   }

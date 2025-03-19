@@ -200,14 +200,63 @@ class SwitchViewButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = getController(context);
-
     return MaterialCustomButton(
       onPressed: () {
         controller.switchViews();
       },
       icon: Tooltip(
         message: 'Switch view (S)',
-        child: Icon(LucideIcons.columns_2),
+        child: Watch(
+          (context) => Row(
+            children: [
+              buildIconSide(
+                context,
+                isLeft: true,
+                // right view is usually seen first
+                isActive: controller.currentView() == 2,
+              ),
+              buildIconSide(
+                context,
+                isLeft: false,
+                isActive: controller.currentView() == 1,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildIconSide(
+    BuildContext context, {
+    required bool isLeft,
+    required bool isActive,
+  }) {
+    final color = Theme.of(context).colorScheme.onSurface;
+    final borderSide = BorderSide(color: color, width: 2);
+    final radius = isLeft
+        ? BorderRadius.only(
+            topLeft: Radius.circular(4),
+            bottomLeft: Radius.circular(4),
+          )
+        : BorderRadius.only(
+            topRight: Radius.circular(4),
+            bottomRight: Radius.circular(4),
+          );
+
+    return AnimatedContainer(
+      height: 20,
+      width: 12,
+      duration: Durations.short2,
+      decoration: BoxDecoration(
+        color: isActive ? color : null,
+        border: Border(
+          left: isLeft ? borderSide : BorderSide.none,
+          right: !isLeft ? borderSide : BorderSide.none,
+          top: borderSide,
+          bottom: borderSide,
+        ),
+        borderRadius: radius,
       ),
     );
   }

@@ -7,22 +7,31 @@ import 'package:lex/utils/extensions.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:media_kit_video/media_kit_video_controls/src/controls/extensions/duration.dart';
+import 'package:signals/signals.dart';
 
 class MultiViewVideoController extends VideoController {
   final GlobalKey<VideoState> videoWidgetKey;
 
   bool hasTwoViews;
 
+  late final List<StreamSubscription> _cleanups;
+
+  final Signal<int> _currentView = signal(1);
+  ReadonlySignal<int> get currentView => _currentView.readonly();
+
   MultiViewVideoController({
     required Player player,
     required this.videoWidgetKey,
     this.hasTwoViews = false,
   }) : super(player) {
-    player.stream.position.listen((event) {
-      if (_continuousSeekPosition == null) {
-        _positionStreamController.add(getViewAwarePosition(event));
-      }
-    });
+    _cleanups = [
+      player.stream.position.listen((event) {
+        _currentView.value = isView2(player.state.position) ? 2 : 1;
+        if (_continuousSeekPosition == null) {
+          _positionStreamController.add(getViewAwarePosition(event));
+        }
+      }),
+    ];
   }
 
   late double _beforeMutingVolume = player.state.volume;
@@ -61,6 +70,8 @@ class MultiViewVideoController extends VideoController {
 
   void switchViews() {
     if (!hasTwoViews) return;
+
+    _currentView.value = _currentView.value == 1 ? 2 : 1;
 
     final total = player.state.duration.inMilliseconds;
     final totalHalf = total ~/ 2;
@@ -161,5 +172,11 @@ class MultiViewVideoController extends VideoController {
     }
 
     VideoNavigateNotification(type).dispatch(context);
+  }
+
+  void dispose() {
+    for (final cleanup in _cleanups) {
+      cleanup.cancel();
+    }
   }
 }

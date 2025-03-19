@@ -315,6 +315,7 @@ class _LeftSideState extends State<_LeftSide> {
                       IconButton(
                         onPressed: _showShortcutsDialog,
                         icon: Icon(LucideIcons.info),
+                        iconSize: 18,
                       ),
                       _ScrollButton(
                         onPressed: () => _scrollController.position.moveTo(
