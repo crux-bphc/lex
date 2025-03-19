@@ -4,6 +4,7 @@ import 'package:lex/modules/multipartus/models/subject.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/lecture_title.dart';
 import 'package:lex/utils/misc.dart';
+import 'package:lex/widgets/shared_axis_switcher.dart';
 
 class VideoTitle extends StatelessWidget {
   const VideoTitle({
@@ -70,16 +71,26 @@ class VideoTitle extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 3),
-            if (data != null) ...[
-              LectureTitle(
-                lectureNo: data.lectureNo.toString(),
-                title: data.title,
+            if (data != null)
+              SharedAxisSwitcher(
+                value: data.lectureNo,
+                duration: Durations.medium4,
+                child: Column(
+                  key: ValueKey(data.title),
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    LectureTitle(
+                      lectureNo: data.lectureNo.toString(),
+                      title: data.title,
+                    ),
+                    const SizedBox(height: 3),
+                    _DateTitle(
+                      text: formatDate(data.createdAt),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 3),
-              _DateTitle(
-                text: formatDate(data.createdAt),
-              ),
-            ],
           ],
         );
       },

@@ -8,6 +8,7 @@ import 'package:lex/router/router.dart';
 import 'package:lex/router/theme_switcher.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
+import 'package:lex/widgets/shared_axis_switcher.dart';
 import 'package:signals/signals_flutter.dart';
 
 const _navItems = [
@@ -173,32 +174,39 @@ class CruxBackButton extends StatelessWidget {
           (context) {
             final showBack = backButtonObserver.showBackButton();
 
-            return const _CruxIcon()
-                .animate(target: showBack ? 1 : 0)
-                .fadeOut(duration: 160.ms, curve: Curves.easeOutCubic)
-                .slideX(
-                  begin: 0,
-                  end: -0.2,
-                  duration: 180.ms,
-                  curve: Curves.easeIn,
-                )
-                .swap(
-                  duration: 180.ms,
-                  builder: (_, __) => _BackButton(
-                    onPressed: backButtonObserver.pop,
-                  )
-                      .animate()
-                      .fadeIn(
-                        duration: 100.ms,
-                        curve: Curves.easeOutCubic,
-                      )
-                      .slideX(
-                        begin: 0.1,
-                        end: 0,
-                        duration: 120.ms,
-                        curve: Curves.easeOutQuad,
-                      ),
-                );
+            // return const _CruxIcon()
+            //     .animate(target: showBack ? 1 : 0)
+            //     .fadeOut(duration: 160.ms, curve: Curves.easeOutCubic)
+            //     .slideX(
+            //       begin: 0,
+            //       end: -0.2,
+            //       duration: 180.ms,
+            //       curve: Curves.easeIn,
+            //     )
+            //     .swap(
+            //       duration: 180.ms,
+            //       builder: (_, __) => _BackButton(
+            //         onPressed: backButtonObserver.pop,
+            //       )
+            //           .animate()
+            //           .fadeIn(
+            //             duration: 100.ms,
+            //             curve: Curves.easeOutCubic,
+            //           )
+            //           .slideX(
+            //             begin: 0.1,
+            //             end: 0,
+            //             duration: 120.ms,
+            //             curve: Curves.easeOutQuad,
+            //           ),
+            // );
+
+            return SharedAxisSwitcher(
+              value: showBack ? 1 : 0,
+              child: showBack
+                  ? _BackButton(onPressed: backButtonObserver.pop)
+                  : _CruxIcon(),
+            );
           },
         ),
       ),
@@ -235,6 +243,7 @@ class _BackButton extends StatelessWidget {
         backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
       ),
       icon: const Icon(LucideIcons.arrow_left),
+      iconSize: 30,
     );
   }
 }
