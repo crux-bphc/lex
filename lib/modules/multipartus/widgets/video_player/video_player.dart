@@ -293,10 +293,18 @@ class _VideoPlayerState extends State<VideoPlayer> {
         KeyEventShortcutActivator<KeyDownEvent>(
           LogicalKeyboardKey.greater,
         ): controller.increaseRate,
+        KeyEventShortcutActivator<KeyDownEvent>(
+          LogicalKeyboardKey.period,
+          shift: true,
+        ): controller.increaseRate,
 
         // Shift + , - decrease speed
         KeyEventShortcutActivator<KeyDownEvent>(
           LogicalKeyboardKey.less,
+        ): controller.decreaseRate,
+        KeyEventShortcutActivator<KeyDownEvent>(
+          LogicalKeyboardKey.comma,
+          shift: true,
         ): controller.decreaseRate,
 
         // Down arrow - decrease volume
