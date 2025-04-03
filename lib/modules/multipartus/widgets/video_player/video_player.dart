@@ -122,6 +122,18 @@ class _VideoPlayerState extends State<VideoPlayer> {
       ),
     );
 
+    player.stream.track.listen((v) {
+      debugPrint("video set to ${v.video.h}");
+    });
+
+    player.stream.tracks.listen((s) async {
+      final bestTrack = s.video
+          .map((e) => (e, e.h ?? 0))
+          .reduce((a, b) => a.$2 > b.$2 ? a : b)
+          .$1;
+      await player.setVideoTrack(bestTrack);
+    });
+
     // double video view check
     if (!mounted) return;
     final views = SignalProvider.of<VideoPlayerConfig>(context, listen: false)
@@ -154,7 +166,6 @@ class _VideoPlayerState extends State<VideoPlayer> {
     _rateStream = player.stream.rate.listen((r) {
       GetIt.instance<LocalStorage>().preferences.playbackSpeed.value = r;
     });
-
     // dont bother setting up listeners if there is no callback
     if (widget.onPositionChanged == null) return;
 

@@ -182,7 +182,6 @@ class _Slides extends StatelessWidget {
                     .titleTextStyle!
                     .copyWith(letterSpacing: 1.5),
               ),
-              // _DownloadSlidesButton(ttid: ttid, isEnabled: ),
             ],
           ),
           SizedBox(height: 10),
@@ -443,7 +442,9 @@ class _AdjacentVideos extends StatelessWidget {
           if (scrollController.position.extentBefore > 50) {
             await scrollController.position.moveTo(
               0,
-              duration: Durations.medium2,
+              duration: Durations.long1 *
+                  (scrollController.position.extentBefore /
+                      scrollController.position.extentTotal),
               curve: Curves.easeInOutQuad,
               clamp: false,
             );

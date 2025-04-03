@@ -222,9 +222,7 @@ class _SeekBarState extends State<SeekBar> with SignalsMixin {
     // _overlayController.hide();
 
     if (mounted) {
-      batch(() {
-        isHovering.value = false;
-      });
+      isHovering.value = false;
     }
   }
 
@@ -249,12 +247,5 @@ class _SeekBarState extends State<SeekBar> with SignalsMixin {
         pointerFraction.value = percent;
       });
     }
-  }
-
-  @override
-  void dispose() {
-    // _overlayController.hide();
-
-    super.dispose();
   }
 }
