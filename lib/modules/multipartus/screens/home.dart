@@ -94,6 +94,8 @@ class _Subjects extends StatefulWidget {
 class _SubjectsState extends State<_Subjects> with SignalsMixin {
   final ScrollController scrollController = ScrollController();
 
+  final FocusNode _searchBarFocusNode = FocusNode();
+
   final _searchText = signal('');
   final _textController = TextEditingController();
 
@@ -120,6 +122,9 @@ class _SubjectsState extends State<_Subjects> with SignalsMixin {
             _debouncedTextUpdater('', now: true);
           }
         },
+        SingleActivator(LogicalKeyboardKey.slash): () {
+          _searchBarFocusNode.requestFocus();
+        },
       },
       // get focus if the user clicks outside the searchbar
       child: FocusScope(
@@ -130,6 +135,7 @@ class _SubjectsState extends State<_Subjects> with SignalsMixin {
               padding: const EdgeInsets.only(right: 25),
               child: _SearchBar(
                 controller: _textController,
+                focusNode: _searchBarFocusNode,
                 onUpdate: (t) => _debouncedTextUpdater(t, now: t.isEmpty),
                 onSubmit: (t) => _debouncedTextUpdater(t, now: true),
               ),
@@ -212,36 +218,46 @@ class _SubjectsState extends State<_Subjects> with SignalsMixin {
   }
 }
 
-class _SearchBar extends StatelessWidget {
+class _SearchBar extends StatefulWidget {
   const _SearchBar({
     required this.onUpdate,
     required this.onSubmit,
     required this.controller,
+    this.focusNode,
   });
 
   final void Function(String text) onUpdate, onSubmit;
   final TextEditingController controller;
+  final FocusNode? focusNode;
 
+  @override
+  State<_SearchBar> createState() => _SearchBarState();
+}
+
+class _SearchBarState extends State<_SearchBar> {
   @override
   Widget build(BuildContext context) {
     return SearchBar(
       autoFocus: !PlatformIsMobile.of(context),
       hintText: "Search for any course",
-      controller: controller,
-      onChanged: (t) => onUpdate(t.trim()),
-      onSubmitted: (t) => onSubmit(t.trim()),
+      controller: widget.controller,
+      onChanged: (t) => widget.onUpdate(t.trim()),
+      onSubmitted: (t) => widget.onSubmit(t.trim()),
+      focusNode: widget.focusNode,
       trailing: [
         IconButton(
           icon: Icon(
-            controller.text.isNotEmpty ? LucideIcons.x : LucideIcons.search,
+            widget.controller.text.isNotEmpty
+                ? LucideIcons.x
+                : LucideIcons.search,
             size: 20,
           ),
           onPressed: () {
-            if (controller.text.isNotEmpty) {
-              controller.clear();
-              onUpdate('');
+            if (widget.controller.text.isNotEmpty) {
+              widget.controller.clear();
+              widget.onUpdate('');
             } else {
-              onSubmit(controller.text);
+              widget.onSubmit(widget.controller.text);
             }
           },
           visualDensity: VisualDensity.compact,

@@ -66,8 +66,9 @@ class OidcAuthProvider extends AuthProvider {
       InterceptorsWrapper(
         onError: (error, handler) {
           final message = error.response?.statusMessage;
+          final text = message != null ? ": $message" : "";
           GetIt.instance<ErrorService>()
-              .reportError("There was a problem with the Lex server: $message");
+              .reportError("There was a problem with the Lex server$text");
           handler.next(error);
         },
       ),

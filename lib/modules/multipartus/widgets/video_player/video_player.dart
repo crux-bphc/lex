@@ -9,6 +9,7 @@ import 'package:get_it/get_it.dart';
 import 'package:lex/modules/multipartus/models/video_player_config.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/lecture_title.dart';
+import 'package:lex/modules/multipartus/widgets/peekaboo.dart';
 import 'package:lex/modules/multipartus/widgets/video_player/controller.dart';
 import 'package:lex/modules/multipartus/widgets/video_player/utils.dart';
 import 'package:lex/modules/multipartus/widgets/video_player/widgets.dart';
@@ -16,6 +17,7 @@ import 'package:lex/providers/auth/auth_provider.dart';
 import 'package:lex/providers/error.dart';
 import 'package:lex/providers/local_storage/local_storage.dart';
 import 'package:lex/theme.dart';
+import 'package:lex/utils/extensions.dart';
 import 'package:lex/utils/shortcut.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
@@ -55,8 +57,11 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
   StreamSubscription<Duration>? _positionStream;
   StreamSubscription<double>? _volumeStream, _rateStream;
+  StreamSubscription<Tracks>? _tracksStream;
 
-  final _positionUpdateStopwatch = Stopwatch()..start();
+  Stopwatch? _positionUpdateStopwatch;
+
+  EffectCleanup? _cleanup;
 
   @override
   void initState() {
@@ -74,10 +79,17 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
   @override
   void dispose() {
+    debugPrint("dispose");
+    _positionUpdateStopwatch?.stop();
+
+    _tracksStream?.cancel();
     _positionStream?.cancel();
-    _volumeStream?.cancel();
     _rateStream?.cancel();
-    _positionUpdateStopwatch.stop();
+    _volumeStream?.cancel();
+
+    _cleanup?.call();
+
+    controller.dispose();
 
     player.dispose();
 
@@ -101,9 +113,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
       return;
     }
 
-    final idToken = Uri.encodeQueryComponent(
-      GetIt.instance<AuthProvider>().currentUser.value!.idToken!,
-    );
+    final idToken = GetIt.instance<AuthProvider>().currentUser.value!.idToken!;
 
     await player.open(
       Media(
@@ -114,41 +124,71 @@ class _VideoPlayerState extends State<VideoPlayer> {
       ),
     );
 
+    _tracksStream?.cancel();
+    _tracksStream = player.stream.tracks.listen((s) async {
+      debugPrint("set");
+      final bestTrack = s.video
+          .map((e) => (e, e.h ?? 0))
+          .reduce((a, b) => a.$2 > b.$2 ? a : b)
+          .$1;
+      await player.setVideoTrack(bestTrack);
+    });
+
+    // double video view check
+    if (!mounted) return;
+    final views = SignalProvider.of<VideoPlayerConfig>(context, listen: false)
+        ?.select((v) => v().availableViews);
+    assert(views != null, "No VideoPlayerConfig signal found in tree");
+
+    _cleanup = effect(() {
+      controller.hasTwoViews = views!() == 2;
+    });
+
     _applyConfig();
 
     // play right after we get the value of duration
     player.stream.duration.first.then((_) async {
       await player.seek(widget.startTimestamp);
-    });
+    }).catchError((_) {});
+    // ^ ignore bad state errors
 
+    // play after buffering is done
     player.stream.buffering.firstWhere((e) => e == false).then((_) {
       player.play();
-    });
+    }).catchError((_) {});
+    // ^ ignore bad state errors
 
-    // dont bother setting up listeners if there is no callback
-    if (widget.onPositionChanged == null) return;
+    _positionStream?.cancel();
+    _rateStream?.cancel();
+    _volumeStream?.cancel();
 
-    _positionStream = player.stream.position.listen((position) {
-      // call onPositionChanged every `positionUpdateInterval`
-      final shouldUpdate = mounted &&
-          player.state.playing &&
-          _positionUpdateStopwatch.elapsed > widget.positionUpdateInterval;
-
-      if (shouldUpdate) {
-        final fraction = controller.getViewAwareFraction(position);
-
-        widget.onPositionChanged!.call(position, fraction);
-
-        _positionUpdateStopwatch.reset();
-      }
-    });
-
+    // store volume and rate in preferences
     _volumeStream = player.stream.volume.listen((v) {
       GetIt.instance<LocalStorage>().preferences.playbackVolume.value = v;
     });
 
     _rateStream = player.stream.rate.listen((r) {
       GetIt.instance<LocalStorage>().preferences.playbackSpeed.value = r;
+    });
+    // dont bother setting up listeners if there is no callback
+    if (widget.onPositionChanged == null) return;
+
+    _positionUpdateStopwatch = Stopwatch()..start();
+
+    _positionStream = player.stream.position.listen((position) {
+      // call onPositionChanged every `positionUpdateInterval`
+      final shouldUpdate = mounted &&
+          player.state.playing &&
+          _positionUpdateStopwatch!.elapsed > widget.positionUpdateInterval;
+
+      if (shouldUpdate) {
+        final fraction =
+            controller.getViewAwareFraction(position).clampNaN(0, 1);
+
+        widget.onPositionChanged!.call(position, fraction);
+
+        _positionUpdateStopwatch!.reset();
+      }
     });
   }
 
@@ -203,18 +243,18 @@ class _VideoPlayerState extends State<VideoPlayer> {
       keyboardShortcuts: {
         // left arrow - backward
         KeyEventShortcutActivator<KeyDownEvent>(LogicalKeyboardKey.arrowLeft):
-            () => _startContinuousSeek(Duration(seconds: -10)),
+            () => _startContinuousSeek(Duration(seconds: -5)),
         KeyEventShortcutActivator<KeyRepeatEvent>(LogicalKeyboardKey.arrowLeft):
-            () => _startContinuousSeek(Duration(seconds: -10)),
+            () => _startContinuousSeek(Duration(seconds: -5)),
         KeyEventShortcutActivator<KeyUpEvent>(LogicalKeyboardKey.arrowLeft):
             () => _stopContinuousSeek(),
 
         // right arrow - forward
         KeyEventShortcutActivator<KeyDownEvent>(LogicalKeyboardKey.arrowRight):
-            () => _startContinuousSeek(Duration(seconds: 10)),
+            () => _startContinuousSeek(Duration(seconds: 5)),
         KeyEventShortcutActivator<KeyRepeatEvent>(
           LogicalKeyboardKey.arrowRight,
-        ): () => _startContinuousSeek(Duration(seconds: 10)),
+        ): () => _startContinuousSeek(Duration(seconds: 5)),
         KeyEventShortcutActivator<KeyUpEvent>(LogicalKeyboardKey.arrowRight):
             _stopContinuousSeek,
 
@@ -268,10 +308,18 @@ class _VideoPlayerState extends State<VideoPlayer> {
         KeyEventShortcutActivator<KeyDownEvent>(
           LogicalKeyboardKey.greater,
         ): controller.increaseRate,
+        KeyEventShortcutActivator<KeyDownEvent>(
+          LogicalKeyboardKey.period,
+          shift: true,
+        ): controller.increaseRate,
 
         // Shift + , - decrease speed
         KeyEventShortcutActivator<KeyDownEvent>(
           LogicalKeyboardKey.less,
+        ): controller.decreaseRate,
+        KeyEventShortcutActivator<KeyDownEvent>(
+          LogicalKeyboardKey.comma,
+          shift: true,
         ): controller.decreaseRate,
 
         // Down arrow - decrease volume
@@ -398,24 +446,32 @@ class _VideoControlsRow extends StatelessWidget {
     return Row(
       children: [
         // show if there is a previous video
-        if (config.previousVideo != null)
-          VideoNavigationButton(
-            lectureNo: config.previousVideo!.lectureNo.toString(),
-            title: config.previousVideo!.title,
-            icon: Icon(LucideIcons.skip_back),
-            onPressed: () => onNavigate(NavigationType.previous),
-          ),
+        PeekaBoo(
+          alignment: Alignment.centerLeft,
+          child: (config.previousVideo != null)
+              ? VideoNavigationButton(
+                  lectureNo: config.previousVideo!.lectureNo.toString(),
+                  title: config.previousVideo!.title,
+                  icon: Icon(LucideIcons.skip_back),
+                  onPressed: () => onNavigate(NavigationType.previous),
+                )
+              : null,
+        ),
 
         PlayPauseButton(),
 
         // show if there is a next video
-        if (config.nextVideo != null)
-          VideoNavigationButton(
-            lectureNo: config.nextVideo!.lectureNo.toString(),
-            title: config.nextVideo!.title,
-            icon: Icon(LucideIcons.skip_forward),
-            onPressed: () => onNavigate(NavigationType.next),
-          ),
+        PeekaBoo(
+          alignment: Alignment.centerRight,
+          child: config.nextVideo != null
+              ? VideoNavigationButton(
+                  lectureNo: config.nextVideo!.lectureNo.toString(),
+                  title: config.nextVideo!.title,
+                  icon: Icon(LucideIcons.skip_forward),
+                  onPressed: () => onNavigate(NavigationType.next),
+                )
+              : null,
+        ),
 
         VolumeButton(),
 
@@ -425,7 +481,10 @@ class _VideoControlsRow extends StatelessWidget {
 
         SpeedButton(),
 
-        SwitchViewButton(),
+        PeekaBoo(
+          alignment: Alignment.centerLeft,
+          child: config.availableViews > 1 ? SwitchViewButton() : null,
+        ),
 
         if (kIsWeb) ShareButton(),
 

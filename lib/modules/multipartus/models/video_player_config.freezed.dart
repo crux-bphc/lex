@@ -21,6 +21,7 @@ mixin _$VideoPlayerConfigData {
   ImpartusVideo? get currentVideo => throw _privateConstructorUsedError;
   double? get playbackSpeed => throw _privateConstructorUsedError;
   double? get playbackVolume => throw _privateConstructorUsedError;
+  int get availableViews => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -31,7 +32,8 @@ class _$VideoPlayerConfigDataImpl implements _VideoPlayerConfigData {
       this.nextVideo,
       this.currentVideo,
       this.playbackSpeed,
-      this.playbackVolume});
+      this.playbackVolume,
+      this.availableViews = 1});
 
   @override
   final ImpartusVideo? previousVideo;
@@ -43,10 +45,13 @@ class _$VideoPlayerConfigDataImpl implements _VideoPlayerConfigData {
   final double? playbackSpeed;
   @override
   final double? playbackVolume;
+  @override
+  @JsonKey()
+  final int availableViews;
 
   @override
   String toString() {
-    return 'VideoPlayerConfigData(previousVideo: $previousVideo, nextVideo: $nextVideo, currentVideo: $currentVideo, playbackSpeed: $playbackSpeed, playbackVolume: $playbackVolume)';
+    return 'VideoPlayerConfigData(previousVideo: $previousVideo, nextVideo: $nextVideo, currentVideo: $currentVideo, playbackSpeed: $playbackSpeed, playbackVolume: $playbackVolume, availableViews: $availableViews)';
   }
 
   @override
@@ -63,12 +68,14 @@ class _$VideoPlayerConfigDataImpl implements _VideoPlayerConfigData {
             (identical(other.playbackSpeed, playbackSpeed) ||
                 other.playbackSpeed == playbackSpeed) &&
             (identical(other.playbackVolume, playbackVolume) ||
-                other.playbackVolume == playbackVolume));
+                other.playbackVolume == playbackVolume) &&
+            (identical(other.availableViews, availableViews) ||
+                other.availableViews == availableViews));
   }
 
   @override
   int get hashCode => Object.hash(runtimeType, previousVideo, nextVideo,
-      currentVideo, playbackSpeed, playbackVolume);
+      currentVideo, playbackSpeed, playbackVolume, availableViews);
 }
 
 abstract class _VideoPlayerConfigData implements VideoPlayerConfigData {
@@ -77,7 +84,8 @@ abstract class _VideoPlayerConfigData implements VideoPlayerConfigData {
       final ImpartusVideo? nextVideo,
       final ImpartusVideo? currentVideo,
       final double? playbackSpeed,
-      final double? playbackVolume}) = _$VideoPlayerConfigDataImpl;
+      final double? playbackVolume,
+      final int availableViews}) = _$VideoPlayerConfigDataImpl;
 
   @override
   ImpartusVideo? get previousVideo;
@@ -89,4 +97,6 @@ abstract class _VideoPlayerConfigData implements VideoPlayerConfigData {
   double? get playbackSpeed;
   @override
   double? get playbackVolume;
+  @override
+  int get availableViews;
 }

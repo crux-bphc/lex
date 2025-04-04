@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:lex/modules/multipartus/widgets/lecture_title.dart';
+import 'package:lex/modules/multipartus/widgets/peekaboo.dart';
 import 'package:lex/modules/multipartus/widgets/seekbar.dart';
 import 'package:lex/modules/multipartus/widgets/video_player/utils.dart';
 import 'package:lex/utils/extensions.dart';
@@ -165,7 +166,7 @@ class SpeedButtonState extends State<SpeedButton>
         onSecondaryTap: _handleDecreaseSpeed,
         child: MaterialDesktopCustomButton(
           onPressed: _handleIncreaseSpeed,
-          iconSize: controlsIconSize + 4,
+          iconSize: controlsIconSize,
           icon: Tooltip(
             message: "Playback speed",
             child: Icon(LucideIcons.chevrons_right),
@@ -199,14 +200,63 @@ class SwitchViewButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = getController(context);
-
     return MaterialCustomButton(
       onPressed: () {
         controller.switchViews();
       },
       icon: Tooltip(
         message: 'Switch view (S)',
-        child: Icon(LucideIcons.columns_2),
+        child: Watch(
+          (context) => Row(
+            children: [
+              buildIconSide(
+                context,
+                isLeft: true,
+                // right view is usually seen first
+                isActive: controller.currentView() == 2,
+              ),
+              buildIconSide(
+                context,
+                isLeft: false,
+                isActive: controller.currentView() == 1,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildIconSide(
+    BuildContext context, {
+    required bool isLeft,
+    required bool isActive,
+  }) {
+    final color = Theme.of(context).colorScheme.onSurface;
+    final borderSide = BorderSide(color: color, width: 2);
+    final radius = isLeft
+        ? BorderRadius.only(
+            topLeft: Radius.circular(4),
+            bottomLeft: Radius.circular(4),
+          )
+        : BorderRadius.only(
+            topRight: Radius.circular(4),
+            bottomRight: Radius.circular(4),
+          );
+
+    return AnimatedContainer(
+      height: 19,
+      width: 11,
+      duration: Durations.short2,
+      decoration: BoxDecoration(
+        color: isActive ? color : null,
+        border: Border(
+          left: isLeft ? borderSide : BorderSide.none,
+          right: !isLeft ? borderSide : BorderSide.none,
+          top: borderSide,
+          bottom: borderSide,
+        ),
+        borderRadius: radius,
       ),
     );
   }
@@ -296,7 +346,8 @@ class ImpartusSeekBarState extends State<ImpartusSeekBar> {
           .getViewAwareFraction(controller.player.state.position)
           .clampNaN(0, 1),
       formatTimestamp: (positionFraction) {
-        final pos = getViewAwareDuration(totalDuration) * positionFraction;
+        final pos =
+            controller.getViewAwareDuration(totalDuration) * positionFraction;
         return pos.format();
       },
       onSeek: (p) {
@@ -325,7 +376,7 @@ class PositionIndicatorState extends State<PositionIndicator>
 
   late final duration = createStreamSignal(
     () => controller.viewAwareDurationStream,
-    initialValue: getViewAwareDuration(totalDuration),
+    initialValue: controller.getViewAwareDuration(totalDuration),
   );
 
   Duration get totalDuration => controller.player.state.duration;
@@ -409,28 +460,24 @@ class _PeekaBooSliderState extends State<_PeekaBooSlider> {
       : SizedBox();
 
   Widget _buildMiddle(BuildContext context) => Watch(
-        (context) => AnimatedSize(
-          duration: Durations.short3,
+        (context) => PeekaBoo(
           alignment: widget.isButtonLeading
               ? Alignment.centerRight
               : Alignment.centerLeft,
           curve: Curves.easeInOutQuad,
-          child: AnimatedSwitcher(
-            duration: Durations.short3,
-            child: _isHovering()
-                ? _Slider(
-                    key: ValueKey(widget.max),
-                    value: widget.value,
-                    min: widget.min,
-                    max: widget.max,
-                    spacing: widget.spacing,
-                    sliderWidth: widget.sliderWidth,
-                    onChanged: widget.onChanged,
-                    isButtonLeading: widget.isButtonLeading,
-                    divisions: widget.divisions,
-                  )
-                : SizedBox(),
-          ),
+          child: _isHovering()
+              ? _Slider(
+                  key: ValueKey((widget.max, widget.min)),
+                  value: widget.value,
+                  min: widget.min,
+                  max: widget.max,
+                  spacing: widget.spacing,
+                  sliderWidth: widget.sliderWidth,
+                  onChanged: widget.onChanged,
+                  isButtonLeading: widget.isButtonLeading,
+                  divisions: widget.divisions,
+                )
+              : null,
         ),
       );
 }
@@ -469,6 +516,7 @@ class _Slider extends StatelessWidget {
             enabledThumbRadius: 6,
             disabledThumbRadius: 6,
           ),
+          padding: EdgeInsets.symmetric(horizontal: 4),
           trackHeight: 1,
           overlayShape: SliderComponentShape.noOverlay,
           thumbColor: Theme.of(context).colorScheme.onSurface,

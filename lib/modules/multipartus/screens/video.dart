@@ -36,12 +36,13 @@ class MultipartusVideoPage extends StatefulWidget {
 class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
   final config = VideoPlayerConfig();
 
-  Future<VideoPlayerConfigData> _fetchConfig() async {
+  Future<VideoPlayerConfigData> _fetchConfig(String ttid) async {
     final service = GetIt.instance<MultipartusService>();
     final result = await service.getAdjacentVideos(
-      ttid: widget.ttid,
+      ttid: ttid,
       count: 1,
     );
+    final numViews = await service.getNumAvailableVideoViews(ttid);
 
     final playbackSpeed =
         GetIt.instance<LocalStorage>().preferences.playbackSpeed();
@@ -54,11 +55,12 @@ class _MultipartusVideoPageState extends State<MultipartusVideoPage> {
       nextVideo: result.next.firstOrNull,
       playbackSpeed: playbackSpeed,
       playbackVolume: playbackVolume,
+      availableViews: numViews,
     );
   }
 
   void _updateConfigSignal() async {
-    final result = await _fetchConfig();
+    final result = await _fetchConfig(widget.ttid);
     config.value = result;
   }
 
@@ -180,7 +182,6 @@ class _Slides extends StatelessWidget {
                     .titleTextStyle!
                     .copyWith(letterSpacing: 1.5),
               ),
-              // _DownloadSlidesButton(ttid: ttid, isEnabled: ),
             ],
           ),
           SizedBox(height: 10),
@@ -246,16 +247,16 @@ class _LeftSideState extends State<_LeftSide> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: const [
-            Text(">  Space - Play/Pause"),
-            Text(">  J / Left Arrow - Rewind 10s"),
-            Text(">  L / Right Arrow - Forward 10s"),
-            Text(">  Shift + P - Previous Video"),
-            Text(">  Shift + N - Next Video"),
-            Text(">  Shift + . - Increase Speed"),
-            Text(">  Shift + , - Decrease Speed"),
-            Text(">  M - Mute/Unmute"),
-            Text(">  S - Switch Views"),
-            Text(">  F - Toggle Fullscreen"),
+            Text("Space - Play/Pause"),
+            Text("J / Left Arrow - Rewind 10s"),
+            Text("L / Right Arrow - Forward 10s"),
+            Text("Shift + P - Previous Video"),
+            Text("Shift + N - Next Video"),
+            Text("Shift + . - Increase Speed"),
+            Text("Shift + , - Decrease Speed"),
+            Text("M - Mute/Unmute"),
+            Text("S - Switch Views"),
+            Text("F - Toggle Fullscreen"),
           ],
         ),
         actions: [
@@ -313,6 +314,7 @@ class _LeftSideState extends State<_LeftSide> {
                       IconButton(
                         onPressed: _showShortcutsDialog,
                         icon: Icon(LucideIcons.info),
+                        iconSize: 18,
                       ),
                       _ScrollButton(
                         onPressed: () => _scrollController.position.moveTo(
@@ -440,7 +442,9 @@ class _AdjacentVideos extends StatelessWidget {
           if (scrollController.position.extentBefore > 50) {
             await scrollController.position.moveTo(
               0,
-              duration: Durations.medium2,
+              duration: Durations.long1 *
+                  (scrollController.position.extentBefore /
+                      scrollController.position.extentTotal),
               curve: Curves.easeInOutQuad,
               clamp: false,
             );

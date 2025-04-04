@@ -204,6 +204,19 @@ class MultipartusService {
     );
   }
 
+  Future<int> getNumAvailableVideoViews(String ttid) async {
+    final r = await _backend.get('/impartus/ttid/$ttid/m3u8/info');
+
+    // not having the number of views a video has isn't important enough
+    // to throw an error
+    if (r.data is! Map || r.data["views"] is! Map) return 1;
+
+    final count =
+        (r.data["views"]["left"] ? 1 : 0) + (r.data["views"]["right"] ? 1 : 0);
+
+    return count;
+  }
+
   Future<Subject> fetchSubject(SubjectId id) async {
     // retrieve from cache
     final maybe = _subjectMap[id];

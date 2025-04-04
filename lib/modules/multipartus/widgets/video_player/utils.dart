@@ -4,11 +4,6 @@ import 'package:media_kit_video/media_kit_video.dart';
 
 const controlsIconSize = 24.0;
 
-Duration getViewAwareDuration(Duration totalDuration) =>
-    totalDuration == Duration.zero
-        ? const Duration(minutes: 59, seconds: 59)
-        : totalDuration * 0.5;
-
 MultiViewVideoController getController(BuildContext context) =>
     VideoStateInheritedWidget.of(context).state.widget.controller
         as MultiViewVideoController;

@@ -7,19 +7,31 @@ import 'package:lex/utils/extensions.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:media_kit_video/media_kit_video_controls/src/controls/extensions/duration.dart';
+import 'package:signals/signals.dart';
 
 class MultiViewVideoController extends VideoController {
   final GlobalKey<VideoState> videoWidgetKey;
 
+  bool hasTwoViews;
+
+  late final List<StreamSubscription> _cleanups;
+
+  final Signal<int> _currentView = signal(1);
+  ReadonlySignal<int> get currentView => _currentView.readonly();
+
   MultiViewVideoController({
     required Player player,
     required this.videoWidgetKey,
+    this.hasTwoViews = false,
   }) : super(player) {
-    player.stream.position.listen((event) {
-      if (_continuousSeekPosition == null) {
-        _positionStreamController.add(getViewAwarePosition(event));
-      }
-    });
+    _cleanups = [
+      player.stream.position.listen((event) {
+        _currentView.value = isView2(player.state.position) ? 2 : 1;
+        if (_continuousSeekPosition == null) {
+          _positionStreamController.add(getViewAwarePosition(event));
+        }
+      }),
+    ];
   }
 
   late double _beforeMutingVolume = player.state.volume;
@@ -43,17 +55,24 @@ class MultiViewVideoController extends VideoController {
   late final viewAwarePositionStream = _positionStreamController.stream;
 
   bool isView2(Duration position) =>
-      position > getViewAwareDuration(totalDuration);
+      hasTwoViews && position > getViewAwareDuration(totalDuration);
 
   Duration getViewAwarePosition(Duration position) => isView2(position)
       ? position - getViewAwareDuration(totalDuration)
       : position;
+
+  Duration getViewAwareDuration(Duration totalDuration) =>
+      totalDuration * (hasTwoViews ? 0.5 : 1);
 
   double getViewAwareFraction(Duration position) =>
       getViewAwarePosition(position).inMilliseconds /
       getViewAwareDuration(totalDuration).inMilliseconds;
 
   void switchViews() {
+    if (!hasTwoViews) return;
+
+    _currentView.value = _currentView.value == 1 ? 2 : 1;
+
     final total = player.state.duration.inMilliseconds;
     final totalHalf = total ~/ 2;
     final current = player.state.position.inMilliseconds;
@@ -65,13 +84,9 @@ class MultiViewVideoController extends VideoController {
   }
 
   void viewAwareFractionalSeek(double positionFraction) {
-    final actual = getViewAwareDuration(totalDuration);
+    final duration = getViewAwareDuration(totalDuration);
 
-    player.seek(
-      isView2(player.state.position)
-          ? actual + actual * positionFraction
-          : actual * positionFraction,
-    );
+    viewAwareSeek(duration * positionFraction);
   }
 
   void viewAwareContinuousSeekBy(Duration duration) {
@@ -80,13 +95,17 @@ class MultiViewVideoController extends VideoController {
     _continuousSeekPosition = (_continuousSeekPosition! + duration)
         .clamp(Duration.zero, getViewAwareDuration(totalDuration));
 
-    player.seek(
-      isView2(player.state.position)
-          ? getViewAwareDuration(totalDuration) + _continuousSeekPosition!
-          : _continuousSeekPosition!,
-    );
+    viewAwareSeek(_continuousSeekPosition!);
 
     _positionStreamController.add(_continuousSeekPosition!);
+  }
+
+  void viewAwareSeek(Duration viewAwarePosition) {
+    player.seek(
+      isView2(player.state.position)
+          ? getViewAwareDuration(totalDuration) + viewAwarePosition
+          : viewAwarePosition,
+    );
   }
 
   void stopContinuousSeek() {
@@ -153,5 +172,11 @@ class MultiViewVideoController extends VideoController {
     }
 
     VideoNavigateNotification(type).dispatch(context);
+  }
+
+  void dispose() {
+    for (final cleanup in _cleanups) {
+      cleanup.cancel();
+    }
   }
 }
