@@ -57,6 +57,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
   StreamSubscription<Duration>? _positionStream;
   StreamSubscription<double>? _volumeStream, _rateStream;
+  StreamSubscription<Tracks>? _tracksStream;
 
   Stopwatch? _positionUpdateStopwatch;
 
@@ -78,7 +79,10 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
   @override
   void dispose() {
+    debugPrint("dispose");
     _positionUpdateStopwatch?.stop();
+
+    _tracksStream?.cancel();
     _positionStream?.cancel();
     _rateStream?.cancel();
     _volumeStream?.cancel();
@@ -109,9 +113,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
       return;
     }
 
-    final idToken = Uri.encodeQueryComponent(
-      GetIt.instance<AuthProvider>().currentUser.value!.idToken!,
-    );
+    final idToken = GetIt.instance<AuthProvider>().currentUser.value!.idToken!;
 
     await player.open(
       Media(
@@ -122,11 +124,9 @@ class _VideoPlayerState extends State<VideoPlayer> {
       ),
     );
 
-    player.stream.track.listen((v) {
-      debugPrint("video set to ${v.video.h}");
-    });
-
-    player.stream.tracks.listen((s) async {
+    _tracksStream?.cancel();
+    _tracksStream = player.stream.tracks.listen((s) async {
+      debugPrint("set");
       final bestTrack = s.video
           .map((e) => (e, e.h ?? 0))
           .reduce((a, b) => a.$2 > b.$2 ? a : b)
@@ -157,6 +157,10 @@ class _VideoPlayerState extends State<VideoPlayer> {
       player.play();
     }).catchError((_) {});
     // ^ ignore bad state errors
+
+    _positionStream?.cancel();
+    _rateStream?.cancel();
+    _volumeStream?.cancel();
 
     // store volume and rate in preferences
     _volumeStream = player.stream.volume.listen((v) {
