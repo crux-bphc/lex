@@ -55,8 +55,8 @@ class _MultipartusHomePageState extends State<MultipartusHomePage> {
               fontSize:
                   PlatformIsMobile.resolve(context, mobile: 36, desktop: 50),
             ),
-            SizedBox(height: 20),
-            Expanded(child: _Main()),
+            const SizedBox(height: 20),
+            const Expanded(child: _Main()),
           ],
         ),
       ),

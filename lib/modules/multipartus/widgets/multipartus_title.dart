@@ -3,16 +3,13 @@ import 'package:flutter/material.dart';
 class MultipartusTitle extends StatelessWidget {
   const MultipartusTitle({
     super.key,
-    this.isMultiline = false,
     this.fontSize = 50,
   });
 
-  final bool isMultiline;
   final double fontSize;
 
   @override
   Widget build(BuildContext context) {
-    final newline = isMultiline ? '\n' : '';
     final style = TextStyle(
       fontSize: fontSize,
       fontWeight: FontWeight.w700,
@@ -21,7 +18,7 @@ class MultipartusTitle extends StatelessWidget {
     );
     final child = Text.rich(
       TextSpan(
-        text: 'MULTI$newline',
+        text: 'MULTI',
         children: [
           WidgetSpan(
             child: Row(
@@ -46,7 +43,7 @@ class MultipartusTitle extends StatelessWidget {
                       height: 0,
                     ),
                   ),
-                )
+                ),
               ],
             ),
             alignment: PlaceholderAlignment.baseline,

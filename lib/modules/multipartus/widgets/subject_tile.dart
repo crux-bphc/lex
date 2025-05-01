@@ -103,7 +103,11 @@ class _PrettyCode extends StatelessWidget {
         code,
         style: TextStyle(
           fontSize: PlatformIsMobile.resolve(context, mobile: 16, desktop: 18),
-          fontWeight: FontWeight.w600,
+          fontWeight: PlatformIsMobile.resolve(
+            context,
+            mobile: FontWeight.w600,
+            desktop: FontWeight.w500,
+          ),
           color: Theme.of(context).colorScheme.primary,
         ),
         maxLines: 2,
@@ -128,7 +132,11 @@ class _Title extends StatelessWidget {
           style: TextStyle(
             fontSize:
                 PlatformIsMobile.resolve(context, mobile: 22, desktop: 26),
-            fontWeight: FontWeight.w500,
+            fontWeight: PlatformIsMobile.resolve(
+              context,
+              mobile: FontWeight.w500,
+              desktop: FontWeight.w600,
+            ),
           ),
           overflow: TextOverflow.ellipsis,
           softWrap: true,
