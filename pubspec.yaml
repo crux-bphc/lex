@@ -45,7 +45,7 @@ dependencies:
   json_annotation: ^4.8.1
   path_provider: ^2.0.15
   path: ^1.8.3
-  media_kit: ^1.1.11
+  media_kit: ^1.2.0
   media_kit_video: ^1.2.5
   media_kit_libs_video: ^1.0.5
   flutter_lucide: ^1.1.2
@@ -59,14 +59,6 @@ dependencies:
   google_fonts: ^6.2.1
   file_saver: ^0.2.14
   animations: ^2.0.11
-
-dependency_overrides:
-  media_kit:
-    git:
-      url: https://github.com/media-kit/media-kit.git
-      ref: c986dff78a0c7e2752c1bdb50b40c4a919887b0b
-      path: media_kit
-  js: ^0.7.1
 
 dev_dependencies:
   flutter_test:

@@ -574,13 +574,13 @@ packages:
     source: hosted
     version: "0.4.6"
   js:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
       name: js
-      sha256: c1b2e9b5ea78c45e1a0788d29606ba27dc5f71f019f32ca5140f61ef071838cf
+      sha256: f2c445dce49627136094980615a031419f7f3eb393237e4ecd97ac15dea343f3
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.1"
+    version: "0.6.7"
   json_annotation:
     dependency: "direct main"
     description:
@@ -672,12 +672,11 @@ packages:
   media_kit:
     dependency: "direct main"
     description:
-      path: media_kit
-      ref: c986dff78a0c7e2752c1bdb50b40c4a919887b0b
-      resolved-ref: c986dff78a0c7e2752c1bdb50b40c4a919887b0b
-      url: "https://github.com/media-kit/media-kit.git"
-    source: git
-    version: "1.1.11"
+      name: media_kit
+      sha256: "48c10c3785df5d88f0eef970743f8c99b2e5da2b34b9d8f9876e598f62d9e776"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.0"
   media_kit_libs_android_video:
     dependency: transitive
     description:

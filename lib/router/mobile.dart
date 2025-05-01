@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lex/router/theme_switcher.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter/services.dart';
 
 class MobileScaffold extends StatelessWidget {
   const MobileScaffold({
@@ -16,18 +15,12 @@ class MobileScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        actions: [
-          const ThemeSwitcher(),
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              context.push('/settings');
-            },
-          ),
-        ],
+      body: AnnotatedRegion(
+        value: Theme.of(context).brightness == Brightness.light
+            ? SystemUiOverlayStyle.dark
+            : SystemUiOverlayStyle.light,
+        child: SafeArea(child: body),
       ),
-      body: SafeArea(child: body),
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: onDestinationSelected,
         selectedIndex: selectedIndex,

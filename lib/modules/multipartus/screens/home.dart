@@ -11,6 +11,7 @@ import 'package:lex/modules/multipartus/widgets/subject_tile.dart';
 import 'package:lex/modules/multipartus/widgets/video_thumbnail.dart';
 import 'package:lex/providers/local_storage/local_storage.dart';
 import 'package:lex/providers/local_storage/watch_history.dart';
+import 'package:lex/router/scaffold.dart';
 import 'package:lex/utils/misc.dart';
 import 'package:lex/widgets/are_you_sure_dialog.dart';
 import 'package:lex/widgets/auto_tooltip_text.dart';
@@ -32,15 +33,30 @@ class MultipartusHomePage extends StatefulWidget {
 class _MultipartusHomePageState extends State<MultipartusHomePage> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    final space = PlatformIsMobile.resolve(
+      context,
+      mobile: 20.0,
+      desktop: 30.0,
+    );
+
+    final padding = PlatformIsMobile.resolve(
+      context,
+      mobile: EdgeInsets.only(left: space, top: space),
+      desktop: EdgeInsets.only(left: space, top: space, bottom: space),
+    );
+
+    return Scaffold(
       body: Padding(
-        padding: EdgeInsets.only(left: 30, top: 30, bottom: 30),
+        padding: padding,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            MultipartusTitle(),
-            SizedBox(height: 20),
-            Expanded(child: _Main()),
+            MultipartusTitle(
+              fontSize:
+                  PlatformIsMobile.resolve(context, mobile: 36, desktop: 50),
+            ),
+            const SizedBox(height: 20),
+            const Expanded(child: _Main()),
           ],
         ),
       ),
@@ -53,13 +69,17 @@ class _Main extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Expanded(child: _Subjects()),
-        const SizedBox(width: 5),
-        _ContinueWatching(),
-      ],
+    return PlatformIsMobile.resolve(
+      context,
+      mobile: _Subjects(),
+      desktop: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(child: _Subjects()),
+          const SizedBox(width: 5),
+          _ContinueWatching(),
+        ],
+      ),
     );
   }
 }
@@ -218,7 +238,7 @@ class _SearchBarState extends State<_SearchBar> {
   @override
   Widget build(BuildContext context) {
     return SearchBar(
-      autoFocus: true,
+      autoFocus: !PlatformIsMobile.of(context),
       hintText: "Search for any course",
       controller: widget.controller,
       onChanged: (t) => widget.onUpdate(t.trim()),
@@ -244,12 +264,6 @@ class _SearchBarState extends State<_SearchBar> {
         ),
       ],
     );
-  }
-
-  @override
-  void dispose() {
-    // _controller.dispose();
-    super.dispose();
   }
 }
 
@@ -287,11 +301,19 @@ class _SubjectGridState extends State<_SubjectGrid> {
           behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
           child: GridView.builder(
             controller: scrollController,
-            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-              crossAxisSpacing: 20,
-              mainAxisSpacing: 20,
-              mainAxisExtent: 208,
-              maxCrossAxisExtent: 340,
+            gridDelegate: PlatformIsMobile.resolve(
+              context,
+              mobile: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 1,
+                mainAxisExtent: 140,
+                mainAxisSpacing: 14,
+              ),
+              desktop: const SliverGridDelegateWithMaxCrossAxisExtent(
+                crossAxisSpacing: 20,
+                mainAxisSpacing: 20,
+                mainAxisExtent: 208,
+                maxCrossAxisExtent: 340,
+              ),
             ),
             physics: BouncingScrollPhysics(
               decelerationRate: ScrollDecelerationRate.fast,

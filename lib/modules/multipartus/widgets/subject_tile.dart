@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:lex/modules/multipartus/models/subject.dart';
 import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/grid_button.dart';
+import 'package:lex/router/scaffold.dart';
 import 'package:lex/widgets/are_you_sure_dialog.dart';
 
 class SubjectTile extends StatefulWidget {
@@ -61,25 +62,20 @@ class _SubjectTileState extends State<SubjectTile> {
   Widget build(BuildContext context) {
     return GridButton(
       onPressed: widget.onPressed,
+      padding: PlatformIsMobile.resolve(
+        context,
+        mobile: EdgeInsets.fromLTRB(18, 8, 12, 8),
+        desktop: EdgeInsets.all(20),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
-              Expanded(
-                child: Text(
-                  widget.subject.prettyCode.toUpperCase(),
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
+              _PrettyCode(widget.subject.prettyCode.toUpperCase()),
               IconButton(
                 onPressed: _handleTogglePin,
+                visualDensity: VisualDensity.compact,
                 icon: Icon(
                   isPinned ? Icons.push_pin : Icons.push_pin_outlined,
                   size: 22,
@@ -88,23 +84,64 @@ class _SubjectTileState extends State<SubjectTile> {
               ),
             ],
           ),
-          Expanded(
-            child: Align(
-              alignment: Alignment.centerLeft + const Alignment(0, -0.2),
-              child: Text(
-                widget.subject.name.toUpperCase().trim(),
-                style: const TextStyle(
-                  fontSize: 26,
-                  letterSpacing: 2,
-                  fontWeight: FontWeight.w600,
-                ),
-                overflow: TextOverflow.ellipsis,
-                softWrap: true,
-                maxLines: 3,
-              ),
+          _Title(widget.subject.name.toUpperCase().trim()),
+        ],
+      ),
+    );
+  }
+}
+
+class _PrettyCode extends StatelessWidget {
+  const _PrettyCode(this.code);
+
+  final String code;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Text(
+        code,
+        style: TextStyle(
+          fontSize: PlatformIsMobile.resolve(context, mobile: 16, desktop: 18),
+          fontWeight: PlatformIsMobile.resolve(
+            context,
+            mobile: FontWeight.w600,
+            desktop: FontWeight.w500,
+          ),
+          color: Theme.of(context).colorScheme.primary,
+        ),
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+  }
+}
+
+class _Title extends StatelessWidget {
+  const _Title(this.title);
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Align(
+        alignment: Alignment.centerLeft + const Alignment(0, -0.2),
+        child: Text(
+          title,
+          style: TextStyle(
+            fontSize:
+                PlatformIsMobile.resolve(context, mobile: 22, desktop: 26),
+            fontWeight: PlatformIsMobile.resolve(
+              context,
+              mobile: FontWeight.w500,
+              desktop: FontWeight.w600,
             ),
           ),
-        ],
+          overflow: TextOverflow.ellipsis,
+          softWrap: true,
+          maxLines: 3,
+        ),
       ),
     );
   }

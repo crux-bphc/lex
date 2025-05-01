@@ -51,19 +51,16 @@ class _MultipartusLoginGateState extends State<MultipartusLoginGate> {
           child: (registrationState) == MultipartusRegistrationState.registered
               ? widget.child
               : Center(
-                  child: SizedBox(
-                    width: 500,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        MultipartusTitle(),
-                        SizedBox(height: 16),
-                        _buildSub(
-                          registrationState: registrationState,
-                          error: error,
-                        ),
-                      ],
-                    ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const MultipartusTitle(fontSize: 60),
+                      const SizedBox(height: 16),
+                      _buildSub(
+                        registrationState: registrationState,
+                        error: error,
+                      ),
+                    ],
                   ),
                 ),
         );
