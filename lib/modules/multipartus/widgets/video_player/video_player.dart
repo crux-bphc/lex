@@ -210,6 +210,11 @@ class _VideoPlayerState extends State<VideoPlayer> {
   /// is called on KeyDown and KeyRepeat events.
   void _startContinuousSeek(Duration seekDuration) {
     final effectiveSeek = seekDuration * player.state.rate;
+    controller.startViewAwareContinuousSeek(effectiveSeek);
+  }
+
+  void _continuousSeekBy(Duration seekDuration) {
+    final effectiveSeek = seekDuration * player.state.rate;
     controller.viewAwareContinuousSeekBy(effectiveSeek);
   }
 
@@ -245,7 +250,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
         KeyEventShortcutActivator<KeyDownEvent>(LogicalKeyboardKey.arrowLeft):
             () => _startContinuousSeek(Duration(seconds: -5)),
         KeyEventShortcutActivator<KeyRepeatEvent>(LogicalKeyboardKey.arrowLeft):
-            () => _startContinuousSeek(Duration(seconds: -5)),
+            () => _continuousSeekBy(Duration(seconds: -5)),
         KeyEventShortcutActivator<KeyUpEvent>(LogicalKeyboardKey.arrowLeft):
             () => _stopContinuousSeek(),
 
@@ -254,7 +259,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
             () => _startContinuousSeek(Duration(seconds: 5)),
         KeyEventShortcutActivator<KeyRepeatEvent>(
           LogicalKeyboardKey.arrowRight,
-        ): () => _startContinuousSeek(Duration(seconds: 5)),
+        ): () => _continuousSeekBy(Duration(seconds: 5)),
         KeyEventShortcutActivator<KeyUpEvent>(LogicalKeyboardKey.arrowRight):
             _stopContinuousSeek,
 
@@ -262,7 +267,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
         KeyEventShortcutActivator<KeyDownEvent>(LogicalKeyboardKey.keyJ): () =>
             _startContinuousSeek(Duration(seconds: -10)),
         KeyEventShortcutActivator<KeyRepeatEvent>(LogicalKeyboardKey.keyJ):
-            () => _startContinuousSeek(Duration(seconds: -10)),
+            () => _continuousSeekBy(Duration(seconds: -10)),
         KeyEventShortcutActivator<KeyUpEvent>(LogicalKeyboardKey.keyJ):
             _stopContinuousSeek,
 
@@ -270,7 +275,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
         KeyEventShortcutActivator<KeyDownEvent>(LogicalKeyboardKey.keyL): () =>
             _startContinuousSeek(Duration(seconds: 10)),
         KeyEventShortcutActivator<KeyRepeatEvent>(LogicalKeyboardKey.keyL):
-            () => _startContinuousSeek(Duration(seconds: 10)),
+            () => _continuousSeekBy(Duration(seconds: 10)),
         KeyEventShortcutActivator<KeyUpEvent>(LogicalKeyboardKey.keyL):
             _stopContinuousSeek,
 

@@ -89,7 +89,18 @@ class MultiViewVideoController extends VideoController {
     viewAwareSeek(duration * positionFraction);
   }
 
+  void startViewAwareContinuousSeek(Duration seekBy) {
+    _continuousSeekPosition =
+        (getViewAwarePosition(player.state.position) + seekBy)
+            .clamp(Duration.zero, getViewAwareDuration(totalDuration));
+
+    viewAwareSeek(_continuousSeekPosition!);
+
+    _positionStreamController.add(_continuousSeekPosition!);
+  }
+
   void viewAwareContinuousSeekBy(Duration duration) {
+    // this shouldn't run but just in case _continuousSeekPosition is null
     _continuousSeekPosition ??= getViewAwarePosition(player.state.position);
 
     _continuousSeekPosition = (_continuousSeekPosition! + duration)
