@@ -1,3 +1,4 @@
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -149,6 +150,19 @@ ThemeData buildTheme(ThemeMode mode) {
     crossAxisMargin: 0,
     mainAxisMargin: 8,
   );
+
+  const transition = SharedAxisPageTransitionsBuilder(
+    transitionType: SharedAxisTransitionType.horizontal,
+  );
+  const pageTransitions = PageTransitionsTheme(
+    builders: {
+      TargetPlatform.android: transition,
+      TargetPlatform.windows: transition,
+      TargetPlatform.linux: transition,
+      TargetPlatform.macOS: transition,
+    },
+  );
+
   return ThemeData(
     colorScheme: scheme,
     useMaterial3: true,
@@ -162,5 +176,6 @@ ThemeData buildTheme(ThemeMode mode) {
     tooltipTheme: tooltipTheme,
     textTheme: textTheme,
     scrollbarTheme: scrollbarTheme,
+    pageTransitionsTheme: pageTransitions,
   );
 }

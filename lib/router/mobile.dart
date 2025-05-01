@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:lex/router/theme_switcher.dart';
-import 'package:go_router/go_router.dart';
 
 class MobileScaffold extends StatelessWidget {
   const MobileScaffold({

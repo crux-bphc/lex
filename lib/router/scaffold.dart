@@ -45,8 +45,11 @@ class AppShellScaffold extends StatelessWidget {
 class PlatformIsMobile extends InheritedWidget {
   final bool isMobile;
 
-  const PlatformIsMobile(
-      {super.key, required super.child, required this.isMobile});
+  const PlatformIsMobile({
+    super.key,
+    required super.child,
+    required this.isMobile,
+  });
 
   @override
   bool updateShouldNotify(covariant PlatformIsMobile oldWidget) =>
