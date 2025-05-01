@@ -280,8 +280,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
             _stopContinuousSeek,
 
         // space key - play or pause
-        KeyEventShortcutActivator<KeyDownEvent>(LogicalKeyboardKey.space):
-            player.playOrPause,
+        CharacterActivator(" "): player.playOrPause,
 
         // S key - switch views
         KeyEventShortcutActivator<KeyDownEvent>(LogicalKeyboardKey.keyS):
@@ -298,34 +297,18 @@ class _VideoPlayerState extends State<VideoPlayer> {
             controller.exitFullscreen,
 
         // Shift + P - previous video
-        KeyEventShortcutActivator<KeyDownEvent>(
-          LogicalKeyboardKey.keyP,
-          shift: true,
-        ): () => controller.navigateVideo(context, NavigationType.previous),
+        CharacterActivator("P"): () =>
+            controller.navigateVideo(context, NavigationType.previous),
 
         // Shift + N - next video
-        KeyEventShortcutActivator<KeyDownEvent>(
-          LogicalKeyboardKey.keyN,
-          shift: true,
-        ): () => controller.navigateVideo(context, NavigationType.next),
+        CharacterActivator("N"): () =>
+            controller.navigateVideo(context, NavigationType.next),
 
         // Shift + . - increase speed
-        KeyEventShortcutActivator<KeyDownEvent>(
-          LogicalKeyboardKey.greater,
-        ): controller.increaseRate,
-        KeyEventShortcutActivator<KeyDownEvent>(
-          LogicalKeyboardKey.period,
-          shift: true,
-        ): controller.increaseRate,
+        CharacterActivator(">"): controller.increaseRate,
 
         // Shift + , - decrease speed
-        KeyEventShortcutActivator<KeyDownEvent>(
-          LogicalKeyboardKey.less,
-        ): controller.decreaseRate,
-        KeyEventShortcutActivator<KeyDownEvent>(
-          LogicalKeyboardKey.comma,
-          shift: true,
-        ): controller.decreaseRate,
+        CharacterActivator("<"): controller.decreaseRate,
 
         // Down arrow - decrease volume
         KeyEventShortcutActivator<KeyDownEvent>(LogicalKeyboardKey.arrowDown):

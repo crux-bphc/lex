@@ -15,9 +15,18 @@ class KeyEventShortcutActivator<T> extends ShortcutActivator {
     if (event is! T) return false;
 
     if (event.logicalKey == trigger) {
-      return state.isShiftPressed || !shift;
+      final works = bruh(state);
+      return works;
     }
-    return event.logicalKey == trigger;
+
+    return false;
+  }
+
+  bool bruh(HardwareKeyboard state) {
+    return !(state.isShiftPressed ^ shift) &&
+        !state.isAltPressed &&
+        !state.isMetaPressed &&
+        !state.isControlPressed;
   }
 
   @override
