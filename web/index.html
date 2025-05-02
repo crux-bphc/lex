@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <!--
     If you are serving your web app in a path other than the root, change the
@@ -27,12 +28,53 @@
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="icon" type="image/png" href="favicon.png" />
 
   <title>Lex</title>
   <link rel="manifest" href="manifest.json">
+
+  <style>
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      background-color: #1e2128;
+      color: #e5e2e2;
+    }
+
+    .lex-center {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Lexend Deca', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-weight: 600;
+      font-size: x-large;
+      animation: fade-animation 1.8s infinite;
+      animation-delay: 0;
+      animation-timing-function: ease-in-out;
+    }
+
+    @keyframes fade-animation {
+      0% {
+        color: #e5e2e26f;
+      }
+
+      50% {
+        color: #e5e2e2;
+      }
+
+      100% {
+        color: #e5e2e26f;
+      }
+    }
+  </style>
 </head>
+
 <body>
   <script src="flutter_bootstrap.js?v=0.5" async></script>
+  <p class="lex-center">Lex is loading</p>
 </body>
+
 </html>
