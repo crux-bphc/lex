@@ -16,45 +16,33 @@ class MultipartusTitle extends StatelessWidget {
       letterSpacing: fontSize / 8,
       height: 1,
     );
-    final child = Text.rich(
-      TextSpan(
-        text: 'MULTI',
-        children: [
-          WidgetSpan(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'PARTUS',
-                  style: style.copyWith(
-                    color: Theme.of(context).colorScheme.onInverseSurface,
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.topRight,
-                  child: Text(
-                    'β',
-                    style: TextStyle(
-                      // fontFeatures: [FontFeature.superscripts()],
-                      fontWeight: FontWeight.bold,
-                      fontSize: fontSize / 3.125,
-                      height: 0,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            alignment: PlaceholderAlignment.baseline,
-            baseline: TextBaseline.alphabetic,
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          'MULTI',
+          style: style,
+        ),
+        Text(
+          'PARTUS',
+          style: style.copyWith(
+            color: Theme.of(context).colorScheme.onInverseSurface,
           ),
-        ],
-      ),
-      textWidthBasis: TextWidthBasis.longestLine,
-      style: style,
+        ),
+        Align(
+          alignment: Alignment.topRight,
+          child: Text(
+            'β',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: fontSize / 3.125,
+              height: 0,
+            ),
+          ),
+        ),
+      ],
     );
-
-    return child;
   }
 }

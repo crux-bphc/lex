@@ -6,6 +6,7 @@ import 'package:lex/modules/multipartus/service.dart';
 import 'package:lex/modules/multipartus/widgets/disclaimer_dialog.dart';
 import 'package:lex/modules/multipartus/widgets/multipartus_title.dart';
 import 'package:lex/providers/local_storage/local_storage.dart';
+import 'package:lex/router/scaffold.dart';
 import 'package:lex/widgets/delayed_progress_indicator.dart';
 import 'package:lex/widgets/error_bird_container.dart';
 import 'package:signals/signals_flutter.dart';
@@ -54,11 +55,18 @@ class _MultipartusLoginGateState extends State<MultipartusLoginGate> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const MultipartusTitle(fontSize: 60),
+                      MultipartusTitle(
+                        fontSize: PlatformIsMobile.resolve(
+                          context,
+                          mobile: 40,
+                          desktop: 60,
+                        ),
+                      ),
                       const SizedBox(height: 16),
-                      _buildSub(
+                      _Sub(
                         registrationState: registrationState,
                         error: error,
+                        handleLogin: handleLogin,
                       ),
                     ],
                   ),
@@ -67,11 +75,20 @@ class _MultipartusLoginGateState extends State<MultipartusLoginGate> {
       },
     );
   }
+}
 
-  Widget _buildSub({
-    MultipartusRegistrationState? registrationState,
-    Object? error,
-  }) {
+class _Sub extends StatelessWidget {
+  const _Sub({
+    this.registrationState,
+    this.error,
+    required this.handleLogin,
+  });
+  final MultipartusRegistrationState? registrationState;
+  final Object? error;
+  final Future<(bool, String)> Function(String password) handleLogin;
+
+  @override
+  Widget build(BuildContext context) {
     if (error != null) {
       return SizedBox(
         height: 200,
