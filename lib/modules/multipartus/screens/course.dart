@@ -9,8 +9,9 @@ import 'package:lex/modules/multipartus/widgets/filterable_video_grid.dart';
 import 'package:lex/widgets/error_bird.dart';
 import 'package:lex/widgets/managed_future_builder.dart';
 import 'package:signals/signals_flutter.dart';
+import 'package:smooth_scroll_multiplatform/smooth_scroll_multiplatform.dart';
 
-class MultipartusCoursePage extends StatefulWidget {
+class MultipartusCoursePage extends StatelessWidget {
   const MultipartusCoursePage({
     super.key,
     required this.subjectId,
@@ -19,52 +20,40 @@ class MultipartusCoursePage extends StatefulWidget {
   final SubjectId subjectId;
 
   @override
-  State<MultipartusCoursePage> createState() => _MultipartusCoursePageState();
-}
-
-class _MultipartusCoursePageState extends State<MultipartusCoursePage> {
-  final ScrollController scrollController = ScrollController();
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Scrollbar(
-        controller: scrollController,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: ManagedFutureBuilder(
-            future: GetIt.instance<MultipartusService>()
-                .fetchSubject(widget.subjectId),
-            data: (subject) {
-              return CustomScrollView(
-                scrollBehavior:
-                    ScrollConfiguration.of(context).copyWith(scrollbars: false),
-                controller: scrollController,
-                physics: const BouncingScrollPhysics(
-                  decelerationRate: ScrollDecelerationRate.fast,
-                ),
-                slivers: [
-                  SliverPadding(
-                    padding: const EdgeInsets.only(top: 30, bottom: 12),
-                    sliver: SliverToBoxAdapter(
-                      child: CourseTitleBox(subject: subject),
-                    ),
-                  ),
-                  _Content(subjectId: widget.subjectId),
-                ],
-              );
-            },
-          ),
-        ),
+      body: DynMouseScroll(
+        builder: (context, scrollController, physics) {
+          return Scrollbar(
+            controller: scrollController,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30),
+              child: ManagedFutureBuilder(
+                future: GetIt.instance<MultipartusService>()
+                    .fetchSubject(subjectId),
+                data: (subject) {
+                  return CustomScrollView(
+                    scrollBehavior: ScrollConfiguration.of(context)
+                        .copyWith(scrollbars: false),
+                    controller: scrollController,
+                    physics: physics,
+                    slivers: [
+                      SliverPadding(
+                        padding: const EdgeInsets.only(top: 30, bottom: 12),
+                        sliver: SliverToBoxAdapter(
+                          child: CourseTitleBox(subject: subject),
+                        ),
+                      ),
+                      _Content(subjectId: subjectId),
+                    ],
+                  );
+                },
+              ),
+            ),
+          );
+        },
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    scrollController.dispose();
-
-    super.dispose();
   }
 }
 

@@ -16,6 +16,7 @@ import 'package:lex/widgets/error_bird.dart';
 import 'package:lex/widgets/floating_sidebar.dart';
 import 'package:lex/widgets/managed_future_builder.dart';
 import 'package:signals/signals_flutter.dart';
+import 'package:smooth_scroll_multiplatform/smooth_scroll_multiplatform.dart';
 
 class MultipartusVideoPage extends StatefulWidget {
   const MultipartusVideoPage({
@@ -213,7 +214,8 @@ class _LeftSide extends StatefulWidget {
 }
 
 class _LeftSideState extends State<_LeftSide> {
-  final _scrollController = ScrollController(keepScrollOffset: false);
+  final _relatedVideoScrollController =
+      ScrollController(keepScrollOffset: false);
 
   late WatchHistoryItem? _lastWatched = _getLastWatchedHistoryItem();
 
@@ -280,87 +282,86 @@ class _LeftSideState extends State<_LeftSide> {
 
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      slivers: [
-        SliverToBoxAdapter(
-          child: VideoPlayer(
-            ttid: widget.ttid,
-            startTimestamp: (widget.startTimestamp != null
-                    ? Duration(seconds: widget.startTimestamp!)
-                    : _getLastWatchedTimestamp()) ??
-                Duration.zero,
-            onPositionChanged: _updateWatchHistory,
-            positionUpdateInterval: Duration(seconds: 2),
+    return DynMouseScroll(
+      builder: (context, scrollController, physics) => CustomScrollView(
+        controller: scrollController,
+        physics: physics,
+        slivers: [
+          SliverToBoxAdapter(
+            child: VideoPlayer(
+              ttid: widget.ttid,
+              startTimestamp: (widget.startTimestamp != null
+                      ? Duration(seconds: widget.startTimestamp!)
+                      : _getLastWatchedTimestamp()) ??
+                  Duration.zero,
+              onPositionChanged: _updateWatchHistory,
+              positionUpdateInterval: Duration(seconds: 2),
+            ),
           ),
-        ),
-        SliverToBoxAdapter(
-          child: Stack(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                child: VideoTitle(
-                  subjectId: widget.subjectId,
-                  ttid: widget.ttid,
+          SliverToBoxAdapter(
+            child: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: VideoTitle(
+                    subjectId: widget.subjectId,
+                    ttid: widget.ttid,
+                  ),
                 ),
-              ),
-              Positioned(
-                right: 0,
-                bottom: 10,
-                child: AnimatedBuilder(
-                  animation: _scrollController,
-                  builder: (context, __) => Row(
+                Positioned(
+                  right: 6,
+                  bottom: 10,
+                  child: Row(
                     spacing: 4,
                     children: [
-                      IconButton(
+                      _SquareIconButton(
                         onPressed: _showShortcutsDialog,
                         icon: Icon(LucideIcons.info),
-                        iconSize: 18,
+                        tooltip: "Keyboard Shortcuts",
                       ),
-                      _ScrollButton(
-                        onPressed: () => _scrollController.position.moveTo(
-                          _scrollController.position.pixels - 500,
+                      _SquareIconButton(
+                        onPressed: () =>
+                            _relatedVideoScrollController.position.moveTo(
+                          _relatedVideoScrollController.position.pixels - 500,
                           duration: Durations.long4,
                         ),
                         icon: Icon(LucideIcons.chevron_left),
-                        isRightSide: false,
                       ),
-                      _ScrollButton(
-                        onPressed: () => _scrollController.position.moveTo(
-                          _scrollController.position.pixels + 500,
+                      _SquareIconButton(
+                        onPressed: () =>
+                            _relatedVideoScrollController.position.moveTo(
+                          _relatedVideoScrollController.position.pixels + 500,
                           duration: Durations.long4,
                         ),
                         icon: Icon(LucideIcons.chevron_right),
-                        isRightSide: true,
                       ),
                     ],
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-        SliverLayoutBuilder(
-          builder: (context, constraints) {
-            final height = constraints.remainingPaintExtent.clamp(150.0, 190.0);
-            final shouldBeGrid = constraints.remainingPaintExtent >
-                constraints.crossAxisExtent / 2.5;
+          SliverLayoutBuilder(
+            builder: (context, constraints) {
+              final height =
+                  constraints.remainingPaintExtent.clamp(150.0, 190.0);
 
-            return _AdjacentVideos(
-              ttid: widget.ttid,
-              subjectId: widget.subjectId,
-              height: height,
-              shouldBeGrid: shouldBeGrid,
-              scrollController: _scrollController,
-            );
-          },
-        ),
-      ],
+              return _AdjacentVideos(
+                ttid: widget.ttid,
+                subjectId: widget.subjectId,
+                height: height,
+                scrollController: _relatedVideoScrollController,
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    _relatedVideoScrollController.dispose();
     super.dispose();
   }
 }
@@ -370,14 +371,12 @@ class _AdjacentVideos extends StatelessWidget {
     required this.ttid,
     required this.subjectId,
     required this.height,
-    required this.shouldBeGrid,
     required this.scrollController,
   });
 
   final String ttid;
   final SubjectId subjectId;
   final double height;
-  final bool shouldBeGrid;
   final ScrollController scrollController;
 
   @override
@@ -458,29 +457,30 @@ class _AdjacentVideos extends StatelessWidget {
       );
 }
 
-class _ScrollButton extends StatelessWidget {
-  const _ScrollButton({
+class _SquareIconButton extends StatelessWidget {
+  const _SquareIconButton({
     required this.onPressed,
     required this.icon,
-    required this.isRightSide,
+    this.tooltip,
   });
 
   final void Function() onPressed;
+  final String? tooltip;
   final Widget icon;
-  final bool isRightSide;
 
   @override
   Widget build(BuildContext context) {
     return IconButton(
       onPressed: onPressed,
       icon: icon,
+      tooltip: tooltip,
       style: IconButton.styleFrom(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(4),
         ),
         padding: EdgeInsets.zero,
         iconSize: 20,
-        fixedSize: Size.square(26),
+        fixedSize: Size.square(28),
         minimumSize: Size.zero,
       ),
     );

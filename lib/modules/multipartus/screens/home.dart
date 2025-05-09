@@ -20,6 +20,7 @@ import 'package:lex/widgets/delayed_progress_indicator.dart';
 import 'package:lex/widgets/error_bird_container.dart';
 import 'package:lex/widgets/floating_sidebar.dart';
 import 'package:signals/signals_flutter.dart';
+import 'package:smooth_scroll_multiplatform/smooth_scroll_multiplatform.dart';
 
 const _loadingWidget = Center(child: DelayedProgressIndicator());
 
@@ -267,7 +268,7 @@ class _SearchBarState extends State<_SearchBar> {
   }
 }
 
-class _SubjectGrid extends StatefulWidget {
+class _SubjectGrid extends StatelessWidget {
   const _SubjectGrid({
     required this.subjects,
     required this.onPressed,
@@ -275,55 +276,49 @@ class _SubjectGrid extends StatefulWidget {
     this.eagerUpdate = false,
   });
 
-  final List<Subject> subjects;
   final void Function(Subject subject) onPressed;
+  final List<Subject> subjects;
   final String emptyText;
   final bool eagerUpdate;
 
   @override
-  State<_SubjectGrid> createState() => _SubjectGridState();
-}
-
-class _SubjectGridState extends State<_SubjectGrid> {
-  final scrollController = ScrollController();
-
-  @override
   Widget build(BuildContext context) {
-    if (widget.subjects.isEmpty) {
-      return ErrorBird(message: widget.emptyText);
+    if (subjects.isEmpty) {
+      return ErrorBird(message: emptyText);
     }
 
-    return Scrollbar(
-      controller: scrollController,
-      child: Padding(
-        padding: const EdgeInsets.only(right: 25),
-        child: ScrollConfiguration(
-          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
-          child: GridView.builder(
-            controller: scrollController,
-            gridDelegate: PlatformIsMobile.resolve(
-              context,
-              mobile: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 1,
-                mainAxisExtent: 140,
-                mainAxisSpacing: 14,
+    return DynMouseScroll(
+      builder: (context, scrollController, physics) => Scrollbar(
+        controller: scrollController,
+        child: Padding(
+          padding: const EdgeInsets.only(right: 25),
+          child: ScrollConfiguration(
+            behavior:
+                ScrollConfiguration.of(context).copyWith(scrollbars: false),
+            child: GridView.builder(
+              controller: scrollController,
+              gridDelegate: PlatformIsMobile.resolve(
+                context,
+                mobile: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 1,
+                  mainAxisExtent: 140,
+                  mainAxisSpacing: 14,
+                ),
+                desktop: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  crossAxisSpacing: 20,
+                  mainAxisSpacing: 20,
+                  mainAxisExtent: 208,
+                  maxCrossAxisExtent: 340,
+                ),
               ),
-              desktop: const SliverGridDelegateWithMaxCrossAxisExtent(
-                crossAxisSpacing: 20,
-                mainAxisSpacing: 20,
-                mainAxisExtent: 208,
-                maxCrossAxisExtent: 340,
+              physics: physics,
+              itemBuilder: (context, i) => SubjectTile(
+                onPressed: () => onPressed(subjects[i]),
+                subject: subjects[i],
+                shouldUpdatePinsEagerly: eagerUpdate,
               ),
+              itemCount: subjects.length,
             ),
-            physics: BouncingScrollPhysics(
-              decelerationRate: ScrollDecelerationRate.fast,
-            ),
-            itemBuilder: (context, i) => SubjectTile(
-              onPressed: () => widget.onPressed(widget.subjects[i]),
-              subject: widget.subjects[i],
-              shouldUpdatePinsEagerly: widget.eagerUpdate,
-            ),
-            itemCount: widget.subjects.length,
           ),
         ),
       ),
@@ -361,20 +356,24 @@ class _ContinueWatchingState extends State<_ContinueWatching> {
 
   Widget _buildList(List<(String, WatchHistoryItem)> items) {
     return Expanded(
-      child: ListView.builder(
-        itemBuilder: (context, index) {
-          final code = items[index].$2.code;
-          final departmentUrl = items[index].$2.departmentUrl;
-          final department = departmentUrl.replaceAll(',', '/');
-          final ttid = items[index].$1;
+      child: DynMouseScroll(
+        builder: (context, scrollController, physics) => ListView.builder(
+          controller: scrollController,
+          physics: physics,
+          itemBuilder: (context, index) {
+            final code = items[index].$2.code;
+            final departmentUrl = items[index].$2.departmentUrl;
+            final department = departmentUrl.replaceAll(',', '/');
+            final ttid = items[index].$1;
 
-          return _WatchHistoryItem(
-            ttid: ttid,
-            subjectId: SubjectId(department: department, code: code),
-            watchFraction: items[index].$2.fraction,
-          );
-        },
-        itemCount: items.length,
+            return _WatchHistoryItem(
+              ttid: ttid,
+              subjectId: SubjectId(department: department, code: code),
+              watchFraction: items[index].$2.fraction,
+            );
+          },
+          itemCount: items.length,
+        ),
       ),
     );
   }
@@ -492,7 +491,9 @@ class _WatchHistoryItem extends StatelessWidget {
                           height: 0,
                         ),
                       )
-                          .animate(target: snapshot.hasData ? 1 : 0)
+                          .animate(
+                            target: snapshot.hasData ? 1 : 0,
+                          )
                           .fadeIn(duration: Durations.medium2),
                     ),
                     Text(

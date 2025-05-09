@@ -32,59 +32,12 @@
 
   <title>Lex</title>
   <link rel="manifest" href="manifest.json">
-
-  <style>
-    html,
-    body {
-      height: 100%;
-      margin: 0;
-      background-color: #1e2128;
-      color: #e5e2e2;
-    }
-
-    .lex-center {
-      height: 100%;
-      margin: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Lexend Deca', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      font-weight: 600;
-      font-size: x-large;
-      opacity: 0;
-      animation: breathe-animation 2s infinite both, fade-animation 1s forwards;
-      animation-delay: 5s, 4s;
-      animation-timing-function: ease-in-out;
-    }
-
-    @keyframes breathe-animation {
-      0% {
-        color: #e5e2e2;
-      }
-      
-      50% {
-        color: #e5e2e26f;
-      }
-
-      100% {
-        color: #e5e2e2;
-      }
-    }
-
-    @keyframes fade-animation {
-      from {
-        opacity: 0;
-      }
-      to {
-        opacity: 1;
-      }      
-    }
-  </style>
+  <link rel="stylesheet" href="index.css">
 </head>
 
 <body>
   <script src="flutter_bootstrap.js?v=0.5" async></script>
-  <p class="lex-center">Lex is loading</p>
+  <p class="lex-center breathe">Lex is loading</p>
 </body>
 
 </html>
