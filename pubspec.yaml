@@ -59,6 +59,7 @@ dependencies:
   google_fonts: ^6.2.1
   file_saver: ^0.2.14
   animations: ^2.0.11
+  smooth_scroll_multiplatform: ^1.0.8
 
 dev_dependencies:
   flutter_test:
