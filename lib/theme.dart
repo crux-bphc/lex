@@ -116,7 +116,7 @@ ThemeData buildTheme(ThemeMode mode) {
 
   final textButtonTheme = TextButtonThemeData(style: buttonStyle);
 
-  final dialogTheme = DialogTheme(
+  final dialogTheme = DialogThemeData(
     backgroundColor: scheme.surfaceContainerHigh,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(6),

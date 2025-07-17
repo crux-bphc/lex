@@ -41,38 +41,44 @@ class _MultipartusLoginGateState extends State<MultipartusLoginGate> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: registrationState,
-      builder: (context, snapshot) {
-        final registrationState = snapshot.data;
-        final error = snapshot.error;
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: FutureBuilder(
+        future: registrationState,
+        builder: (context, snapshot) {
+          final registrationState = snapshot.data;
+          final error = snapshot.error;
 
-        return AnimatedSwitcher(
-          duration: Durations.medium4,
-          child: (registrationState) == MultipartusRegistrationState.registered
-              ? widget.child
-              : Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      MultipartusTitle(
-                        fontSize: PlatformIsMobile.resolve(
-                          context,
-                          mobile: 40,
-                          desktop: 60,
+          return AnimatedSwitcher(
+            duration: Durations.medium4,
+            child:
+                (registrationState) == MultipartusRegistrationState.registered
+                    ? widget.child
+                    : ConstrainedBox(
+                        constraints: BoxConstraints(maxWidth: 700),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          spacing: 16,
+                          children: [
+                            MultipartusTitle(
+                              fontSize: PlatformIsMobile.resolve(
+                                context,
+                                mobile: 40,
+                                desktop: 60,
+                              ),
+                            ),
+                            _Sub(
+                              registrationState: registrationState,
+                              error: error,
+                              handleLogin: handleLogin,
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      _Sub(
-                        registrationState: registrationState,
-                        error: error,
-                        handleLogin: handleLogin,
-                      ),
-                    ],
-                  ),
-                ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
