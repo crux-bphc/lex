@@ -8,13 +8,12 @@ list(APPEND FLUTTER_PLUGIN_LIST
   media_kit_libs_windows_video
   media_kit_video
   oidc_windows
-  screen_brightness_windows
   url_launcher_windows
+  volume_controller
   window_to_front
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
-  media_kit_native_event_loop
 )
 
 set(PLUGIN_BUNDLED_LIBRARIES)
