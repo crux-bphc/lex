@@ -25,22 +25,27 @@ final _darkScheme = ColorScheme.fromSeed(
   outlineVariant: const Color(0xFFC3C3C3),
 );
 
-// this is temporary
 final _lightScheme = ColorScheme.fromSeed(
   brightness: Brightness.light,
-  seedColor: const Color(0xFFD8DEE9),
-  primary: const Color(0xFFDCA434),
+  seedColor: const Color(0xFFEBCB8B),
+  primary: const Color(0xFF8e702f),
   onPrimary: const Color(0xFF402D00),
-  secondary: const Color(0xFF006C86),
+  secondary: const Color(0xFF6fbca2),
   secondaryFixed: const Color(0xFFBF616A),
-  onSecondary: const Color(0xFF432740),
-  tertiary: const Color(0xFF965027),
+  onSecondary: const Color(0xFF1E2128),
+  tertiary: const Color(0xFFcb8beb),
   onTertiary: const Color(0xFF213611),
-  error: const Color(0xFFFFB2B7),
-  onError: const Color(0xFF5D1521),
-  surface: const Color(0xFFECEFF4),
-  onInverseSurface: const Color(0xFF434C5D),
-  // surfaceContainerHigh: const Color(0xFFc5cedd),
+  error: const Color(0xFFF7768E),
+  onError: const Color(0xFF1E2128),
+  errorContainer: const Color(0xFFFFB2B7),
+  onErrorContainer: const Color(0xFF5D1521),
+  surface: const Color(0xFFF7F8FA),
+  onSurface: const Color(0xFF23262B),
+  onInverseSurface: const Color(0xFFa3acbd),
+  surfaceContainerHigh: const Color(0xFFF0F1F4),
+  surfaceContainerHighest: const Color(0xFFE5E7EB),
+  outline: const Color(0xFFBFC9C6),
+  outlineVariant: const Color(0xFFC3C3C3),
 );
 
 final defaultFont = GoogleFonts.lexendDecaTextTheme;
@@ -163,6 +168,30 @@ ThemeData buildTheme(ThemeMode mode) {
     },
   );
 
+  // Light mode specific widget themes
+  final cardColor =
+      mode == ThemeMode.light ? _lightScheme.surfaceContainerHigh : null;
+  final appBarTheme = mode == ThemeMode.light
+      ? AppBarTheme(
+          backgroundColor: _lightScheme.surface,
+          foregroundColor: _lightScheme.onSurface,
+          elevation: 1.5,
+          iconTheme: IconThemeData(color: _lightScheme.primary),
+          titleTextStyle:
+              textTheme.titleLarge?.copyWith(color: _lightScheme.primary),
+        )
+      : null;
+  final navigationBarTheme = mode == ThemeMode.light
+      ? NavigationBarThemeData(
+          backgroundColor: _lightScheme.surfaceContainerHigh,
+          indicatorColor: _lightScheme.primary.withOpacity(0.12),
+          labelTextStyle: WidgetStatePropertyAll(
+              textTheme.labelMedium?.copyWith(color: _lightScheme.onSurface)),
+          iconTheme: WidgetStatePropertyAll(
+              IconThemeData(color: _lightScheme.primary)),
+        )
+      : null;
+
   return ThemeData(
     colorScheme: scheme,
     useMaterial3: true,
@@ -177,5 +206,8 @@ ThemeData buildTheme(ThemeMode mode) {
     textTheme: textTheme,
     scrollbarTheme: scrollbarTheme,
     pageTransitionsTheme: pageTransitions,
+    cardColor: cardColor,
+    appBarTheme: appBarTheme,
+    navigationBarTheme: navigationBarTheme,
   );
 }
